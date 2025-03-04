@@ -1,20 +1,42 @@
-.form-container{
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+
+/* Ensure the body and html don't cause overflow */
+html, body {
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-.form-box-container{
+.form-container {
+    display: flex;
+    justify-content: center; 
+    align-items: flex-start;
+    min-height: 100vh; 
     width: 100%;
+    max-width: 100vw; 
+    padding: 40px 20px; 
+    background-color: #E8E9EB;
+    box-sizing: border-box; 
+}
+
+.form-box-container {
+    width: 90%;
+    max-width: 1000px; 
     height: auto;
     padding: 2rem;
+    margin-bottom: 40px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-sizing: border-box;
 }
 
 .header {
-    display: flex;             
+    display: flex;            
     flex-direction: column;     
     align-items: center;        
-    text-align: center;                  
+    text-align: center;    
+    margin-left: 15px;
 }
 
 .form-header{
@@ -28,13 +50,12 @@
     display: flex;
     width: 100%;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 table {
-    width: 90%; /* Make the table take the full width */
+    width: 95%; 
     max-width: 100%; 
-    margin-right: 20px;
     border-collapse: collapse;
 }
 
@@ -45,24 +66,42 @@ table {
 
 
 th, td {
-    padding: 10px;
-    text-align: left;
+    padding: 5px;
+    text-align: center;
+}
+
+td {
+    border: 1px solid black;
 }
 
 
 th {
-    background-color: #85C285;
-    padding: 15px;
+    font-size: 15px;
+    background-color: #C6E7C9;
 }
 
+
 .header-one {
-    font-size: 46px; 
+    font-size: 40px; 
     color: #249225;
 }
 
 .header-two {
-    font-size: 20px;
-    margin-bottom: -10px;
+    font-size: 18px;
+    margin-top: 4px;
+    margin-bottom: 0;
+    letter-spacing: 2px;
+}
+
+.header-three{
+    font-size: 13.5px;
+    margin-top: 23px;
+}
+
+
+.header-four{
+    font-size: 13px;
+    margin-top: 5px; 
 }
 
 
@@ -75,6 +114,7 @@ h3 {
 .header h2,
 .header h3 {
     margin-bottom: -5px; 
+    color: #25523B;
 }
 
 .form-header{
@@ -82,3 +122,165 @@ h3 {
 }
 
 
+.header-one-label{
+    margin-top: 80px;
+    font-size: 25px;
+}
+
+.header-dept-label{
+    font-size: 17px;
+    margin-top: 10px;
+    margin-left: 8px;
+    font-weight: bold;
+}
+
+.input-insert {
+    border-radius: 20px;
+    padding: 10px;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 240px;
+    
+}
+
+.input-insert input {
+    width: 100%; 
+    height: 12px;
+    padding: 8px 12px; 
+    font-size: 12px; 
+    border-radius: 5px; 
+    border: 1px solid #ccc;
+
+}
+
+.field-box{
+    margin-top: -20px;
+    margin-left: 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center; 
+    justify-content: flex-start;
+    text-align: left; 
+    margin-top: -120px;
+    margin-right: 450px;
+    margin-left: 200px;
+}
+
+.logo img {
+    width: 80px; 
+    height: auto;
+    margin-right: 15px; 
+}
+
+.nav-bar-container{
+    width: 100%;
+    height: 8vh;
+    background-color: #fff;
+}
+
+.nav-icons{
+    display: flex;
+    gap: 15px;
+    margin-left: auto;
+}
+
+.nav-icons img {
+    width: 10px; /* Adjust icon size */
+    height: auto;
+    cursor: pointer;
+    margin-right: 50px;
+}
+
+
+.field-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 1px;
+}
+
+.date-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto; 
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.date-label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.date-input {
+    width: 180px; 
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-right: 47px;
+}
+
+.following-label{
+    display: flex;
+    margin-left: 28px;
+}
+
+.approval-section {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 60px;
+}
+
+.approval-box {
+    width: 190px; 
+    background-color: #C6E7C9; 
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 50px;
+}
+
+.signature-box {
+    width: 100%;
+    height: 50px; 
+    background-color: white;
+    margin: 10px 0;
+}
+
+.signature-label{
+    font-size: 10px;
+}
+
+.nav-bar-container {
+    width: 100%;
+    height: 6vh;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.nav-bar-logo {
+    display: flex;
+    align-items: center; /* Align image and label vertically */
+    gap: 10px; /* Space between logo and label */
+}
+
+
+.nav-bar-container img{
+    width: 57px; 
+    height: auto;
+    margin-left: 15px;
+}
+
+.nav-bar-label{
+    font-size: 30px;
+    color: #25523B;
+    font-weight: bold;
+}
