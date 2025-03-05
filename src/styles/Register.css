@@ -1,0 +1,153 @@
+
+.register-form-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url("../assets/bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 50px 0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.register-box-container {
+    width: 500px; 
+    height: 600px;
+    background-color: white;
+    opacity: 0.8; 
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    outline: 1px solid #DEDEDE;
+}
+
+.header-register {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.reg-logo img {  
+    width: 270px;
+    height: auto;
+    margin-left: 0; 
+}
+
+.header-register h1 {
+    font-size: 30px;
+    color: black;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.reg-field-box{
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    width: 100%;
+    margin-bottom: 15px;
+}
+.reg-field-box-password {
+    display: flex;
+    flex-direction: column; /* Stack label and input vertically */
+    align-items: center; 
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.reg-field-box label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: left;
+    width: 80%; 
+}
+.reg-field-box-password label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: left;
+    width: 80%; /* Set width to match the input */
+}
+
+.reg-input {
+    width: 80%;
+    display: flex;
+    justify-content: center;
+}
+
+.reg-input input {
+    width: 100%; /* Make input field stretch */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+
+.login-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 45%;
+    background-color: green;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    margin: 40px auto;
+}
+
+.login-button:hover {
+    background-color: darkgreen;
+}
+
+.login-link{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 13.5px;
+    color: #007F00;
+    cursor: pointer;
+    margin-top: -45px;
+}
+
+
+
+.input-container{
+    position: relative;
+    width: 80%;
+    display: flex;
+    align-items: center;
+}
+
+.input-container input {
+    width: 100%;
+    padding: 10px 40px 10px 10px; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.input-icon {
+    position: absolute;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+
+
+
+
+
