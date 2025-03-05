@@ -39,11 +39,22 @@ html, body {
     margin-left: 15px;
 }
 
-.form-header{
+.form-header {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    position: relative;
+}
+
+.number-code-label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 19px;
+    font-weight: bold;
+    padding: 50px 34px;
+    border-radius: 5px;
 }
 
 .table-container {
@@ -182,15 +193,16 @@ h3 {
 
 .nav-icons{
     display: flex;
-    gap: 15px;
     margin-left: auto;
+    gap: -10px;
+
 }
 
 .nav-icons img {
-    width: 10px; /* Adjust icon size */
-    height: auto;
+    width: 25px;  
+    height: 25px; 
     cursor: pointer;
-    margin-right: 50px;
+    margin-right: 70px;
 }
 
 
@@ -268,19 +280,23 @@ h3 {
 
 .nav-bar-logo {
     display: flex;
-    align-items: center; /* Align image and label vertically */
-    gap: 10px; /* Space between logo and label */
+    align-items: center; 
+    gap: 15px; 
 }
 
 
-.nav-bar-container img{
+.nav-bar-logo img{
     width: 57px; 
-    height: auto;
+    height: 50px;
     margin-left: 15px;
 }
+
 
 .nav-bar-label{
     font-size: 30px;
     color: #25523B;
     font-weight: bold;
-}
+    margin-left: -10px;
+}   
+
+
