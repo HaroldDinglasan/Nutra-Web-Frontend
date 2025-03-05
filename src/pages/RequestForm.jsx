@@ -1,7 +1,7 @@
 import React from "react";
 import "../styles/RequestForm.css";
 import logo from "../assets/logo.jpg";
-import userLogo from "../assets/profile-user.png";
+import userLogo from "../assets/user-icon.png";
 import downloadLogo from "../assets/downloads.png";
 import printLogo from "../assets/printing.png";
 
@@ -14,15 +14,12 @@ const RequestForm = () => {
                     <img src={logo} alt="Company Logo" />
                     <label className="nav-bar-label">NutraTech</label>    
                 </div>
-
                 <div className="nav-icons">
                     <img src={printLogo} alt="Print Logo" />
                     <img src={downloadLogo} alt="Download Logo" />
                     <img src={userLogo} alt="User Logo" />
                 </div>
-                
             </div>
-
         
             <div className="form-container">
 
@@ -41,6 +38,9 @@ const RequestForm = () => {
                     </div>
 
                     <div className="form-header">
+                        <div className="number-code-label">
+                            <label>No. N 12045</label>
+                        </div>
                         <h1 className="header-one-label">PURCHASE REQUEST FORM</h1>
                     </div>
 
@@ -54,7 +54,6 @@ const RequestForm = () => {
                             <label className="date-label">Date:</label>
                             <input type="date" id="date" className="date-input" required />
                         </div>
-
                     </div>
 
                     <div className="following-label">
