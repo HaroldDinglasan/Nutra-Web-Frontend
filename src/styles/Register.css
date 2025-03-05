@@ -39,11 +39,15 @@
     margin-left: 0; 
 }
 
-.header-register h1 {
+h1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     font-size: 30px;
     color: black;
     font-weight: bold;
-    margin-bottom: 20px;
+    margin-top: 2px;
 }
 
 .reg-field-box{
@@ -62,6 +66,7 @@
 }
 
 .reg-field-box label {
+    margin-top: 10px;
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 5px;
@@ -69,6 +74,7 @@
     width: 80%; 
 }
 .reg-field-box-password label {
+    margin-top: 10px;
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 5px;
@@ -121,8 +127,6 @@
     margin-top: -45px;
 }
 
-
-
 .input-container{
     position: relative;
     width: 80%;
@@ -136,6 +140,7 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
+    outline: none;
 }
 
 .input-icon {
@@ -146,7 +151,9 @@
     cursor: pointer;
 }
 
-
+.login-link p:hover{
+    color: green;
+}
 
 
 

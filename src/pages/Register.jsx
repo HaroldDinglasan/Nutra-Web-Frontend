@@ -16,8 +16,10 @@ const Register = () => {
                     <div className="reg-logo">
                         <img src={regLogo} alt="Logo" id="reglogo" />
                     </div>
-                    <h1>Register</h1>
                 </div>
+
+                <h1>Register</h1>
+
 
                 <div className="reg-field-box">
 
@@ -54,8 +56,6 @@ const Register = () => {
                 <div className="login-link">
                     <p>Already have an Account? Login here</p>
                 </div>
-
-                
 
 
             </div>
