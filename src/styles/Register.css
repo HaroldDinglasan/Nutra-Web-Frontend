@@ -22,10 +22,10 @@
     opacity: 0.8; 
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    outline: 1px solid #DEDEDE;
+    outline: 1px solid #c1c0c0;
 }
 
-.header-register {
+.register-header {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -97,7 +97,7 @@ h1 {
 }
 
 
-.login-button {
+.register-button {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -113,7 +113,7 @@ h1 {
     margin: 40px auto;
 }
 
-.login-button:hover {
+.register-button:hover {
     background-color: darkgreen;
 }
 
@@ -127,14 +127,14 @@ h1 {
     margin-top: -45px;
 }
 
-.input-container{
+.reg-input-container{
     position: relative;
     width: 80%;
     display: flex;
     align-items: center;
 }
 
-.input-container input {
+.reg-input-container input {
     width: 100%;
     padding: 10px 40px 10px 10px; 
     border: 1px solid #ccc;
@@ -152,8 +152,48 @@ h1 {
 }
 
 .login-link p:hover{
-    color: green;
+    color: rgb(0, 30, 0);
 }
+
+.login-click {
+    margin-left: 2px;
+    text-decoration: none;
+    color: var(--primary-hover);
+}
+
+.register-dropdown {
+    width: 100%;
+    padding: 10px;
+    padding-right: 35px; /* Space for the dropdown icon */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: white;
+    color: black;
+    outline: none;
+    appearance: none; 
+    cursor: pointer;
+}
+
+/* Style when dropdown is clicked */
+.register-dropdown:focus {
+    border-color: darkgreen;
+}
+
+.register-dropdown option {
+    background-color: white;
+    color: black;
+}
+
+.dropdown-icon {
+    position: absolute;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+}
+
+
 
 
 
