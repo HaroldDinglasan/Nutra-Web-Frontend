@@ -3,7 +3,7 @@ import "../styles/Register.css";
 import regLogo from "../assets/fullLogo.jpg";
 import departmentIcon from "../assets/down.png";
 import userIcon from "../assets/user-icon.png";
-import passwordIcon from "../assets/eye.png";
+import passwordIcon from "../assets/eye-closed.png";
 import {Link } from 'react-router-dom';
 
 const Register = () => {
