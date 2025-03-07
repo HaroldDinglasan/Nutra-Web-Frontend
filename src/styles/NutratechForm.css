@@ -1,5 +1,4 @@
 
-/* Ensure the body and html don't cause overflow */
 html, body {
     overflow-x: hidden; /* Prevents horizontal scrolling */
     width: 100%;
@@ -56,6 +55,7 @@ html, body {
     padding: 46px 34px;
     border-radius: 5px;
     color: #25523B;
+    margin-bottom: 8px;
 }
 
 .table-container {
@@ -66,20 +66,14 @@ html, body {
 }
 
 table {
-    width: 95%; 
-    max-width: 100%; 
+    width: 95%;
     border-collapse: collapse;
     outline: 1px solid #c1c0c0;
+    font-size: 12px;
 }
-
-.field-box{
-    display: flex;
-    margin-left: 60px;
-}
-
 
 th, td {
-    padding: 5px;
+    padding: 4px;
     text-align: center;
 }
 
@@ -87,9 +81,8 @@ td {
     border: 1px solid #c1c0c0;
 }
 
-
 th {
-    font-size: 15px;
+    font-size: 13px;
     background-color: #ffffff;
 }
 
@@ -97,6 +90,23 @@ tbody tr:hover {
     background-color: #f2f2f2; 
     cursor: pointer; 
 }
+
+td input {
+    width: 90%;
+    padding: 3px; 
+    font-size: 12px; 
+    text-align: center; 
+    border: none;
+    outline: none;
+    background: transparent;
+}
+
+
+.field-box{
+    display: flex;
+    margin-left: 60px;
+}
+
 
 .logo img {
     width: 340px; 
@@ -261,7 +271,7 @@ h3 {
 
 .signature-box {
     width: 100%;
-    height: 50px; 
+    height: 43px; 
     background-color: rgb(230, 228, 228);
     margin: 10px 0;
 }
@@ -298,8 +308,6 @@ h3 {
     font-weight: bold;
     margin-left: -10px;
 }   
-
-
 
 .user-profile-container {
     position: relative;
@@ -398,10 +406,108 @@ h3 {
 
 .full-logo {
     display: block;
-    margin: 0 auto; /* Centers the image */
-    max-width: 100%; /* Ensures it fits within the container */
-    height: auto; /* Maintains aspect ratio */
+    margin: 0 auto; 
+    max-width: 100%; 
+    height: auto; 
 }
+
+
+@media print {
+    body {
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
+    }
+
+    .nav-bar-container, .nav-icons {
+        display: none; 
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+        background: white;
+    }
+
+    .form-box-container {
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+        border: none;
+        padding: 20px;
+    }
+
+    .approval-section {
+        page-break-inside: avoid; 
+    }
+
+    table {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    td input {
+        border: none;
+        background: transparent;
+    }
+
+    .print-icon {
+        display: none; 
+    }
+
+    .department-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .header-dept-label {
+        white-space: nowrap;
+        font-weight: bold;
+    }
+
+    .request-text {
+        text-align: left !important;
+        margin-left: 0;
+        font-weight: bold;
+    }
+
+    .date-container{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-right: -22px;
+    }
+
+    .input-container .header-dept-label{
+        margin-left: -22px;
+    }
+
+    .department-dropdown{
+        margin-right: 25px;
+        width: 100%;
+
+    }
+
+    .dropdown-wrapper .dropdown-icon{
+        margin-right: 22px;
+    }
+
+    .following-label{
+        margin-left: 2px;
+    }
+
+
+
+    
+
+
+
+    
+}
+
+
 
 
 
