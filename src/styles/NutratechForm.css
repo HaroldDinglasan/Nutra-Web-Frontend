@@ -53,7 +53,7 @@ html, body {
     right: 0;
     font-size: 19px;
     font-weight: bold;
-    padding: 50px 34px;
+    padding: 46px 34px;
     border-radius: 5px;
     color: #25523B;
 }
@@ -69,6 +69,7 @@ table {
     width: 95%; 
     max-width: 100%; 
     border-collapse: collapse;
+    outline: 1px solid #c1c0c0;
 }
 
 .field-box{
@@ -83,13 +84,13 @@ th, td {
 }
 
 td {
-    border: 1px solid black;
+    border: 1px solid #c1c0c0;
 }
 
 
 th {
     font-size: 15px;
-    background-color: #C6E7C9;
+    background-color: #ffffff;
 }
 
 tbody tr:hover {
@@ -97,22 +98,15 @@ tbody tr:hover {
     cursor: pointer; 
 }
 
-
-.header-one {
-    font-size: 40px; 
-    color: #249225;
-}
-
-.header-two {
-    font-size: 18px;
-    margin-top: 4px;
-    margin-bottom: 0;
-    letter-spacing: 2px;
+.logo img {
+    width: 340px; 
+    height: auto;   
+    margin-right: 15px; 
 }
 
 .header-three{
+    margin-top: -17px;
     font-size: 13.5px;
-    margin-top: 23px;
 }
 
 
@@ -140,7 +134,7 @@ h3 {
 
 
 .header-one-label{
-    margin-top: 80px;
+    margin-top: 40px;
     font-size: 25px;
 }
 
@@ -176,21 +170,6 @@ h3 {
     margin-left: 20px;
 }
 
-.logo {
-    display: flex;
-    align-items: center; 
-    justify-content: flex-start;
-    text-align: left; 
-    margin-top: -120px;
-    margin-right: 450px;
-    margin-left: 200px;
-}
-
-.logo img {
-    width: 75px; 
-    height: auto;
-    margin-right: 15px; 
-}
 
 .nav-bar-container{
     width: 100%;
@@ -267,12 +246,13 @@ h3 {
 
 .approval-box {
     width: 190px; 
-    background-color: #C6E7C9; 
+    background-color: #ffffff; 
     padding: 10px;
     text-align: center;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 50px;
+    outline: 1px solid #c1c0c0;
 }
 
 .approval-box h3{
@@ -282,7 +262,7 @@ h3 {
 .signature-box {
     width: 100%;
     height: 50px; 
-    background-color: white;
+    background-color: rgb(230, 228, 228);
     margin: 10px 0;
 }
 
@@ -309,7 +289,6 @@ h3 {
 .nav-bar-logo img{
     width: 40px; 
     height: 40px;
-    margin-left: 15px;
 }
 
 
@@ -415,6 +394,13 @@ h3 {
     right: 10px;
     width: 16px;
     pointer-events: none;
+}
+
+.full-logo {
+    display: block;
+    margin: 0 auto; /* Centers the image */
+    max-width: 100%; /* Ensures it fits within the container */
+    height: auto; /* Maintains aspect ratio */
 }
 
 

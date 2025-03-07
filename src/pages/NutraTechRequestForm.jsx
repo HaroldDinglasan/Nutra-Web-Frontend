@@ -1,31 +1,56 @@
 import React, { useState } from "react";
 import "../styles/NutratechForm.css";
-import logo from "../assets/logo.jpg";
 import userLogo from "../assets/user-icon.png";
 import downloadLogo from "../assets/downloads.png";
 import printLogo from "../assets/printing.png";
 import dropdown from "../assets/down.png";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";    
+
+import NutraTechlogo from "../assets/NTBI.png";
+import avliLogo from "../assets/AVLI.png";
+import apthealthLogo from "../assets/apthealth inc full logo.png";
+
+import nutraheaderlogo from "../assets/nutratechlogo.jpg";
+import apthealtheaderLogo from "../assets/apthealth logo.png";
+import avliheaderLogo from "../assets/avli biocare.logo.png";
+
 
 
 const NutraTectForm = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const location = useLocation();
     const navigate = useNavigate();
+
+    const { company } = location.state || { company: "NutraTech Biopharma, Inc" }; // Default value
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
-
     };
 
     const handleSignout = () => {
         navigate("/login");
     };
+
+    const headerLogos = {
+        "NutraTech Biopharma, Inc": nutraheaderlogo,
+        "Avli Biocare, Inc": avliheaderLogo,
+        "Apthealth, Inc": apthealtheaderLogo,
+    };
+
+    const companyLogos = {
+        "NutraTech Biopharma, Inc": NutraTechlogo,
+        "Avli Biocare, Inc": avliLogo,
+        "Apthealth, Inc": apthealthLogo,
+    };
+
+
+
     return ( 
         <>
             <div className="nav-bar-container">
                 <div className="nav-bar-logo">
-                    <img src={logo} alt="Company Logo" />
-                    <label className="nav-bar-label">NutraTech</label>    
+                    <img src={headerLogos[company]} alt="Company Logo" />
+                    <label className="nav-bar-label">{company}</label>    
                 </div>
                 <div className="nav-icons">
                     <img src={printLogo} alt="Print Logo" />
@@ -36,8 +61,8 @@ const NutraTectForm = () => {
                         <img src={userLogo} alt="User Logo" onClick={toggleDropdown} className="user-icon"/>
                         {dropdownOpen && (
                             <div className="dropdown-menu">
-                                <p className="dropdown-user">Username</p>
-                                <p className="dropdown-email">email@sample.com</p>
+                                <p className="dropdown-user">Harold Dinglasan</p>
+                                {/* <p className="dropdown-email">HaroldDinglasan@gmail.com</p> */}
                                 <button className="signout-button" onClick={handleSignout}>Sign Out</button>
                             </div>
                         )}
@@ -51,14 +76,13 @@ const NutraTectForm = () => {
             
                     <div className="header">
                         <div>
-                            <h1 className="header-one">NutraTech</h1>
-                            <h2 className="header-two">BIOPHARMA INC.</h2>
+                            <div className="logo">
+                                <img src={companyLogos[company]} alt="Company Logo" />
+                            </div>  
                             <h3 className="header-three">Brgy. Balubad II, Silang Cavite, Philippines</h3>
                             <h3 className="header-four">Tels.: • (02) 579-0954 • (02) 986-0729 • (02) 925-9515</h3>
                         </div>
-                        <div className="logo">
-                            <img src={logo} alt="Company Logo" />
-                        </div>
+                        
                     </div>
 
                     <div className="form-header">
@@ -83,7 +107,6 @@ const NutraTectForm = () => {
                                 <img src={dropdown} alt="Dropdown Icon" className="dropdown-icon" />
                             </div>
                         </div>
-
 
                         <div className="date-container">
                             <label className="date-label">Date:</label>
@@ -133,6 +156,7 @@ const NutraTectForm = () => {
                                     <td>March 3, 2025</td>
                                     <td>Reporting needs</td>
                                 </tr>
+                                
                             </tbody>
                         </table>
                     </div>
