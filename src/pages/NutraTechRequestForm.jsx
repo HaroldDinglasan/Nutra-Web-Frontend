@@ -20,6 +20,30 @@ const NutraTectForm = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+    const [rows, setRows] = useState(
+        Array.from({ length: 5 }, () => ({ stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }))
+    );
+
+    const handleInputChange = (index, event) => {
+        const { name, value } = event.target;
+        const newRows = [...rows];
+    
+        if (name === "quantity") {
+            // Only numbers (integers)
+            if (/^\d*$/.test(value)) {
+                newRows[index][name] = value;
+                setRows(newRows);
+            }
+        } else {
+            newRows[index][name] = value;
+            setRows(newRows);
+        }
+    
+        if (index === rows.length - 1 && value !== "") {
+            setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }]);
+        }
+    };
+    
 
     const { company } = location.state || { company: "NutraTech Biopharma, Inc" }; // Default value
 
@@ -53,7 +77,7 @@ const NutraTectForm = () => {
                     <label className="nav-bar-label">{company}</label>    
                 </div>
                 <div className="nav-icons">
-                    <img src={printLogo} alt="Print Logo" />
+                    <img src={printLogo} alt="Print Logo" onClick={() => window.print()} className="print-icon" />
                     <img src={downloadLogo} alt="Download Logo" />
 
                 
@@ -132,31 +156,16 @@ const NutraTectForm = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Item 1</td>
-                                    <td>10 quantity</td>
-                                    <td>CT21-0047</td>
-                                    <td>Effective</td>
-                                    <td>March 3, 2025</td>
-                                    <td>Reporting needs</td>
-                                </tr>
-                                <tr>
-                                    <td>Item 1</td>
-                                    <td>10 quantity</td>
-                                    <td>CT21-0047</td>
-                                    <td>Effective</td>
-                                    <td>March 3, 2025</td>
-                                    <td>Reporting needs</td>
-                                </tr>
-                                <tr>
-                                    <td>Item 1</td>
-                                    <td>10 quantity</td>
-                                    <td>CT21-0047</td>
-                                    <td>Effective</td>
-                                    <td>March 3, 2025</td>
-                                    <td>Reporting needs</td>
-                                </tr>
-                                
+                                {rows.map((row, index) => (
+                                    <tr key={index}>
+                                        <td><input type="text" name="stockCode" value={row.stockCode} onChange={(e) => handleInputChange(index, e)} /></td>
+                                        <td><input type="text" name="quantity" value={row.quantity} onChange={(e) => handleInputChange(index, e)} /></td>
+                                        <td><input type="text" name="unit" value={row.unit} onChange={(e) => handleInputChange(index, e)} /></td>
+                                        <td><input type="text" name="description" value={row.description} onChange={(e) => handleInputChange(index, e)} /></td>
+                                        <td><input type="text" name="dateNeeded" value={row.dateNeeded} onChange={(e) => handleInputChange(index, e)} /></td>
+                                        <td><input type="text" name="purpose" value={row.purpose} onChange={(e) => handleInputChange(index, e)} /></td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
