@@ -136,7 +136,7 @@ h1 {
 
 .log-input-container input {
     width: 100%;
-    padding: 10px 40px 10px 10px; /* Space for icon */
+    padding: 10px 40px 10px 10px; 
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
@@ -209,6 +209,6 @@ h1 {
     width: 24px;
     height: 24px;
     cursor: pointer;
-    z-index: 10; /* Ensures it's above the input */
-    background-color: white; /* Prevents background overlap */
+    z-index: 10; 
+    background-color: white; 
 }
