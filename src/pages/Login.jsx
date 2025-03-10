@@ -19,7 +19,8 @@ const Login = () => {
 
     const handleLogin = () => {
         if (selectedCompany) {
-            navigate("/nutraTech/form", { state: { company: selectedCompany} });
+            const userDepartment = localStorage.getItem("userDepartment"); // Retrieve Department
+            navigate("/nutraTech/form", { state: { company: selectedCompany, department: userDepartment} });
         } else {
             alert("Please select a company");
         }
