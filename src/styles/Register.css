@@ -89,7 +89,7 @@ h1 {
 }
 
 .reg-input input {
-    width: 100%; /* Make input field stretch */
+    width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -101,8 +101,8 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 40%;
-    height: 20px;
+    width: 45%;
+    height: 40px;
     background-color: green;
     color: white;
     padding: 10px;
@@ -112,6 +112,7 @@ h1 {
     text-align: center;
     cursor: pointer;
     margin: 40px auto;
+    border: none;
 }
 
 .register-button:hover {
@@ -176,7 +177,7 @@ h1 {
     cursor: pointer;
 }
 
-/* Style when dropdown is clicked */
+
 .register-dropdown:focus {
     border-color: darkgreen;
 }
@@ -192,6 +193,68 @@ h1 {
     width: 16px;
     height: 16px;
     pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .register-box-container {
+        width: 90%;
+        height: auto;
+        padding: 20px;
+    }
+
+    .reg-logo img {
+        width: 200px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .reg-field-box, .reg-field-box-password {
+        width: 100%;
+    }
+
+    .reg-field-box label, .reg-field-box-password label {
+        width: 90%;
+        font-size: 14px;
+    }
+
+    .reg-input-container {
+        width: 90%;
+    }
+
+    .register-button {
+        width: 80%;
+        font-size: 14px;
+    }
+
+    .login-link {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-box-container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .reg-logo img {
+        width: 150px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .register-button {
+        width: 90%;
+        font-size: 12px;
+    }
+
+    .login-link {
+        font-size: 11px;
+    }
 }
 
 

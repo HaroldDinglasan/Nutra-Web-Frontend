@@ -20,6 +20,7 @@ const NutraTectForm = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+    const department = localStorage.getItem("userDepartment") || "";  // Retrieve department
     const [rows, setRows] = useState(
         Array.from({ length: 5 }, () => ({ stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }))
     );
@@ -29,7 +30,7 @@ const NutraTectForm = () => {
         const newRows = [...rows];
     
         if (name === "quantity") {
-            // Only numbers (integers)
+            // Only integers number
             if (/^\d*$/.test(value)) {
                 newRows[index][name] = value;
                 setRows(newRows);
@@ -120,7 +121,8 @@ const NutraTectForm = () => {
                         
                         <div className="input-container">
                             <label className="header-dept-label" htmlFor="department">Department (charge to):</label>
-                            <div className="dropdown-wrapper">
+                            <input type="text" id="department" className="department-display" value={department} readOnly />
+                            {/* <div className="dropdown-wrapper">
                                 <select id="department" className="department-dropdown">
                                     <option value="">Select Department</option>
                                     <option value="hr">Human Resources</option>
@@ -129,7 +131,7 @@ const NutraTectForm = () => {
                                     <option value="marketing">Marketing</option>
                                 </select>
                                 <img src={dropdown} alt="Dropdown Icon" className="dropdown-icon" />
-                            </div>
+                            </div> */}
                         </div>
 
                         <div className="date-container">
