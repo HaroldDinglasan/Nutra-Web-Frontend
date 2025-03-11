@@ -109,7 +109,7 @@ h1 {
     border-radius: 5px;
     text-align: center;
     cursor: pointer;
-    margin: 40px auto;
+    margin: 35px auto;
     border: none;
 }
 
@@ -213,7 +213,23 @@ h1 {
     background-color: white; 
 }
 
-/* Responsive */
+.error-text-show {
+    min-height: 1px; 
+    color: red;
+    font-size: 12px;
+    text-align: left;
+    width: 80%;
+    height: 4px;
+    margin-top: 2px;
+    visibility: hidden;
+}
+
+.error-text-show {
+    visibility: visible; 
+}
+
+
+
 @media (max-width: 768px) {
     .login-box-container {
         width: 95%;
