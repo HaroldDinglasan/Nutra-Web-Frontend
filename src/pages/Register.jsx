@@ -13,6 +13,7 @@ const Register = () => {
     const navigate = useNavigate(); 
     const [showPassword, setShowPassword] = useState(false);
     const [department, setDepartment] = useState("");
+    const [fullname, setFullname] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
@@ -27,11 +28,13 @@ const Register = () => {
         }
 
         console.log("Department:", department);
+        console.log("Fullname", fullname);
         console.log("Username:", username);
         console.log("Password:", password);
 
         // Store the selected department in localStorage
         localStorage.setItem("userDepartment", department);
+        localStorage.setItem("userFullname", fullname);
 
         alert("Registration successful!");
         navigate("/login");
@@ -71,6 +74,17 @@ const Register = () => {
                     </div>
                 </div>
 
+                <div className="reg-field-box">
+                    <label htmlFor="fullname">Fullname</label>
+                    <div className="reg-input-container">
+                        <input type="text" id="fullname"
+                            value={fullname} 
+                            onChange={(e) => setFullname(e.target.value)} 
+                            required
+                        ></input>
+                    </div>
+                </div>
+
 
                 <div className="reg-field-box">
 
@@ -85,6 +99,7 @@ const Register = () => {
                     </div>
 
                 </div>
+
 
                 <div className="reg-field-box-password">
 

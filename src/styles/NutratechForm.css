@@ -269,6 +269,12 @@ h3 {
     height: 43px; 
     background-color: rgb(230, 228, 228);
     margin: 10px 0;
+    font-weight: bold;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .approval-box .signature-label{
@@ -460,15 +466,13 @@ h3 {
         margin-right: -22px;
     }
 
+    .date-label{
+        margin-left: 10px;
+    }
+
     .input-container .header-dept-label{
         margin-left: -22px;
     }
-
-    /* .department-dropdown{
-        margin-right: 25px;
-        width: 100%;
-
-    } */
 
     .following-label{
         margin-left: 2px;
@@ -477,6 +481,18 @@ h3 {
     @page {
         size: A4; 
         margin: 10mm; 
+    }
+
+    .signature-box{
+        font-size: 15px;
+    }
+
+    .department-display{
+        padding: 8px;
+    }
+
+    .date-input{
+        padding: 8px;
     }
 }
 
