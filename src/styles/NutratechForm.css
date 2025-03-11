@@ -80,7 +80,6 @@ td {
 
 th {
     font-size: 0.9rem;
-    background-color: #ffffff;
 }
 
 tbody tr:hover {
@@ -326,7 +325,7 @@ h3 {
     position: absolute;
     right: 0;
     top: 40px;
-    width: 180px;
+    width: 190px;
     background: #f0f0f0;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
@@ -337,11 +336,34 @@ h3 {
     margin-right: 40px;
 }
 
-.dropdown-user,
-.dropdown-email {
-    font-size: 14px;
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    white-space: nowrap; /* Prevents text from breaking into multiple lines */
+    overflow: hidden; 
+}
+
+
+.user-info .user-signout-icon {
+    width: 20px; 
+    height: 20px;
+}
+
+.user-info .dropdown-user-label {
+    margin-left: -60px; 
+}
+
+
+.dropdown-user-label {
+    font-size: 13px;
     color: #333;
-    margin: 5px 0;
+    margin: 0;
 }
 
 .signout-button {
