@@ -3,7 +3,6 @@ import "../styles/NutratechForm.css";
 import userLogo from "../assets/user-icon.png";
 import downloadLogo from "../assets/downloads.png";
 import printLogo from "../assets/printing.png";
-import dropdown from "../assets/down.png";
 import { useLocation, useNavigate } from "react-router-dom";    
 
 import NutraTechlogo from "../assets/NTBI.png";
@@ -20,7 +19,11 @@ const NutraTectForm = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+    const [currentDate, setCurrentDate] = useState(new Date().toISOString().split("T")[0]);
+
     const department = localStorage.getItem("userDepartment") || "";  // Retrieve department
+    const fullname = localStorage.getItem("userFullname") || ""; // Retrieve fullname
+
     const [rows, setRows] = useState(
         Array.from({ length: 5 }, () => ({ stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }))
     );
@@ -44,6 +47,10 @@ const NutraTectForm = () => {
             setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }]);
         }
     };
+
+    const handleDateChange = (event) => {
+        setCurrentDate(event.target.value);
+    }
     
 
     const { company } = location.state || { company: "NutraTech Biopharma, Inc" }; // Default value
@@ -53,6 +60,8 @@ const NutraTectForm = () => {
     };
 
     const handleSignout = () => {
+        localStorage.removeItem("userDepartment");
+        localStorage.removeItem("userFullname");
         navigate("/login");
     };
 
@@ -86,7 +95,7 @@ const NutraTectForm = () => {
                         <img src={userLogo} alt="User Logo" onClick={toggleDropdown} className="user-icon"/>
                         {dropdownOpen && (
                             <div className="dropdown-menu">
-                                <p className="dropdown-user">Harold Dinglasan</p>
+                                <p className="dropdown-user">{fullname}</p>
                                 {/* <p className="dropdown-email">HaroldDinglasan@gmail.com</p> */}
                                 <button className="signout-button" onClick={handleSignout}>Sign Out</button>
                             </div>
@@ -136,7 +145,7 @@ const NutraTectForm = () => {
 
                         <div className="date-container">
                             <label className="date-label">Date:</label>
-                            <input type="date" id="date" className="date-input" required />
+                            <input type="date" id="date" className="date-input" value={currentDate} onChange={handleDateChange} required />
                         </div>
                     </div>
 
@@ -175,7 +184,7 @@ const NutraTectForm = () => {
                     <div className="approval-section">
                         <div className="approval-box">
                             <h3>Prepared By:</h3>
-                            <div className="signature-box"></div>
+                            <div className="signature-box">{fullname}</div> {/*Display fullname */}
                             <p className="signature-label">Signature over printed Name / Date</p>
                         </div>
 
