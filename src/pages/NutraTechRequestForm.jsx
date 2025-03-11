@@ -3,7 +3,8 @@ import "../styles/NutratechForm.css";
 import userLogo from "../assets/user-icon.png";
 import downloadLogo from "../assets/downloads.png";
 import printLogo from "../assets/printing.png";
-import { useLocation, useNavigate } from "react-router-dom";    
+import { useLocation, useNavigate } from "react-router-dom";   
+import userSignout from "../assets/user-signout.png"; 
 
 import NutraTechlogo from "../assets/NTBI.png";
 import avliLogo from "../assets/AVLI.png";
@@ -95,8 +96,10 @@ const NutraTectForm = () => {
                         <img src={userLogo} alt="User Logo" onClick={toggleDropdown} className="user-icon"/>
                         {dropdownOpen && (
                             <div className="dropdown-menu">
-                                <p className="dropdown-user">{fullname}</p>
-                                {/* <p className="dropdown-email">HaroldDinglasan@gmail.com</p> */}
+                                <div className="user-info">
+                                    <img src={userSignout} alt="User Signout" className="user-signout-icon" />
+                                    <p className="dropdown-user-label">{fullname}</p>
+                                </div>
                                 <button className="signout-button" onClick={handleSignout}>Sign Out</button>
                             </div>
                         )}

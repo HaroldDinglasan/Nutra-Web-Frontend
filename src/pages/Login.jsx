@@ -11,6 +11,9 @@ import eyeClosedIcon from "../assets/eye-closed.png";
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState("");
     const navigate = useNavigate();
 
     const togglePasswordVisibility = () => {
@@ -18,6 +21,18 @@ const Login = () => {
     };
 
     const handleLogin = () => {
+        let validationErrors = {};
+
+        if(!username) validationErrors.username = "Username is required";
+        if(!password) validationErrors.password = "Password is required";
+
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
+        setErrors({}); // Clear errors if inputs are  valid
+
         if (selectedCompany) {
             const userDepartment = localStorage.getItem("userDepartment"); // Retrieve Department
             navigate("/nutraTech/form", { state: { company: selectedCompany, department: userDepartment} });
@@ -54,8 +69,14 @@ const Login = () => {
                     <label htmlFor="username">Username</label>
                     <div className="log-input-container">
                         <img src={userIcon} alt="User Icon" className="input-icon" />
-                        <input type="text" id="username" required />
+                        <input 
+                            type="text" 
+                            id="username" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
                     </div>
+                    {errors.username && <p className="error-text-show">{errors.username}</p>}
                 </div>
 
                 <div className="login-field-box-password">
@@ -64,7 +85,8 @@ const Login = () => {
                         <input
                             type={showPassword ? "text" : "password"}
                             id="password"
-                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                         <img
                             src={showPassword ? eyeOpenIcon : eyeClosedIcon}
@@ -73,6 +95,7 @@ const Login = () => {
                             onClick={togglePasswordVisibility}  
                         />
                     </div>
+                    {errors.password && <p className="error-text-show">{errors.password}</p>}
                 </div>
 
                 <button type="submit" className="login-button" onClick={handleLogin}>LOGIN</button>
