@@ -14,6 +14,8 @@ import nutraheaderlogo from "../assets/nutratechlogo.jpg";
 import apthealtheaderLogo from "../assets/apthealth logo.png";
 import avliheaderLogo from "../assets/avli biocare.logo.png";
 
+import StockcodeModal from "./StockcodeModal";
+
 
 
 const NutraTectForm = () => {
@@ -29,12 +31,26 @@ const NutraTectForm = () => {
         Array.from({ length: 5 }, () => ({ stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }))
     );
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+
+     // Function to handle stock selection
+     const handleStockSelect = (stock) => {
+        if (selectedRowIndex !== null) {
+            const newRows = [...rows];
+            newRows[selectedRowIndex].stockCode = stock.code;
+            // newRows[selectedRowIndex].description = stock.name; // Assuming description is the stock name
+            setRows(newRows);
+        }
+    };
+
+
     const handleInputChange = (index, event) => {
         const { name, value } = event.target;
         const newRows = [...rows];
     
         if (name === "quantity") {
-            // Only integers number
+            // Validation integers only
             if (/^\d*$/.test(value)) {
                 newRows[index][name] = value;
                 setRows(newRows);
@@ -161,7 +177,17 @@ const NutraTectForm = () => {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>STOCK CODE</th>
+                                <th>
+                                    <label 
+                                        onClick={() => {
+                                            setIsModalOpen(true);
+                                            setSelectedRowIndex(0); // Default row selection
+                                        }} 
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        STOCK CODE
+                                    </label>
+                                </th>                         
                                     <th>QUANTITY</th>
                                     <th>UNIT</th>
                                     <th>DESCRIPTION</th>
@@ -172,7 +198,9 @@ const NutraTectForm = () => {
                             <tbody>
                                 {rows.map((row, index) => (
                                     <tr key={index}>
-                                        <td><input type="text" name="stockCode" value={row.stockCode} onChange={(e) => handleInputChange(index, e)} /></td>
+                                        <td onClick={() => { setIsModalOpen(true); setSelectedRowIndex(index); }} style={{ cursor: "pointer" }}>
+                                            <input type="text" name="stockCode" value={row.stockCode} readOnly />
+                                        </td>
                                         <td><input type="text" name="quantity" value={row.quantity} onChange={(e) => handleInputChange(index, e)} /></td>
                                         <td><input type="text" name="unit" value={row.unit} onChange={(e) => handleInputChange(index, e)} /></td>
                                         <td><input type="text" name="description" value={row.description} onChange={(e) => handleInputChange(index, e)} /></td>
@@ -184,6 +212,12 @@ const NutraTectForm = () => {
                         </table>
                     </div>
 
+                    {isModalOpen && (
+                        <StockcodeModal 
+                            onClose={() => setIsModalOpen(false)} 
+                            onSelectStock={handleStockSelect} 
+                        />
+                    )}
                     <div className="approval-section">
                         <div className="approval-box">
                             <h3>Prepared By:</h3>
