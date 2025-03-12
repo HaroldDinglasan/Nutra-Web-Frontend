@@ -80,6 +80,7 @@ td {
 
 th {
     font-size: 0.9rem;
+    cursor: pointer;
 }
 
 tbody tr:hover {
@@ -249,7 +250,7 @@ h3 {
 }
 
 .approval-box {
-    width: 209px; 
+    width: 195px; 
     background-color: #ffffff; 
     padding: 10px;
     text-align: center;
