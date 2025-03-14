@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useEffect, useState} from "react";
+import axios from "axios";
 import "../styles/StockcodeModal.css";
 import search from "../assets/search.png";
 
 const StockcodeModal = ({ onClose, onSelectStock}) => {
-    const stockItems = [
-        { code: "STK001", name: "Item A" },
-        { code: "STK002", name: "Item B" },
-        { code: "STK003", name: "Item C" },
-        { code: "STK004", name: "Item D" },
-    ];
+    const [stockItems, setStockItems] = useState([]);
+
+    // Fetch stock data from backend
+    useEffect(() => {
+        const fetchStocks = async () => {
+            try {
+                const response = await axios.get("http://localhost:5000/api/stocks");
+                setStockItems(response.data);
+            } catch (error) {
+                console.error("❌ Error fetching stock data:", error);
+            }
+        };
+
+        fetchStocks();
+    }, []);
 
     const handleSelect = (stock) => {
         onSelectStock(stock); // Pass selected stock to parent
@@ -43,6 +53,7 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
                     </div>
                     <div className="modal-table-container">
                     <table>
+                        
                         <thead>
                             <tr>
                                 <th className="th-modal">Stock Code</th>
@@ -52,11 +63,12 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
                         <tbody>
                             {stockItems.map((item, index) => (
                                 <tr key={index} onClick={() => handleSelect(item)} style={{ cursor: "pointer" }}>
-                                    <td>{item.code}</td>
-                                    <td>{item.name}</td>
+                                    <td>{item.StockCode}</td>
+                                    <td>{item.StockName}</td>
                                 </tr>
                             ))}
                         </tbody>
+                        
                     </table>
                     </div>
 
