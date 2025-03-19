@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Register.css";
 import regLogo from "../assets/fullLogo.jpg";
@@ -18,6 +18,9 @@ const Register = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [employees, setEmployees] = useState([]); // Store fetched employee names
+    const [filteredEmployees, setFilteredEmployees] = useState([]); // Filtered results
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
 
     useEffect(() => {                   
         const fetchEmployees = async () => {    
@@ -30,6 +33,41 @@ const Register = () => {
         };
         fetchEmployees();
     }, []);
+
+     // Handle user input
+    const handleFullnameChange = (e) => {
+        const input = e.target.value;
+        setFullname(input);
+    
+        // Ensure we filter only non-null values
+        const filtered = employees.filter(emp =>
+            emp.FullName && emp.FullName.toLowerCase().includes(input.toLowerCase())
+        );
+    
+        setFilteredEmployees(filtered);
+        setShowDropdown(filtered.length > 0);
+    };
+
+    // Handle click outside dropdown
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+
+     // Handle selection from dropdown
+    const handleSelectName = (name) => {
+        setFullname(name);
+        setShowDropdown(false); // Hide dropdown after selection
+    };
     
     const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
@@ -85,26 +123,37 @@ const Register = () => {
                     </div>
                 </div>
 
-                <div className="reg-field-box">
+                <div className="reg-field-box" ref={dropdownRef}>
                     <label htmlFor="nametype">Full Name</label>
-                    <div className="reg-input-container">
-                        <select 
-                            id="nametype" 
-                            className="fullname-dropdown" 
-                            size=""
-                            value={fullname} 
-                            onChange={(e) => setFullname(e.target.value)}
-                        >
-                            <option value="">Select Full Name</option>
-                            {employees.map((employee, index) => (
-                                <option key={index} value={employee.FullName}>
-                                    {employee.FullName}
-                                </option>
-                            ))}
-                        </select>
-                        <img src={departmentIcon} alt="Dept Icon" className="dropdown-icon" />
+                    <div className="fullname-dropdown-container">
+                        <input
+                            type="text"
+                            id="nametype"
+                            className="fullname-input"
+                            value={fullname}
+                            onChange={handleFullnameChange}
+                            placeholder="Type or select a name"
+                        />
+                        
+                        {showDropdown && filteredEmployees.length > 0 && (
+                            <div className="dropdown-list">
+                                {filteredEmployees.map((employee, index) => (
+                                    <div
+                                        key={index}
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFullname(employee.FullName);
+                                            setShowDropdown(false); // Hide dropdown after selection
+                                        }}
+                                    >
+                                        {employee.FullName}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
+
 
                 <div className="reg-field-box">
                     <label htmlFor="username">Username</label>
