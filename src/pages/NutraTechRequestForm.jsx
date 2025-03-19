@@ -34,11 +34,12 @@ const NutraTectForm = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
+
      // Function to handle stock selection
      const handleStockSelect = (stock) => {
         if (selectedRowIndex !== null) {
             const newRows = [...rows];
-            newRows[selectedRowIndex].stockCode = stock.code;
+            newRows[selectedRowIndex].stockCode = stock.StockCode;
             // newRows[selectedRowIndex].description = stock.name; // Assuming description is the stock name
             setRows(newRows);
         }
