@@ -198,19 +198,17 @@ h1 {
 }
 
 .fullname-dropdown {
-    width: 100%;
-    padding: 10px;
-    padding-right: 35px;
+    position: absolute;
+    width: 80%;
+    max-height: 200px;
+    background: white;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 14px;
-    background-color: white;
-    color: black;
-    outline: none;
-    appearance: none; 
-    cursor: pointer;
-    z-index: 999; /* Ensure dropdown appears above other elements */
-    position: relative;
+    overflow-y: auto;
+    z-index: 10;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 
@@ -222,6 +220,65 @@ h1 {
 .fullname-dropdown {
     max-height: 200px;
     overflow-y: auto;
+}
+
+.fullname-input {
+    margin-left: 50px;
+    width: 76%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+}
+
+.fullname-dropdown li {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.fullname-dropdown li:hover {
+    background-color: #f0f0f0;
+}
+
+.fullname-dropdown-container {
+    position: relative;
+    width: 100%;
+}
+
+/*Dropdown container resize */
+.dropdown-list {
+    position: absolute;
+    top: 100%; /* Positions the dropdown below the input */
+    margin-left: 50px;
+    left: 0;
+    width: 80%; /* Matches the input field width */
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-height: 150px; /* Limits dropdown height */
+    overflow-y: auto; /* Enables scrolling */
+    z-index: 999; 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-list option {
+    padding: 2px;
+    cursor: pointer;
+}
+
+.dropdown-list option:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
 }
 
 
