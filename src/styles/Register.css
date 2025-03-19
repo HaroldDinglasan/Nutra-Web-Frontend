@@ -23,6 +23,7 @@
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     outline: 1px solid #c1c0c0;
+    overflow: visible;
 }
 
 .register-header {
@@ -51,6 +52,8 @@ h1 {
 }
 
 .reg-field-box{
+    position: relative;
+    overflow: visible; /* Allow dropdown to open outside the container */
     display: flex;
     flex-direction: column; 
     align-items: center; 
@@ -177,7 +180,6 @@ h1 {
     cursor: pointer;
 }
 
-
 .register-dropdown:focus {
     border-color: darkgreen;
 }
@@ -194,6 +196,35 @@ h1 {
     height: 16px;
     pointer-events: none;
 }
+
+.fullname-dropdown {
+    width: 100%;
+    padding: 10px;
+    padding-right: 35px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: white;
+    color: black;
+    outline: none;
+    appearance: none; 
+    cursor: pointer;
+    z-index: 999; /* Ensure dropdown appears above other elements */
+    position: relative;
+}
+
+
+.fullname-dropdown option{
+    background-color: white;
+    color: black;
+}
+
+.fullname-dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+
 
 @media (max-width: 768px) {
     .register-box-container {
