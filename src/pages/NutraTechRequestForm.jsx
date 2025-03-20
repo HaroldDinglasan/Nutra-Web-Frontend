@@ -40,7 +40,8 @@ const NutraTectForm = () => {
         if (selectedRowIndex !== null) {
             const newRows = [...rows];
             newRows[selectedRowIndex].stockCode = stock.StockCode;
-            // newRows[selectedRowIndex].description = stock.name; // Assuming description is the stock name
+            newRows[selectedRowIndex].unit = stock.BaseUOM;
+            newRows[selectedRowIndex].description = stock.StockName; 
             setRows(newRows);
         }
     };
@@ -51,20 +52,31 @@ const NutraTectForm = () => {
         const newRows = [...rows];
     
         if (name === "quantity") {
-            // Validation integers only
+            // Validation for integers only
             if (/^\d*$/.test(value)) {
                 newRows[index][name] = value;
                 setRows(newRows);
+            } else {
+                alert("Please enter a valid integer for quantity.");
             }
+        } else if (name === "dateNeeded") {
+            // Validation for MM/DD/YYYY format
+            if (value.length === 10) {
+                const datePattern = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+                if (!datePattern.test(value)) {
+                    alert("Please enter a valid date in MM/DD/YYYY format.");
+                    return;
+                }
+            }
+            newRows[index][name] = value;
+            setRows(newRows);
         } else {
             newRows[index][name] = value;
             setRows(newRows);
         }
-    
-        if (index === rows.length - 1 && value !== "") {
-            setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }]);
-        }
     };
+    
+    
 
     const handleDateChange = (event) => {
         setCurrentDate(event.target.value);
