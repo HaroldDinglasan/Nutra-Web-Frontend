@@ -2,6 +2,7 @@ import React, { useEffect, useState} from "react";
 import axios from "axios";
 import "../styles/StockcodeModal.css";
 import search from "../assets/search.png";
+import closeButton from "../assets/close-button.png";
 
 const StockcodeModal = ({ onClose, onSelectStock}) => {
     const [stockItems, setStockItems] = useState([]);
@@ -34,7 +35,9 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
 
                     <div className="modal-header">
                         <h2>Available Records</h2>
-                        <button className="close-button" onClick={onClose}>X</button>
+                        <button className="close-button" alt="close" onClick={onClose}>
+                            <img src={closeButton} alt="close" className="close-icon" />
+                        </button>
                     </div>
 
                     <div className="input-group">

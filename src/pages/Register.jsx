@@ -73,24 +73,33 @@ const Register = () => {
         setShowPassword((prev) => !prev);
     };
 
-    const handleRegister = () => {
-        if (!department || !fullname) {
-            alert("Please select a department and full name.");
+    // Send POST request to the Backend
+    const handleRegister = async () => {
+        if (!department || !fullname || !username || !password) {
+            alert("Please fill in all fields!");
             return;
         }
-
-        console.log("Department:", department);
-        console.log("Fullname:", fullname);
-        console.log("Username:", username);
-        console.log("Password:", password);
-
-        // Store selected values in localStorage
-        localStorage.setItem("userDepartment", department);
-        localStorage.setItem("userFullname", fullname);
-
-        alert("Registration successful!");
-        navigate("/login");
+    
+        try {
+            const response = await axios.post("http://localhost:5000/api/register", {
+                departmentType: department,
+                fullName: fullname,
+                username: username,
+                password: password,
+            });
+    
+            if (response.status === 201) {
+                alert("Registration successful!");
+                localStorage.setItem("userDepartment", department);
+                localStorage.setItem("userFullname", fullname);
+                navigate("/login");
+            }
+        } catch (error) {
+            console.error("❌ Registration error:", error.response?.data?.message || error.message);
+            alert(error.response?.data?.message || "Registration failed. Please try again.");
+        }
     };
+    
 
     return (
         <div className="register-form-container">
