@@ -12,7 +12,7 @@ html, body {
     align-items: flex-start;
     min-height: 100vh; 
     width: 100%;
-    padding: 5vw; /* Use relative padding for better scaling */
+    padding: 2vw; /* Use relative padding for better scaling */
     background-color: #E8E9EB;
     box-sizing: border-box; 
 }
@@ -62,12 +62,28 @@ html, body {
     margin-top: 15px;
 }
 
+.table-container table {
+    width: 95%;
+    border-collapse: collapse;
+    outline: 1px solid #c1c0c0;
+    font-size: 12px;
+    table-layout: fixed; /* Ensures defined column widths are respected */
+}
+
 table {
     width: 95%;
     border-collapse: collapse;
     outline: 1px solid #c1c0c0;
     font-size: 12px;
 }
+
+/* Adjust column widths */
+th:nth-child(1), td:nth-child(1) { width: 12%; }  /* STOCK CODE */
+th:nth-child(2), td:nth-child(2) { width: 9%; }   /* QUANTITY */
+th:nth-child(3), td:nth-child(3) { width: 12%; }   /* UNIT */
+th:nth-child(4), td:nth-child(4) { width: 40%; }  /* DESCRIPTION (Expanded) */
+th:nth-child(5), td:nth-child(5) { width: 12%; }  /* DATE NEEDED */
+th:nth-child(6), td:nth-child(6) { width: 22%; }  /* PURPOSE OF REQUISITION */
 
 th, td {
     padding: 4px;
@@ -87,11 +103,12 @@ tbody tr:hover {
     background-color: #f2f2f2; 
 }
 
+/* Adjust input fields inside table */
 td input {
-    width: 90%;
-    padding: 3px; 
-    font-size: 12px; 
-    text-align: center; 
+    width: 100%;
+    padding: 3px;
+    font-size: 13px;
+    text-align: center;
     border: none;
     outline: none;
     background: transparent;
