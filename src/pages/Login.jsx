@@ -20,26 +20,52 @@ const Login = () => {
         setShowPassword((prev) => !prev);
     };
 
-    const handleLogin = () => {
-        let validationErrors = {};
+    const handleLogin = async (e) => {
+        e.preventDefault();
 
-        if(!username) validationErrors.username = "Username is required";
-        if(!password) validationErrors.password = "Password is required";
-
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
+        if (!username || !password) {
+            setErrors({
+                username: !username ? "Username is required" : "",
+                password: !password ? "Password is required" : "",
+            });
             return;
         }
 
-        setErrors({}); // Clear errors if inputs are  valid
+        setErrors({}); // Clear previous errors
 
-        if (selectedCompany) {
-            const userDepartment = localStorage.getItem("userDepartment"); // Retrieve Department
-            navigate("/nutraTech/form", { state: { company: selectedCompany, department: userDepartment} });
-        } else {
-            alert("Please select a company");
+        const loginData = { username, password };
+
+        try {
+            const response = await fetch("http://localhost:5000/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(loginData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert("✅ Login successful!");
+
+                // Save user details in localStorage if needed
+                localStorage.setItem("loggedInUser", JSON.stringify(data.user));
+
+                if (selectedCompany) {
+                    const userDepartment = localStorage.getItem("userDepartment");
+                    navigate("/nutraTech/form", {
+                        state: { company: selectedCompany, department: userDepartment },
+                    });
+                } else {
+                    alert("Please select a company");
+                }
+            } else {
+                alert("❌ " + data.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("❌ An error occurred while logging in.");
         }
-    }
+    };
 
     return (
         <div className="login-form-container">
