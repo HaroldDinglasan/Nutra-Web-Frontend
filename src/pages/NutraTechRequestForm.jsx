@@ -16,6 +16,10 @@ import avliheaderLogo from "../assets/avli biocare.logo.png";
 
 import StockcodeModal from "./StockcodeModal";
 
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+
+
 
 
 const NutraTectForm = () => {
@@ -105,8 +109,18 @@ const NutraTectForm = () => {
         "Apthealth, Inc": apthealthLogo,
     };
 
-
-
+    const handleDownloadPDF = () => {
+        const input = document.querySelector(".form-box-container"); // Target the form
+        html2canvas(input, { scale: 3 }).then((canvas) => { // Increase scale for better quality
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("p", "mm", "a4");
+            const imgWidth = 210; // A4 width in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+            pdf.save("Purchase_Request_Form.pdf");
+        });
+    };
+    
     return ( 
         <>
             <div className="nav-bar-container">
@@ -116,7 +130,12 @@ const NutraTectForm = () => {
                 </div>
                 <div className="nav-icons">
                     <img src={printLogo} alt="Print Logo" onClick={() => window.print()} className="print-icon" />
-                    <img src={downloadLogo} alt="Download Logo" />
+                    <img 
+                        src={downloadLogo} 
+                        alt="Download Logo" 
+                        onClick={handleDownloadPDF}
+                        className="download-icon" 
+                    />
 
                 
                     <div className="user-profile-container">
@@ -189,7 +208,7 @@ const NutraTectForm = () => {
                             <thead>
                                 <tr>
                                 <th>
-                                    <label 
+                                    <label
                                         onClick={() => {
                                             setIsModalOpen(true);
                                             setSelectedRowIndex(0); // Default row selection

@@ -105,13 +105,18 @@ tbody tr:hover {
 
 /* Adjust input fields inside table */
 td input {
-    width: 100%;
-    padding: 3px;
-    font-size: 13px;
-    text-align: center;
     border: none;
-    outline: none;
     background: transparent;
+    width: 100%;
+    text-align: center;
+    padding: 2px 0; /* Reduce extra padding */
+    line-height: 1.2; /* Ensure proper text height */
+    font-size: 14px; /* Adjust for visibility */
+    height: 20px; /* Force a fixed height */
+    vertical-align: middle; /* Align in table cell */
+    appearance: none; /* Remove browser default styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 
@@ -247,6 +252,13 @@ h3 {
     margin-right: 47px;
     outline: none;
     margin-top: 9.5px;
+    line-height: 1.2; /* Ensure proper text height */
+    font-size: 14px; /* Adjust for visibility */
+    height: 20px; /* Force a fixed height */
+    vertical-align: middle; /* Align in table cell */
+    appearance: none; /* Remove browser default styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .date.date-input{
@@ -420,6 +432,14 @@ h3 {
     appearance: none;
     background-color: white;
     height: 14px;
+    text-align: center;
+    line-height: 1.2; /* Ensure proper text height */
+    font-size: 14px; /* Adjust for visibility */
+    height: 20px; /* Force a fixed height */
+    vertical-align: middle; /* Align in table cell */
+    appearance: none; /* Remove browser default styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .header-dept-label {
@@ -467,8 +487,18 @@ h3 {
         page-break-inside: avoid; 
     }
 
-    table {
+    /* ADJUST TABLE FOR PRINT */
+    .table-container {
         width: 100%;
+        max-width: 100%;
+    }
+
+    .table-container table {
+        width: 100% !important;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    th {
         font-size: 12px;
     }
 
@@ -520,7 +550,7 @@ h3 {
 
     @page {
         size: A4; 
-        margin: 10mm; 
+        margin: 5mm; 
     }
 
     .signature-box{
@@ -534,12 +564,18 @@ h3 {
     .date-input{
         padding: 8px;
     }
+} 
+
+@media print {
+    td input {
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: center;
+        padding: 0px; /* Remove extra padding */
+        line-height: 1; /* Keep line height minimal */
+        font-size: 12px; /* Adjust font size for PDF */
+        height: auto; /* Allow it to resize properly */
+        vertical-align: middle;
+    }
 }
-
-
-
-
-
-
-
-
