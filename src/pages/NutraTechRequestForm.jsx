@@ -24,8 +24,8 @@ const NutraTectForm = () => {
     const navigate = useNavigate();
     const [currentDate, setCurrentDate] = useState(new Date().toISOString().split("T")[0]);
 
-    const department = localStorage.getItem("userDepartment") || "";  // Retrieve department
     const fullname = localStorage.getItem("userFullname") || ""; // Retrieve fullname
+    const department = localStorage.getItem("userDepartment") || ""; // Retrieve department
 
     const [rows, setRows] = useState(
         Array.from({ length: 5 }, () => ({ stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }))
@@ -90,8 +90,6 @@ const NutraTectForm = () => {
     };
 
     const handleSignout = () => {
-        localStorage.removeItem("userDepartment");
-        localStorage.removeItem("userFullname");
         navigate("/login");
     };
 
