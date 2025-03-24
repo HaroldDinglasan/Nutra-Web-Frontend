@@ -22,7 +22,7 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
+    
         if (!username || !password) {
             setErrors({
                 username: !username ? "Username is required" : "",
@@ -30,30 +30,30 @@ const Login = () => {
             });
             return;
         }
-
+    
         setErrors({}); // Clear previous errors
-
+    
         const loginData = { username, password };
-
+    
         try {
             const response = await fetch("http://localhost:5000/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(loginData),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 alert("✅ Login successful!");
-
-                // Save user details in localStorage if needed
-                localStorage.setItem("loggedInUser", JSON.stringify(data.user));
-
+    
+                // Save user details in localStorage
+                localStorage.setItem("userFullname", data.user.fullName);
+                localStorage.setItem("userDepartment", data.user.departmentType);
+    
                 if (selectedCompany) {
-                    const userDepartment = localStorage.getItem("userDepartment");
                     navigate("/nutraTech/form", {
-                        state: { company: selectedCompany, department: userDepartment },
+                        state: { company: selectedCompany },
                     });
                 } else {
                     alert("Please select a company");
@@ -66,7 +66,7 @@ const Login = () => {
             alert("❌ An error occurred while logging in.");
         }
     };
-
+    
     return (
         <div className="login-form-container">
             <div className="login-box-container">
