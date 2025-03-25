@@ -110,16 +110,60 @@ const NutraTectForm = () => {
     };
 
     const handleDownloadPDF = () => {
+        const saveButton = document.querySelector(".save-button-container"); 
+        if (saveButton) saveButton.style.display = "none"; // Hide button
+    
         const input = document.querySelector(".form-box-container"); // Target the form
-        html2canvas(input, { scale: 3 }).then((canvas) => { // Increase scale for better quality
+        html2canvas(input, { scale: 3 }).then((canvas) => { 
             const imgData = canvas.toDataURL("image/png");
             const pdf = new jsPDF("p", "mm", "a4");
-            const imgWidth = 210; // A4 width in mm
+            const imgWidth = 210; 
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
             pdf.save("Purchase_Request_Form.pdf");
+    
+            if (saveButton) saveButton.style.display = "flex"; // Show button again 
         });
     };
+
+    const handleSave = async () => {
+        const prfId = crypto.randomUUID(); // Generate unique PRF ID
+        const prfDetails = rows
+            .filter(row => row.stockCode) // Only save rows with selected stock
+            .map(row => ({
+                prfId,
+                stockId: crypto.randomUUID(), // Generate unique Stock ID
+                stockCode: row.stockCode,
+                stockName: row.description, // Stock Name is in Description field
+                uom: row.unit, // BaseUOM
+                qty: parseInt(row.quantity, 10),
+                dateNeeded: row.dateNeeded,
+                purpose: row.purpose,
+                description: row.description, // Optional field
+            }));
+    
+        try {
+            const response = await fetch("http://localhost:5000/api/save-prf-details", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(prfDetails[0]), // Send the first row data for now
+            });
+    
+            const data = await response.json();
+            if (response.ok) {
+                alert("Data saved successfully!");
+            } else {
+                alert("Error saving data: " + data.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Failed to save data.");
+        }
+    };
+    
+    
     
     return ( 
         <>
@@ -240,6 +284,10 @@ const NutraTectForm = () => {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+
+                    <div className="save-button-container">
+                        <button className="save-button" onClick={handleSave}>Save</button>
                     </div>
 
                     {isModalOpen && (

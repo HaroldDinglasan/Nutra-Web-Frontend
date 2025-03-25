@@ -119,6 +119,34 @@ td input {
     -moz-appearance: none;
 }
 
+.save-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-right: 25px;
+}
+
+.save-button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    width: 150px;
+    margin-top: 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
+
 
 .field-box{
     display: flex;
@@ -275,7 +303,7 @@ h3 {
     display: flex;
     justify-content: center;
     gap: 15px;
-    margin-top: 60px;
+    margin-top: 40px;
 }
 
 .approval-box {
@@ -579,3 +607,11 @@ h3 {
         vertical-align: middle;
     }
 }
+
+/* Hides save button when printing */
+@media print {
+    .save-button-container {
+        display: none !important;
+    }
+}
+
