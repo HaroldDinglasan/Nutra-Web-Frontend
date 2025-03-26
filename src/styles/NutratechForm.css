@@ -119,35 +119,6 @@ td input {
     -moz-appearance: none;
 }
 
-.save-button-container {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    padding-right: 25px;
-}
-
-.save-button {
-    background-color: black;
-    color: white;
-    border: none;
-    padding: 13px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    width: 150px;
-    margin-top: 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.save-button:hover {
-    background-color: white;
-    color: black;
-    border: 1px solid black;
-}
-
-
-
 .field-box{
     display: flex;
     margin-left: 60px;
@@ -485,6 +456,56 @@ h3 {
 }
 
 
+.save-button-container {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin-top: 20px;
+    padding: 0 25px; 
+}
+
+/* Add-row button styling */
+.add-row-button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    width: 150px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.add-row-button:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
+/* Save button styling */
+.save-button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    width: 150px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
+
+
 @media print {
     body {
         -webkit-print-color-adjust: exact; 
@@ -607,8 +628,8 @@ h3 {
         vertical-align: middle;
     }
 }
-
-/* Hides save button when printing */
+/* 
+Hides save button when printing */
 @media print {
     .save-button-container {
         display: none !important;
