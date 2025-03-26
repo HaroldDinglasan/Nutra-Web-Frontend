@@ -148,7 +148,7 @@ const NutraTectForm = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(prfDetails[0]), // Send the first row data for now
+                body: JSON.stringify(prfDetails), // Send all selected stock rows
             });
     
             const data = await response.json();
@@ -162,6 +162,7 @@ const NutraTectForm = () => {
             alert("Failed to save data.");
         }
     };
+    
     
     
     
