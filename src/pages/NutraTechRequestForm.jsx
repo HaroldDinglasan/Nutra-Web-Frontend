@@ -215,7 +215,7 @@ const NutraTectForm = () => {
                     </div>
 
                     <div className="form-header">
-                        <div className="number-code-label">
+                        <div className="purchase-code-number">
                             <label>No. N 12045</label>
                         </div>
                         <h1 className="header-one-label">PURCHASE REQUEST FORM</h1>
