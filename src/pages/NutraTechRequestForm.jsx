@@ -162,9 +162,10 @@ const NutraTectForm = () => {
             alert("Failed to save data.");
         }
     };
-    
-    
-    
+
+    const handleAddRow = () => {
+        setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }]);
+    };
     
     return ( 
         <>
@@ -288,8 +289,10 @@ const NutraTectForm = () => {
                     </div>
 
                     <div className="save-button-container">
+                        <button className="add-row-button" onClick={handleAddRow}> + Add Row</button>
                         <button className="save-button" onClick={handleSave}>Save</button>
                     </div>
+
 
                     {isModalOpen && (
                         <StockcodeModal 
