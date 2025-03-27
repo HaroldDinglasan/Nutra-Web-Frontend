@@ -6,6 +6,9 @@ import closeButton from "../assets/close-button.png";
 
 const StockcodeModal = ({ onClose, onSelectStock}) => {
     const [stockItems, setStockItems] = useState([]);
+    const [searchStocks, setSearchStocks] = useState("");
+    const [filteredStocks, setFilteredStocks] = useState([]);
+
 
     // Fetch stock data from backend
     useEffect(() => {
@@ -13,6 +16,7 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
             try {
                 const response = await axios.get("http://localhost:5000/api/stocks");
                 setStockItems(response.data);
+                setFilteredStocks(response.data); // Initialize filtered items with all items
             } catch (error) {
                 console.error("❌ Error fetching stock data:", error);
             }
@@ -21,9 +25,26 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
         fetchStocks();
     }, []);
 
+    // Filter stocks when search term changes
+    useEffect(() => {
+        if ( searchStocks.trim() === "") {
+            setFilteredStocks(stockItems)
+        } else {
+            const filtered = stockItems.filter(item =>
+                item.StockCode.toLowerCase().includes(searchStocks.toLowerCase()) ||
+                item.StockName.toLowerCase().includes(searchStocks.toLowerCase())
+            );
+            setFilteredStocks(filtered);
+        }
+    }, [searchStocks, stockItems]);
+
     const handleSelect = (stock) => {
         onSelectStock(stock); // Pass selected stock to parent
         onClose(); 
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchStocks(e.target.value);
     };
 
 
@@ -49,8 +70,15 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
                         <div className="search-field">
                             <label htmlFor="search"><b>Search:</b></label>
                             <div className="search-input">
-                                <input type="text" id="search" name="search" placeholder="search"/>
-                                <img src={search} alt="search logo" id="search" />
+                                <input 
+                                    type="text" 
+                                    id="search" 
+                                    name="search" 
+                                    placeholder="search"
+                                    value={searchStocks}
+                                    onChange={handleSearchChange}
+                                />
+                                <img src={search || "/placeholder.svg"} alt="search logo" id="search" />
                             </div>
                         </div>
                     </div>
@@ -64,7 +92,7 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {stockItems.map((item, index) => (
+                            {filteredStocks.map((item, index) => (
                                 <tr key={index} onClick={() => handleSelect(item)} style={{ cursor: "pointer" }}>
                                     <td>{item.StockCode}</td>
                                     <td>{item.StockName}</td>
