@@ -30,6 +30,7 @@ const NutraTechForm = () => {
   );
   const [company, setCompany] = useState("NutraTech Biopharma, Inc"); // Default value
   const [purchaseCodeNumber, setPurchaseCodeNumber] = useState("");
+  const [prfId, setPrfId] = useState(null) // Add state to store the PRF ID
 
   const fullname = localStorage.getItem("userFullname") || ""; // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || ""; // Retrieve department
@@ -51,6 +52,55 @@ const NutraTechForm = () => {
       generatePurchaseCode(company);
     }
   }, [company]);
+
+  // automatically save the PRF header when the form loads
+  useEffect(() => {
+    // Function to save PRF header automatically
+    const savePrfHeaderAutomatically = async () => {
+      // Make sure we have the required data
+      if ( !purchaseCodeNumber || !currentDate || !fullname) {
+        console.error("Missing required data for PRF header")
+        return
+      }
+
+      // Prepare PRF header data
+      const prfHeaderData = {
+        prfId: prfId, // Use the stored prfId
+        // departmentId: department,
+        prfNo: purchaseCodeNumber,
+        prfDate: currentDate,
+        preparedBy: fullname,
+      }
+
+      try {
+        // Save the PRF header
+        const response = await fetch("http://localhost:5000/api/save-table-header", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(prfHeaderData),
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          console.log("PRF header saved automatically:", data.prfId)
+          // Store the PRF ID in state for later use
+          setPrfId(data.prfId)
+        } else {
+          console.error("Error saving PRF header automatically:", data.message)
+        }
+      } catch (error) {
+        console.error("Failed to save PRF header automatically:", error)
+      }
+    }
+
+    // Only run this effect after purchaseCodeNumber has been generated
+    if (purchaseCodeNumber) {
+      savePrfHeaderAutomatically()
+    }
+  }, [purchaseCodeNumber, currentDate, fullname])
 
   const [rows, setRows] = useState(
     Array.from({ length: 5 }, () => ({
