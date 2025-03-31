@@ -10,6 +10,7 @@ import StockcodeModal from "./pages/StockcodeModal";
 import NutraTechForm from "./pages/NutraTechRequestForm";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import AdminDashboard from "./pages/DashboardAdmin";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/register/form" element={<Register />} />
         <Route path="/nutraTech/form" element={<NutraTechForm />} />
         <Route path="/stock/modal/form" element={<StockcodeModal />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
