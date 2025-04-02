@@ -54,6 +54,7 @@ const Login = () => {
         // Save user details in localStorage
         localStorage.setItem("userFullname", data.user.fullName);
         localStorage.setItem("userDepartment", data.user.departmentType);
+        localStorage.setItem("userDepartmentId", data.user.departmentId); // Store department Id
 
         // Navigate to the form page with the selected company
         navigate("/nutraTech/form", {

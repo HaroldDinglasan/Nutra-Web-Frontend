@@ -182,6 +182,9 @@ const NutraTechForm = () => {
     setPurchaseCodeNumber(newCode);
   };
 
+    // Add this with your other state variables
+    
+
     // Add this function after the generatePurchaseCode function
       const handleSavePrfHeader = async () => {
         if (!purchaseCodeNumber || !currentDate || !fullname) {
@@ -189,7 +192,10 @@ const NutraTechForm = () => {
             return null;
         }
 
+        const departmentId = localStorage.getItem("userDepartmentId");
+
         const prfHeaderData = {
+            departmentId: departmentId, // Add departmentId to the request
             prfNo: purchaseCodeNumber,
             prfDate: currentDate,
             preparedBy: fullname,

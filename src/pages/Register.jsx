@@ -14,6 +14,7 @@ const Register = () => {
     const navigate = useNavigate(); 
     const [showPassword, setShowPassword] = useState(false);
     const [department, setDepartment] = useState("");
+    const [departmentId, setDepartmentId] = useState(null);
     const [fullname, setFullname] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -21,6 +22,7 @@ const Register = () => {
     const [filteredEmployees, setFilteredEmployees] = useState([]); // Filtered results
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
+    
 
     useEffect(() => {                   
         const fetchEmployees = async () => {    
@@ -33,6 +35,28 @@ const Register = () => {
         };
         fetchEmployees();
     }, []);
+
+    // Set departmentId when department changes
+    useEffect(() => {
+    let id = null
+    switch (department) {
+      case "Human Resource Department":
+        id = 1
+        break
+      case "Information Technology Department":
+        id = 2
+        break
+      case "Finance Department":
+        id = 3
+        break
+      case "Marketing Department":
+        id = 4
+        break
+      default:
+        id = null
+    }
+    setDepartmentId(id)
+  }, [department])
 
      // Handle user input
     const handleFullnameChange = (e) => {
@@ -83,6 +107,7 @@ const Register = () => {
         try {
             const response = await axios.post("http://localhost:5000/api/register", {
                 departmentType: department,
+                departmentId: departmentId, // Inlcude departmentId in the request
                 fullName: fullname,
                 username: username,
                 password: password,
@@ -92,6 +117,7 @@ const Register = () => {
                 alert("Registration successful!");
                 localStorage.setItem("userDepartment", department);
                 localStorage.setItem("userFullname", fullname);
+                localStorage.setItem("userDepartmentId", departmentId) // Store departmentId in localStorage
                 navigate("/login");
             }
         } catch (error) {
