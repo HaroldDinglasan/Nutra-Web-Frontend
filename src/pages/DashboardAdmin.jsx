@@ -77,7 +77,7 @@ const DashboardAdmin = () => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                color="white"
+                color="black"
               >
                 <rect x="3" y="3" width="7" height="9"></rect>
                 <rect x="14" y="3" width="7" height="5"></rect>
@@ -89,7 +89,6 @@ const DashboardAdmin = () => {
           </aside>
 
           <main className="dashboard-main">
-            <h2 className="system-log-title">System Log</h2>
 
             <div className="log-table-container">
               <table className="log-table">
@@ -98,7 +97,7 @@ const DashboardAdmin = () => {
                     <th>Prf No.</th>
                     <th>User Information</th>
                     <th>Date</th>
-                    <th>Activity</th>
+                    <th>Description</th>
                   </tr>
                 </thead>
                 <tbody>
