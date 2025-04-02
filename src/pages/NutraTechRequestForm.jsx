@@ -257,53 +257,54 @@ const NutraTechForm = () => {
   };
 
     const handleSave = async () => {
+      let headerPrfId = prfId
 
-      const prfId = crypto.randomUUID(); // Generate unique PRF ID
-
-      let savedPrfId = prfId;
-
-      if (!savedPrfId) {
-          savedPrfId = await handleSavePrfHeader(); // Save PRF header if not yet saved
+      if (!headerPrfId) {
+        headerPrfId = await handleSavePrfHeader() // Save PRF header if not yet saved
       }
-      if (!savedPrfId) {
-          alert("Failed to save PRF header. Please try again.");
-          return;
+      if (!headerPrfId) {
+        alert("Failed to save PRF header. Please try again.")
+        return
       }
 
-        const prfDetails = rows
-            .filter(row => row.stockCode) // Only save rows with selected stock
-            .map(row => ({
-                prfId,
-                stockId: crypto.randomUUID(), // Generate unique Stock ID
-                stockCode: row.stockCode,
-                stockName: row.description, // Stock Name is in Description field
-                uom: row.unit, // BaseUOM
-                qty: parseInt(row.quantity, 10),
-                dateNeeded: row.dateNeeded,
-                purpose: row.purpose,
-                description: row.description, // Optional field
-            }));
+      // Generate a new UUID for the PRF details table
+      const detailsPrfId = crypto.randomUUID()
 
-        try {
-            const response = await fetch("http://localhost:5000/api/save-prf-details", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(prfDetails), // Send all selected stock rows
-            });
+      const prfDetails = rows
+        .filter((row) => row.stockCode) // Only save rows with selected stock
+        .map((row) => ({
+          prfId: detailsPrfId, // Use UUID for details table
+          headerPrfId: headerPrfId, // Include the integer ID from the header table
+          stockId: crypto.randomUUID(), // Generate unique Stock ID
+          stockCode: row.stockCode,
+          stockName: row.description, // Stock Name is in Description field
+          uom: row.unit, // BaseUOM
+          qty: Number.parseInt(row.quantity, 10),
+          dateNeeded: row.dateNeeded,
+          purpose: row.purpose,
+          description: row.description, // Optional field
+        }))
 
-            const data = await response.json();
-            if (response.ok) {
-                alert("Data saved successfully!");
-            } else {
-                alert("Error saving data: " + data.message);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Failed to save data.");
+      try {
+        const response = await fetch("http://localhost:5000/api/save-prf-details", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(prfDetails), // Send all selected stock rows
+        })
+
+        const data = await response.json()
+        if (response.ok) {
+          alert("Data saved successfully!")
+        } else {
+          alert("Error saving data: " + data.message)
         }
-    };
+      } catch (error) {
+        console.error("Error:", error)
+        alert("Failed to save data.")
+      }
+    }
 
 
     const handleAddRow = () => {
