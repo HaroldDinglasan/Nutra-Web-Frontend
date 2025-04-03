@@ -101,12 +101,12 @@ const DashboardAdmin = () => {
                           <td>No. {prf.prfNo}</td>
                           <td>{prf.preparedBy}</td>
                           <td>{new Date(prf.prfDate).toLocaleString()}</td>
-                          <td>Item Name</td>
+                          <td>{prf.StockName || "No stock name available"}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="3">No PRF records found.</td>
+                        <td colSpan="4">No PRF records found.</td>
                       </tr>
                     )}
                   </tbody>
