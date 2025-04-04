@@ -199,7 +199,7 @@ h3 {
 
 .nav-bar-container{
     width: 100%;
-    height: 8vh;
+    height: 8px;
     background-color: #fff;
 }
 
@@ -502,6 +502,66 @@ h3 {
     background-color: white;
     color: black;
     border: 1px solid black;
+}
+
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 350px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 25px;
+    padding: 5px 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    height: 20px;
+    transition: all 0.3s ease-in-out;
+    border: 1px solid rgb(187, 187, 187);
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    padding: 8px;
+    background: transparent;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.search-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.search-button img {
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+}
+
+.search-button:hover {
+    transform: scale(1.1);
+}
+
+.search-box:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.searchPrfNo {
+    margin-left: -50px;
+    margin-top: 5px;
 }
 
 
