@@ -69,7 +69,7 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
 
                         <div className="search-field">
                             <label htmlFor="search"><b>Search:</b></label>
-                            <div className="search-input">
+                            <div className="search-input-modal">
                                 <input 
                                     type="text" 
                                     id="search" 
