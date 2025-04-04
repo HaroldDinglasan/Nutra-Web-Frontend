@@ -92,6 +92,8 @@ const DashboardAdmin = () => {
                       <th>Prepared By</th>
                       <th>Date</th>
                       <th>Description</th>
+                      <th>Quantity</th>
+                      <th>Unit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -100,13 +102,15 @@ const DashboardAdmin = () => {
                         <tr key={index}>
                           <td>No. {prf.prfNo}</td>
                           <td>{prf.preparedBy}</td>
-                          <td>{new Date(prf.prfDate).toLocaleString()}</td>
+                          <td>{new Date(prf.prfDate).toLocaleDateString()}</td>
                           <td>{prf.StockName || "No stock name available"}</td>
+                          <td>{prf.quantity || "N/A"}</td>
+                          <td>{prf.unit || "N/A"}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4">No PRF records found.</td>
+                        <td colSpan="6">No PRF records found.</td>
                       </tr>
                     )}
                   </tbody>
