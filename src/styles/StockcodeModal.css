@@ -15,7 +15,7 @@
 
 .stock-box-container {
     width: 900px;
-    height: 420px;
+    height: 480px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -93,7 +93,7 @@
     font-size: 16px;
 }
 
-.search-input {
+.search-input-modal {
     display: flex;
     align-items: center;
     background: white;
@@ -103,14 +103,14 @@
     width: 250px;
 }
 
-.search-input input {
+.search-input-modal input {
     border: none;
     outline: none;
     flex: 1;
     padding-right: 30px; 
 }
 
-.search-input img {
+.search-input-modal img {
     width: 18px; 
     height: 18px;
     position: absolute;
@@ -118,7 +118,7 @@
     cursor: pointer;
 }
 
-.search-input {
+.search-input-modal {
     display: flex;
     align-items: center;
     background: white;

@@ -539,8 +539,13 @@ const NutraTechForm = () => {
 
           <div className="save-button-container">
             <button className="add-row-button" onClick={handleAddRow}>
-              {" "}
               + Add Row
+            </button>
+            <button className="cancel-button">
+              Cancel
+            </button>
+            <button className="update-button">
+              Update
             </button>
             <button className="save-button" onClick={handleSave}>
               Save
