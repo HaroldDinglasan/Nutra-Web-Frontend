@@ -21,6 +21,8 @@ import StockcodeModal from "./StockcodeModal";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
+import search from "../assets/search.png";
+
 const NutraTechForm = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
@@ -31,10 +33,11 @@ const NutraTechForm = () => {
   const [company, setCompany] = useState("NutraTech Biopharma, Inc"); // Default value
   const [purchaseCodeNumber, setPurchaseCodeNumber] = useState("");
   const [prfId, setPrfId] = useState(null) // Add state to store the PRF ID
+  const [searchInput, setSearchInput] = useState("")
 
   const fullname = localStorage.getItem("userFullname") || ""; // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || ""; // Retrieve department
-
+  
   // Set company from location state when component mounts
   useEffect(() => {
     if (location.state && location.state.company) {
@@ -266,6 +269,66 @@ const NutraTechForm = () => {
         setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }]);
     };
 
+    const handleSearchPrf = async () => {
+      if (!searchInput.trim()) {
+        alert("Please enter a PRF number to search")
+        return
+      }
+  
+      // Remove "No. " prefix if it exists
+      let searchValue = searchInput.trim()
+      if (searchValue.startsWith("No. ")) {
+        searchValue = searchValue.substring(4)
+      }
+  
+      console.log(`Searching for PRF number: ${searchValue}`)
+  
+      try {
+        const response = await fetch(`http://localhost:5000/api/search-prf?prfNo=${searchValue}`)
+        const data = await response.json()
+  
+        if (response.ok && data.found) {
+          console.log("PRF found:", data)
+  
+          // Set the PRF header information
+          setPurchaseCodeNumber(data.header.prfNo)
+          setCurrentDate(data.header.prfDate.split("T")[0])
+          setPrfId(data.header.prfId)
+  
+          // Set the PRF details in the table
+          const newRows = data.details.map((detail) => ({
+            stockCode: detail.StockCode,
+            quantity: detail.quantity.toString(),
+            unit: detail.unit,
+            description: detail.StockName,
+            dateNeeded: detail.dateNeeded,
+            purpose: detail.purpose,
+          }))
+  
+          // If there are fewer details than rows, pad with empty rows
+          while (newRows.length < 5) {
+            newRows.push({
+              stockCode: "",
+              quantity: "",
+              unit: "",
+              description: "",
+              dateNeeded: "",
+              purpose: "",
+            })
+          }
+  
+          setRows(newRows)
+  
+          alert("PRF details loaded successfully!")
+        } else {
+          alert("PRF not found. Please check the PRF number and try again.")
+        }
+      } catch (error) {
+        console.error("Error searching PRF:", error)
+        alert("Failed to search PRF. Please try again later.")
+      }
+    }
+
   return (
     <>
       <div className="nav-bar-container">
@@ -276,6 +339,22 @@ const NutraTechForm = () => {
           />
           <label className="nav-bar-label">{company}</label>
         </div>
+
+        <div className="search-container">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search PRF No..."
+              className="search-input"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            <button className="search-button" onClick={handleSearchPrf}>
+              <img className="searchPrfNo" src={search || "/placeholder.svg"} alt="Search" />
+            </button>
+          </div>
+        </div>
+
         <div className="nav-icons">
           <img
             src={printLogo || "/placeholder.svg"}
