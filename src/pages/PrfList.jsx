@@ -1,38 +1,62 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "../styles/DashboardAdmin.css";
-import NutraTechLogo from "../assets/NTBI.png";
-import userLogout from "../assets/user-signout.png";
+"use client"
+
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import axios from "axios"
+import "../styles/DashboardAdmin.css"
+import NutraTechLogo from "../assets/NTBI.png"
+import userLogout from "../assets/user-signout.png"
 
 const DashboardAdmin = () => {
-  const navigate = useNavigate();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("entry"); // "entry" or "list"
-  const [prfList, setPrfList] = useState([]); // State to store PRF data
+  const navigate = useNavigate()
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState("entry") // "entry" or "list"
+  const [prfList, setPrfList] = useState([]) // State to store PRF data
 
   useEffect(() => {
-    fetchPrfList();
-  }, []);
+    fetchPrfList()
+  }, [])
 
   const fetchPrfList = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/prf-list");
-      setPrfList(response.data);
+      const response = await axios.get("http://localhost:5000/api/prf-list")
+      setPrfList(response.data)
     } catch (error) {
-      console.error("❌ Error fetching PRF List:", error);
+      console.error("❌ Error fetching PRF List:", error)
     }
-  };
+  }
 
   const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
+    setDropdownOpen(!dropdownOpen)
+  }
 
   const handleSignOut = () => {
-    sessionStorage.clear();
-    localStorage.clear();
-    navigate("/login");
-  };
+    sessionStorage.clear()
+    localStorage.clear()
+    navigate("/login")
+  }
+
+  // Format date function
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A"
+
+    // Try to parse as date
+    const date = new Date(dateString)
+
+    // Check if it's a valid date (invalid dates return NaN for getTime())
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleDateString()
+    }
+
+    // If not a valid date, return the original string
+    return dateString
+  }
+
+  // Add this function to determine if a row is canceled
+  const isRowCanceled = (prf) => {
+    // Check if either the PRF or its details are marked as canceled
+    return prf.prfIsCancel === true || prf.detailsIsCancel === true
+  }
 
   return (
     <div className="nutra-container">
@@ -43,7 +67,12 @@ const DashboardAdmin = () => {
           </div>
           <div className="welcome-text">Welcome Admin</div>
           <div className="user-dashboard-container">
-            <img src={userLogout || "/placeholder.svg"} alt="User Logo" onClick={toggleDropdown} className="user-dashboard-icon" />
+            <img
+              src={userLogout || "/placeholder.svg"}
+              alt="User Logo"
+              onClick={toggleDropdown}
+              className="user-dashboard-icon"
+            />
             {dropdownOpen && (
               <div className="dropdown-menu-dashboard">
                 <div className="user-info-dashboard">
@@ -61,15 +90,15 @@ const DashboardAdmin = () => {
         <div className="dashboard-content">
           {/* Sidebar */}
           <aside className="dashboard-sidebar">
-            <div 
-              className={`sidebar-item ${activeSection === "entry" ? "active" : ""}`} 
+            <div
+              className={`sidebar-item ${activeSection === "entry" ? "active" : ""}`}
               onClick={() => setActiveSection("entry")}
             >
               <span className="dashboard-label">Purchase Entry</span>
             </div>
 
-            <div 
-              className={`sidebar-item ${activeSection === "list" ? "active" : ""}`} 
+            <div
+              className={`sidebar-item ${activeSection === "list" ? "active" : ""}`}
               onClick={() => setActiveSection("list")}
             >
               <span className="dashboard-label">Purchase List</span>
@@ -91,26 +120,32 @@ const DashboardAdmin = () => {
                       <th>Prf No.</th>
                       <th>Prepared By</th>
                       <th>Date</th>
+                      <th>Date Needed</th>
                       <th>Description</th>
                       <th>Quantity</th>
                       <th>Unit</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {prfList.length > 0 ? (
                       prfList.map((prf, index) => (
-                        <tr key={index}>
+                        <tr key={index} className={isRowCanceled(prf) ? "canceled-row" : ""}>
                           <td>No. {prf.prfNo}</td>
                           <td>{prf.preparedBy}</td>
-                          <td>{new Date(prf.prfDate).toLocaleDateString()}</td>
+                          <td>{formatDate(prf.prfDate)}</td>
+                          <td>{formatDate(prf.dateNeeded)}</td>
                           <td>{prf.StockName || "No stock name available"}</td>
                           <td>{prf.quantity || "N/A"}</td>
                           <td>{prf.unit || "N/A"}</td>
+                          <td className={isRowCanceled(prf) ? "status-cell canceled-status" : "status-cell"}>
+                            {isRowCanceled(prf) ? "Canceled" : "Active"}
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6">No PRF records found.</td>
+                        <td colSpan="8">No PRF records found.</td>
                       </tr>
                     )}
                   </tbody>
@@ -121,7 +156,7 @@ const DashboardAdmin = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DashboardAdmin;
+export default DashboardAdmin
