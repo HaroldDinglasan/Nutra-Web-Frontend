@@ -22,6 +22,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 import search from "../assets/search.png";
+import axios from "axios";
 
 const NutraTechForm = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -34,6 +35,8 @@ const NutraTechForm = () => {
   const [purchaseCodeNumber, setPurchaseCodeNumber] = useState("");
   const [prfId, setPrfId] = useState(null) // Add state to store the PRF ID
   const [searchInput, setSearchInput] = useState("")
+
+  const [isUpdating, setIsUpdating] = useState(false) // New state to track if we're in update mode
 
   const fullname = localStorage.getItem("userFullname") || ""; // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || ""; // Retrieve department
@@ -137,8 +140,6 @@ const NutraTechForm = () => {
     setPurchaseCodeNumber(newCode);
   };
 
-    // Add this with your other state variables
-    
 
     // Add this function after the generatePurchaseCode function
       const handleSavePrfHeader = async () => {
@@ -264,6 +265,44 @@ const NutraTechForm = () => {
       }
     }
 
+      // New function to handle updating PRF details
+    const handleUpdate = async () => {
+      if (!prfId) {
+        alert("No PRF ID found. Please search for a PRF first.")
+        return
+      }
+
+      const prfDetails = rows
+        .filter((row) => row.stockCode) // Only update rows with selected stock
+        .map((row) => ({
+          prfId: prfId,
+          stockCode: row.stockCode,
+          stockName: row.description, // Stock Name is in Description field
+          uom: row.unit, // BaseUOM
+          qty: Number.parseInt(row.quantity, 10) || 0,
+          dateNeeded: row.dateNeeded,
+          purpose: row.purpose,
+          description: row.description, // Optional field
+        }))
+
+      try {
+        const response = await axios.post("http://localhost:5000/api/update-prf-details", {
+          prfId,
+          details: prfDetails,
+        })
+
+        if (response.status === 200) {
+          alert("PRF details updated successfully!")
+          setIsUpdating(false) // Exit update mode
+        } else {
+          alert("Error updating PRF details: " + response.data.message)
+        }
+      } catch (error) {
+        console.error("Error updating PRF details:", error)
+        alert("Failed to update PRF details. Please try again.")
+      }
+    }
+
 
     const handleAddRow = () => {
         setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }]);
@@ -318,6 +357,7 @@ const NutraTechForm = () => {
           }
   
           setRows(newRows)
+          setIsUpdating(true) // Set to update mode since we're loading existing data
   
           alert("PRF details loaded successfully!")
         } else {
@@ -326,6 +366,36 @@ const NutraTechForm = () => {
       } catch (error) {
         console.error("Error searching PRF:", error)
         alert("Failed to search PRF. Please try again later.")
+      }
+    }
+
+    const handleCancel = async (prfId) => {
+    
+      if (!prfId) {
+        alert("No PRF ID found. Please search for a PRF first.")
+        return
+      }
+    
+      // Confirm cancellation
+      if (!window.confirm("Are you sure you want to cancel this PRF? This action cannot be undone.")) {
+        return
+      }
+    
+      try {
+        const response = await axios.post("http://localhost:5000/api/cancel-prf", {
+          prfId: prfId,
+        })
+    
+        if (response.status === 200) {
+          alert("PRF has been canceled successfully!")
+          // Optionally navigate back to the list view
+          // navigate("/nutraTech/form")
+        } else {
+          alert("Error canceling PRF: " + response.data.message)
+        }
+      } catch (error) {
+        console.error("Error canceling PRF:", error)
+        alert("Failed to cancel PRF. Please try again.")
       }
     }
 
@@ -541,15 +611,18 @@ const NutraTechForm = () => {
             <button className="add-row-button" onClick={handleAddRow}>
               + Add Row
             </button>
-            <button className="cancel-button">
+            <button className="cancel-button" onClick={() => handleCancel(prfId)}>
               Cancel
             </button>
-            <button className="update-button">
-              Update
-            </button>
-            <button className="save-button" onClick={handleSave}>
-              Save
-            </button>
+            {isUpdating ? (
+              <button className="update-button" onClick={handleUpdate}>
+                Update
+              </button>
+            ) : (
+              <button className="save-button" onClick={handleSave}>
+                Save
+              </button>
+            )}
           </div>
 
           {isModalOpen && (
