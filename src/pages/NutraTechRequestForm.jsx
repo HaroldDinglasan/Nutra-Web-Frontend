@@ -33,20 +33,18 @@ const NutraTechForm = () => {
   );
   const [company, setCompany] = useState("NutraTech Biopharma, Inc"); // Default value
   const [purchaseCodeNumber, setPurchaseCodeNumber] = useState("");
-  const [prfId, setPrfId] = useState(null) // Add state to store the PRF ID
+  const [prfId, setPrfId] = useState(null) // Store the PRF ID
   const [searchInput, setSearchInput] = useState("")
 
-  const [isUpdating, setIsUpdating] = useState(false) // New state to track if we're in update mode
+  const [isUpdating, setIsUpdating] = useState(false) // Track if we're in update mode
 
   const fullname = localStorage.getItem("userFullname") || ""; // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || ""; // Retrieve department
   
-  // Set company from location state when component mounts
   useEffect(() => {
     if (location.state && location.state.company) {
       setCompany(location.state.company);
     } else {
-      // If no company is passed, redirect back to login
       alert("No company selected. Please login again.");
       navigate("/login");
     }
@@ -90,7 +88,7 @@ const NutraTechForm = () => {
     const newRows = [...rows];
 
     if (name === "quantity") {
-      // Validation for integers only
+      // Validation for integers 
       if (/^\d*$/.test(value)) {
         newRows[index][name] = value;
         setRows(newRows);
@@ -141,7 +139,7 @@ const NutraTechForm = () => {
   };
 
 
-    // Add this function after the generatePurchaseCode function
+    // Function after generate PurchaseCode function
       const handleSavePrfHeader = async () => {
         if (!purchaseCodeNumber || !currentDate || !fullname) {
             console.error("Missing required data for PRF header");
@@ -151,7 +149,7 @@ const NutraTechForm = () => {
         const departmentId = localStorage.getItem("userDepartmentId");
 
         const prfHeaderData = {
-            departmentId: departmentId, // Add departmentId to the request
+            departmentId: departmentId, 
             prfNo: purchaseCodeNumber,
             prfDate: currentDate,
             preparedBy: fullname,
@@ -179,8 +177,6 @@ const NutraTechForm = () => {
         }
     };
 
-
-
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -205,7 +201,7 @@ const NutraTechForm = () => {
     const saveButton = document.querySelector(".save-button-container");
     if (saveButton) saveButton.style.display = "none"; // Hide button
 
-    const input = document.querySelector(".form-box-container"); // Target the form
+    const input = document.querySelector(".form-box-container");
     html2canvas(input, { scale: 3 }).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
@@ -237,11 +233,11 @@ const NutraTechForm = () => {
           stockId: crypto.randomUUID(), // Generate unique Stock ID
           stockCode: row.stockCode,
           stockName: row.description, // Stock Name is in Description field
-          uom: row.unit, // BaseUOM
+          uom: row.unit, // UOM is in Unit field
           qty: Number.parseInt(row.quantity, 10),
           dateNeeded: row.dateNeeded,
           purpose: row.purpose,
-          description: row.description, // Optional field
+          description: row.description, 
         }))
 
       try {
@@ -265,7 +261,7 @@ const NutraTechForm = () => {
       }
     }
 
-      // New function to handle updating PRF details
+      // Function to handle updating PRF details
     const handleUpdate = async () => {
       if (!prfId) {
         alert("No PRF ID found. Please search for a PRF first.")
@@ -278,11 +274,11 @@ const NutraTechForm = () => {
           prfId: prfId,
           stockCode: row.stockCode,
           stockName: row.description, // Stock Name is in Description field
-          uom: row.unit, // BaseUOM
+          uom: row.unit, // UOM is in Unit field
           qty: Number.parseInt(row.quantity, 10) || 0,
           dateNeeded: row.dateNeeded,
           purpose: row.purpose,
-          description: row.description, // Optional field
+          description: row.description, 
         }))
 
       try {
@@ -293,7 +289,7 @@ const NutraTechForm = () => {
 
         if (response.status === 200) {
           alert("PRF details updated successfully!")
-          setIsUpdating(false) // Exit update mode
+          setIsUpdating(false) 
         } else {
           alert("Error updating PRF details: " + response.data.message)
         }
@@ -635,7 +631,6 @@ const NutraTechForm = () => {
             <div className="approval-box">
               <h3>Prepared By:</h3>
               <div className="signature-box">{fullname}</div>{" "}
-              {/*Display fullname */}
               <p className="signature-label">
                 Signature over printed Name / Date
               </p>

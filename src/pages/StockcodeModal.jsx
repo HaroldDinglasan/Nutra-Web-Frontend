@@ -9,14 +9,13 @@ const StockcodeModal = ({ onClose, onSelectStock}) => {
     const [searchStocks, setSearchStocks] = useState("");
     const [filteredStocks, setFilteredStocks] = useState([]);
 
-
     // Fetch stock data from backend
     useEffect(() => {
         const fetchStocks = async () => {
             try {
                 const response = await axios.get("http://localhost:5000/api/stocks");
                 setStockItems(response.data);
-                setFilteredStocks(response.data); // Initialize filtered items with all items
+                setFilteredStocks(response.data); // Filtered items with all items
             } catch (error) {
                 console.error("❌ Error fetching stock data:", error);
             }
