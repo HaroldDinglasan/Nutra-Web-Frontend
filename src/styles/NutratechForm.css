@@ -1,6 +1,6 @@
 
 html, body {
-    overflow-x: hidden; /* Prevents horizontal scrolling */
+    overflow-x: hidden; /* remove horizontal scrolling */
     width: 100%;
     margin: 0;
     padding: 0;
@@ -18,7 +18,7 @@ html, body {
 }
 
 .form-box-container {
-    width: 90%; /* Use percentage instead of fixed max-width */
+    width: 90%; 
     max-width: 1020px; 
     padding: 2rem;
     margin-bottom: 40px;
@@ -311,7 +311,7 @@ h3 {
 
 .nav-bar-container {
     width: 100%;
-    height: 3vh;
+    height: 5vh;
     background-color: #fff;
     display: flex;
     align-items: center;
@@ -466,7 +466,7 @@ h3 {
 
 /* Add-row button styling */
 .add-row-button {
-    background-color: black;
+    background-color: rgb(133, 129, 129);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -486,7 +486,7 @@ h3 {
 
 /* Save button styling */
 .save-button {
-    background-color: black;
+    background-color: #067554;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -504,9 +504,8 @@ h3 {
     border: 1px solid black;
 }
 
-/* Cancel button styling */
 .cancel-button {
-    background-color: black;
+    background-color: #C80018;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -516,6 +515,7 @@ h3 {
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.3s ease;
+    margin-left: 380px;
   }
   
   .cancel-button:hover {
@@ -524,7 +524,6 @@ h3 {
     border: 1px solid black;
   }
   
-  /* Update button styling */
   .update-button {
     background-color: black;
     color: white;
@@ -544,8 +543,6 @@ h3 {
     border: 1px solid black;
   }
   
-
-
 .search-container {
     display: flex;
     justify-content: center;
@@ -604,8 +601,6 @@ h3 {
     margin-left: -50px;
     margin-top: 5px;
 }
-
-
 
 @media print {
     body {
@@ -729,8 +724,7 @@ h3 {
         vertical-align: middle;
     }
 }
-/* 
-Hides save button when printing */
+/* Hides save button when printing */
 @media print {
     .save-button-container {
         display: none !important;
