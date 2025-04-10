@@ -40,11 +40,10 @@ const Login = () => {
     // Check if login is for Admin
     if (username === "admin" && password === "admin") {
       alert("✅ Admin login successful!");
-      navigate("/prf/list"); // Redirect to PRF List page
+      navigate("/prf/list");
       return;
     }
 
-    // If not admin, proceed with normal authentication
     const loginData = { username, password };
 
     try {

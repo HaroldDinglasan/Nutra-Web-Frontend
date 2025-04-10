@@ -251,17 +251,10 @@
     box-shadow: none;
   }
 
-  .status-cell {
+  .canceled-row td {
+    color: red !important;
     font-weight: bold;
-    text-align: center;
   }
-  
-  .canceled-status {
-    color: red;
-    background-color: #ff7777;
-    border-radius: 4px;
-  }
-  
 
   /* Responsive adjustments */
   @media (max-width: 768px) {
