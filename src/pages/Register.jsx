@@ -63,7 +63,7 @@ const Register = () => {
         const input = e.target.value;
         setFullname(input);
     
-        // Ensure we filter only non-null values
+        // Filter only non-null values
         const filtered = employees.filter(emp =>
             emp.FullName && emp.FullName.toLowerCase().includes(input.toLowerCase())
         );
@@ -107,7 +107,7 @@ const Register = () => {
         try {
             const response = await axios.post("http://localhost:5000/api/register", {
                 departmentType: department,
-                departmentId: departmentId, // Inlcude departmentId in the request
+                departmentId: departmentId,
                 fullName: fullname,
                 username: username,
                 password: password,
@@ -117,7 +117,7 @@ const Register = () => {
                 alert("Registration successful!");
                 localStorage.setItem("userDepartment", department);
                 localStorage.setItem("userFullname", fullname);
-                localStorage.setItem("userDepartmentId", departmentId) // Store departmentId in localStorage
+                localStorage.setItem("userDepartmentId", departmentId) 
                 navigate("/login");
             }
         } catch (error) {

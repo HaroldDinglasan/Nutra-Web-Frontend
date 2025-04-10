@@ -36,7 +36,6 @@ const DashboardAdmin = () => {
     navigate("/login")
   }
 
-  // Format date function
   const formatDate = (dateString) => {
     if (!dateString) return "N/A"
 
@@ -52,9 +51,9 @@ const DashboardAdmin = () => {
     return dateString
   }
 
-  // Add this function to determine if a row is canceled
+  // Check if a row is canceled
   const isRowCanceled = (prf) => {
-    // Check if either the PRF or its details are marked as canceled
+    // Check if header or details are marked as canceled
     return prf.prfIsCancel === true || prf.detailsIsCancel === true
   }
 
@@ -88,7 +87,7 @@ const DashboardAdmin = () => {
         </header>
 
         <div className="dashboard-content">
-          {/* Sidebar */}
+      
           <aside className="dashboard-sidebar">
             <div
               className={`sidebar-item ${activeSection === "entry" ? "active" : ""}`}
@@ -105,7 +104,6 @@ const DashboardAdmin = () => {
             </div>
           </aside>
 
-          {/* Main content */}
           <main className="dashboard-main">
             {activeSection === "entry" ? (
               <div className="welcome-container">
@@ -120,11 +118,9 @@ const DashboardAdmin = () => {
                       <th>Prf No.</th>
                       <th>Prepared By</th>
                       <th>Date</th>
-                      <th>Date Needed</th>
                       <th>Description</th>
                       <th>Quantity</th>
                       <th>Unit</th>
-                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -133,19 +129,15 @@ const DashboardAdmin = () => {
                         <tr key={index} className={isRowCanceled(prf) ? "canceled-row" : ""}>
                           <td>No. {prf.prfNo}</td>
                           <td>{prf.preparedBy}</td>
-                          <td>{formatDate(prf.prfDate)}</td>
                           <td>{formatDate(prf.dateNeeded)}</td>
                           <td>{prf.StockName || "No stock name available"}</td>
                           <td>{prf.quantity || "N/A"}</td>
                           <td>{prf.unit || "N/A"}</td>
-                          <td className={isRowCanceled(prf) ? "status-cell canceled-status" : "status-cell"}>
-                            {isRowCanceled(prf) ? "Canceled" : "Active"}
-                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="8">No PRF records found.</td>
+                        <td colSpan="6">No PRF records found.</td>
                       </tr>
                     )}
                   </tbody>
