@@ -10,17 +10,57 @@ import userLogout from "../assets/user-signout.png"
 const DashboardAdmin = () => {
   const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [activeSection, setActiveSection] = useState("entry") // "entry" or "list"
-  const [prfList, setPrfList] = useState([]) // State to store PRF data
+  const [activeSection, setActiveSection] = useState("entry") // Entry or list
+  const [prfList, setPrfList] = useState([]) // Store PRF data
+  const [filteredPrfList, setFilteredPrfList] = useState([]) // Store filtered PRF data
+  const [searchTerm, setSearchTerm] = useState("") // Store search term
 
   useEffect(() => {
     fetchPrfList()
   }, [])
 
+  // Effect to filter the PRF list
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      // If search is empty, show all PRFs
+      setFilteredPrfList(prfList)
+      return
+    }
+
+    // Convert search term to lowercase
+    let term = searchTerm.toLowerCase()
+
+    // Remove "No. " prefix from search term if it exists
+    if (term.startsWith("no. ")) {
+      term = term.substring(4)
+    }
+
+    // Filter the PRF list
+    const filtered = prfList.filter((prf) => {
+      // Get prfNo as string and convert to lowercase
+      const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
+
+    
+      return (
+        // Search in PRF number
+        prfNoStr.includes(term) ||
+        // Search in prepared by
+        (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+        // Search in date
+        (prf.dateNeeded && formatDate(prf.dateNeeded).toLowerCase().includes(term)) ||
+        // Search in description
+        (prf.StockName && prf.StockName.toLowerCase().includes(term))
+      )
+    })
+
+    setFilteredPrfList(filtered)
+  }, [searchTerm, prfList])
+
   const fetchPrfList = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/prf-list")
       setPrfList(response.data)
+      setFilteredPrfList(response.data) // Filtered list with all data
     } catch (error) {
       console.error("❌ Error fetching PRF List:", error)
     }
@@ -42,13 +82,22 @@ const DashboardAdmin = () => {
     // Try to parse as date
     const date = new Date(dateString)
 
-    // Check if it's a valid date (invalid dates return NaN for getTime())
+    // Check if it's a valid date
     if (!isNaN(date.getTime())) {
       return date.toLocaleDateString()
     }
-
-    // If not a valid date, return the original string
+    
     return dateString
+  }
+
+  // Handle search input changes
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value)
+  }
+
+  // Clear search input
+  const clearSearch = () => {
+    setSearchTerm("")
   }
 
   // Check if a row is canceled
@@ -87,7 +136,6 @@ const DashboardAdmin = () => {
         </header>
 
         <div className="dashboard-content">
-      
           <aside className="dashboard-sidebar">
             <div
               className={`sidebar-item ${activeSection === "entry" ? "active" : ""}`}
@@ -107,11 +155,56 @@ const DashboardAdmin = () => {
           <main className="dashboard-main">
             {activeSection === "entry" ? (
               <div className="welcome-container">
-                <h2>Welcome to NutraTech Biopharma Inc.</h2>
-                <p>Please proceed with your purchase list.</p>
+                <h2>Welcome to NutraTech Biopharma Inc</h2>
               </div>
             ) : (
               <div className="log-table-container">
+               
+                <div className="search-prf-container">
+                  <div className="search-prf-wrapper">
+                    <svg
+                      className="search-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Search by PRF No..."
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                      className="search-input"
+                    />
+                    {searchTerm && (
+                      <button className="clear-search" onClick={clearSearch}>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <table className="log-table">
                   <thead>
                     <tr>
@@ -124,8 +217,8 @@ const DashboardAdmin = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {prfList.length > 0 ? (
-                      prfList.map((prf, index) => (
+                    {filteredPrfList.length > 0 ? (
+                      filteredPrfList.map((prf, index) => (
                         <tr key={index} className={isRowCanceled(prf) ? "canceled-row" : ""}>
                           <td>No. {prf.prfNo}</td>
                           <td>{prf.preparedBy}</td>
@@ -137,7 +230,7 @@ const DashboardAdmin = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6">No PRF records found.</td>
+                        <td colSpan="6">No matching PRF records found.</td>
                       </tr>
                     )}
                   </tbody>

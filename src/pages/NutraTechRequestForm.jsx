@@ -411,7 +411,7 @@ const NutraTechForm = () => {
             <input
               type="text"
               placeholder="Search PRF No..."
-              className="search-input"
+              className="search-input-form"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
