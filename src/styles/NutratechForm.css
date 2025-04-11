@@ -561,9 +561,10 @@ h3 {
     height: 20px;
     transition: all 0.3s ease-in-out;
     border: 1px solid rgb(187, 187, 187);
+    margin-right: 90px;
 }
 
-.search-input {
+.search-input-form {
     flex: 1;
     border: none;
     outline: none;
@@ -572,7 +573,7 @@ h3 {
     background: transparent;
 }
 
-.search-input::placeholder {
+.search-input-form::placeholder {
     color: #999;
 }
 
