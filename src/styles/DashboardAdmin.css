@@ -32,7 +32,7 @@
   }
   
   /* Admin dashboard */
-  .admin-dashboard {
+  .admin-dashboard {  
     position: relative;
     z-index: 1;
     width: 100%; /* Changed from max-width: 1200px */
@@ -135,7 +135,7 @@
     margin-left: 10px;
     padding: 20px;
     position: relative;
-    background-color: #f9f7f7;
+    background-color: #f4f4f4;
     overflow: hidden;
   }
 
