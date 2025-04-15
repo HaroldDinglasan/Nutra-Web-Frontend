@@ -38,6 +38,10 @@ const NutraTechForm = () => {
 
   const [isUpdating, setIsUpdating] = useState(false) // Track if we're in update mode
 
+  const [isPrfCancelled, setIsPrfCancelled] = useState(false) // Track if the PRF is cancelled
+
+  const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel")
+
   const fullname = localStorage.getItem("userFullname") || ""; // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || ""; // Retrieve department
   
@@ -329,6 +333,17 @@ const NutraTechForm = () => {
           setPurchaseCodeNumber(data.header.prfNo)
           setCurrentDate(data.header.prfDate.split("T")[0])
           setPrfId(data.header.prfId)
+
+          // Check if the PRF is cancelled and update state
+          const isCancelled = data.header.prfIsCancel === true
+          setIsPrfCancelled(isCancelled)
+
+          // Set the cancel button label depending on isCancel
+          if (data.header.prfIsCancel === true) {
+            setCancelButtonLabel("Marked as Cancelled")
+          } else {
+            setCancelButtonLabel("Cancel")
+          }
   
           // Set the PRF details in the table
           const newRows = data.details.map((detail) => ({
@@ -384,6 +399,8 @@ const NutraTechForm = () => {
     
         if (response.status === 200) {
           alert("PRF has been canceled successfully!")
+          setCancelButtonLabel("Marked as Cancelled")
+          setIsPrfCancelled(true) // Update the cancelled state
           // Optionally navigate back to the list view
           // navigate("/nutraTech/form")
         } else {
@@ -394,6 +411,11 @@ const NutraTechForm = () => {
         alert("Failed to cancel PRF. Please try again.")
       }
     }
+
+    // Style for cancelled PRF details
+  const cancelledStyle = {
+    color: isPrfCancelled ? "red" : "inherit",
+  }
 
   return (
     <>
@@ -462,7 +484,26 @@ const NutraTechForm = () => {
       </div>
 
       <div className="form-container">
-        <div className="form-box-container">
+
+      <div className="form-box-container">
+          {isPrfCancelled && (
+            <div
+              className="cancelled-banner"
+              style={{
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+                padding: "10px",
+                textAlign: "center",
+                fontWeight: "bold",
+                color: "red",
+                marginBottom: "10px",
+                border: "1px solid red",
+                borderRadius: "4px",
+              }}
+            >
+              This PRF has been cancelled
+            </div>
+          )}
+
           <div className="header">
             <div>
               <div className="logo">
@@ -481,7 +522,7 @@ const NutraTechForm = () => {
           </div>
 
           <div className="form-header">
-            <div className="purchase-code-number">
+            <div className="purchase-code-number" style={cancelledStyle}>
               <label>No. {purchaseCodeNumber}</label>
             </div>
             <h1 className="header-one-label">PURCHASE REQUEST FORM</h1>
@@ -523,12 +564,14 @@ const NutraTechForm = () => {
               <thead>
                 <tr>
                   <th>
-                    <label
+                  <label
                       onClick={() => {
-                        setIsModalOpen(true);
-                        setSelectedRowIndex(0); // Default row selection
+                        if (!isPrfCancelled) {
+                          setIsModalOpen(true)
+                          setSelectedRowIndex(0) // Default row selection
+                        }
                       }}
-                      style={{ cursor: "pointer" }}
+                      style={{ cursor: isPrfCancelled ? "default" : "pointer" }}
                     >
                       STOCK CODE
                     </label>
@@ -542,20 +585,17 @@ const NutraTechForm = () => {
               </thead>
               <tbody>
                 {rows.map((row, index) => (
-                  <tr key={index}>
+                  <tr key={index} style={cancelledStyle}>
                     <td
                       onClick={() => {
-                        setIsModalOpen(true);
-                        setSelectedRowIndex(index);
+                        if (!isPrfCancelled) {
+                          setIsModalOpen(true)
+                          setSelectedRowIndex(index)
+                        }
                       }}
-                      style={{ cursor: "pointer" }}
+                      style={{ cursor: isPrfCancelled ? "default" : "pointer" }}
                     >
-                      <input
-                        type="text"
-                        name="stockCode"
-                        value={row.stockCode}
-                        readOnly
-                      />
+                      <input type="text" name="stockCode" value={row.stockCode} readOnly style={cancelledStyle} />
                     </td>
                     <td>
                       <input
@@ -563,6 +603,8 @@ const NutraTechForm = () => {
                         name="quantity"
                         value={row.quantity}
                         onChange={(e) => handleInputChange(index, e)}
+                        readOnly={isPrfCancelled}
+                        style={cancelledStyle}
                       />
                     </td>
                     <td>
@@ -571,6 +613,8 @@ const NutraTechForm = () => {
                         name="unit"
                         value={row.unit}
                         onChange={(e) => handleInputChange(index, e)}
+                        readOnly={isPrfCancelled}
+                        style={cancelledStyle}
                       />
                     </td>
                     <td>
@@ -579,6 +623,8 @@ const NutraTechForm = () => {
                         name="description"
                         value={row.description}
                         onChange={(e) => handleInputChange(index, e)}
+                        readOnly={isPrfCancelled}
+                        style={cancelledStyle}
                       />
                     </td>
                     <td>
@@ -587,6 +633,8 @@ const NutraTechForm = () => {
                         name="dateNeeded"
                         value={row.dateNeeded}
                         onChange={(e) => handleInputChange(index, e)}
+                        readOnly={isPrfCancelled}
+                        style={cancelledStyle}
                       />
                     </td>
                     <td>
@@ -595,6 +643,8 @@ const NutraTechForm = () => {
                         name="purpose"
                         value={row.purpose}
                         onChange={(e) => handleInputChange(index, e)}
+                        readOnly={isPrfCancelled}
+                        style={cancelledStyle}
                       />
                     </td>
                   </tr>
@@ -604,14 +654,16 @@ const NutraTechForm = () => {
           </div>
 
           <div className="save-button-container">
-            <button className="add-row-button" onClick={handleAddRow}>
+            <button className="add-row-button" onClick={handleAddRow} disabled={isPrfCancelled}>
               + Add Row
             </button>
-            <button className="cancel-button" onClick={() => handleCancel(prfId)}>
-              Cancel
+
+            <button className="cancel-button" onClick={() => handleCancel(prfId)} disabled={isPrfCancelled}>
+              {cancelButtonLabel}
             </button>
+
             {isUpdating ? (
-              <button className="update-button" onClick={handleUpdate}>
+              <button className="update-button" onClick={handleUpdate} disabled={isPrfCancelled}>
                 Update
               </button>
             ) : (
@@ -621,12 +673,8 @@ const NutraTechForm = () => {
             )}
           </div>
 
-          {isModalOpen && (
-            <StockcodeModal
-              onClose={() => setIsModalOpen(false)}
-              onSelectStock={handleStockSelect}
-            />
-          )}
+          {isModalOpen && <StockcodeModal onClose={() => setIsModalOpen(false)} onSelectStock={handleStockSelect} />}
+
           <div className="approval-section">
             <div className="approval-box">
               <h3>Prepared By:</h3>
@@ -660,6 +708,16 @@ const NutraTechForm = () => {
           </div>
         </div>
       </div>
+      <style jsx>{`
+        button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        
+        input:read-only {
+          background-color: ${isPrfCancelled ? "rgba(255, 0, 0, 0.05)" : "inherit"};
+        }
+      `}</style>
     </>
   );
 };
