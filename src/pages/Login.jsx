@@ -37,13 +37,6 @@ const Login = () => {
 
     setErrors({}); // Clear previous errors
 
-    // Check if login is for Admin
-    if (username === "admin" && password === "admin") {
-      alert("✅ Admin login successful!");
-      navigate("/prf/list");
-      return;
-    }
-
     const loginData = { username, password };
 
     try {
@@ -62,9 +55,9 @@ const Login = () => {
         localStorage.setItem("userFullname", data.user.fullName);
         localStorage.setItem("userDepartment", data.user.departmentType);
         localStorage.setItem("userDepartmentId", data.user.departmentId); // Store department Id
+        localStorage.setItem("userCompany", selectedCompany) // Store selected Company
 
-        // Navigate to the form page with the selected company
-        navigate("/nutraTech/form", {
+        navigate("/prf/list#dashboard", {
           state: { company: selectedCompany },
         });
       } else {

@@ -11,6 +11,7 @@ import NutraTechForm from "./pages/NutraTechRequestForm";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import PrfList from "./pages/PrfList";
+import AppLayout from "./components/app-layout";
 
 const App = () => {
   return (
@@ -18,9 +19,9 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register/form" element={<Register />} />
-        <Route path="/nutraTech/form" element={<NutraTechForm />} />
-        <Route path="/stock/modal/form" element={<StockcodeModal />} />
-        <Route path="/prf/list" element={<PrfList />} />
+        <Route path="/nutraTech/form" element={<AppLayout><NutraTechForm/></AppLayout>}/>
+        <Route path="/stock/modal/form" element={<StockcodeModal />}/>
+        <Route path="/prf/list" element={<AppLayout><PrfList /></AppLayout>}/>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from "react";
 import "../styles/NutratechForm.css";
-import userLogo from "../assets/user-icon.png";
 import downloadLogo from "../assets/downloads.png";
 import printLogo from "../assets/printing.png";
 import { useLocation, useNavigate } from "react-router-dom";
-import userSignout from "../assets/user-signout.png";
 
 import NutraTechlogo from "../assets/NTBI.png";
 import avliLogo from "../assets/AVLI.png";
@@ -456,30 +454,6 @@ const NutraTechForm = () => {
             onClick={handleDownloadPDF}
             className="download-icon"
           />
-
-          <div className="user-profile-container">
-            <img
-              src={userLogo || "/placeholder.svg"}
-              alt="User Logo"
-              onClick={toggleDropdown}
-              className="user-icon"
-            />
-            {dropdownOpen && (
-              <div className="dropdown-menu">
-                <div className="user-info">
-                  <img
-                    src={userSignout || "/placeholder.svg"}
-                    alt="User Signout"
-                    className="user-signout-icon"
-                  />
-                  <p className="dropdown-user-label">{fullname}</p>
-                </div>
-                <button className="signout-button" onClick={handleSignout}>
-                  Sign Out
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
