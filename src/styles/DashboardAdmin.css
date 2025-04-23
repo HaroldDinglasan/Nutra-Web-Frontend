@@ -1,8 +1,8 @@
-/* Main container */
+
 .nutra-container {
   width: 100%;
   min-height: 100vh;
-  background-color: transparent; /* Change this */
+  background-color: transparent;
   position: relative;
   overflow: hidden;
   }
@@ -35,17 +35,17 @@
   .admin-dashboard {  
     position: relative;
     z-index: 1;
-    width: 100%; /* Changed from max-width: 1200px */
-    margin: 0;    /* Remove auto-centering */
-    border-radius: 0; /* Optional: remove curve if not needed */
-    box-shadow: none; /* Optional: remove shadow if not needed */
-    background-color: transparent; /* Match site background */
+    width: 100%; 
+    margin: 0;    
+    border-radius: 0; 
+    box-shadow: none; 
+    background-color: transparent; 
   }
   
   /* Header */
   .dashboard-header {
     display: flex;
-    height: 35px;
+    height: 20px;
     align-items: center;
     padding: 15px 20px;
     border-bottom: 1px solid #eaeaea;
@@ -135,7 +135,7 @@
     margin-left: 10px;
     padding: 20px;
     position: relative;
-    background-color: #f4f4f4;
+    background-color: white;
     overflow: hidden;
   }
 
@@ -144,7 +144,6 @@
     z-index: 2;
   }
 
-  
   /* Log table */
   .log-table-container {
     border-radius: 4px;
@@ -159,7 +158,7 @@
   
   .log-table th {
     white-space: nowrap;
-    background-color: #e9e9e9;
+    background-color: #fffefe;
     text-align: center;
     font-weight: 500;
     color: #333;
@@ -184,17 +183,22 @@
   }
 
   .user-dashboard-container {
-    position: relative;
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
     display: inline-block;
     width: auto;
     height: 20px;
+    z-index: 99999;
   }
 
   .user-dashboard-icon {
     width: 25px;
     height: 25px;
     cursor: pointer;
-    margin-left: -40px;
+    margin-right: 5px;
+    margin-top: -2px;
   }
 
   .dropdown-menu-dashboard {
@@ -210,7 +214,7 @@
     flex-direction: column;
     align-items: center;
     margin-right: 30px;
-    z-index: 9999; /* Ensures it's always on top */
+    z-index: 9999; 
   }
 
   .user-info-dashboard {
@@ -234,7 +238,6 @@
     font-size: 14px;
     text-align: center;
   }
-
 
   .signout-dashboard-button {
     width: 100%;
@@ -265,10 +268,9 @@
     color: rgb(255, 0, 0) !important;
   }
 
- /* Add these styles to your existing CSS file */
 .search-prf-container {
   margin-bottom: 20px;
-  width: 35%;
+  width: 25%;
   
 }
 
@@ -347,7 +349,6 @@
   text-align: right;
 }
 
-/* Add these styles to your DashboardAdmin.css file */
 .sidebar-item {
   position: relative;
   display: flex;
@@ -399,6 +400,130 @@
   background-color: rgba(93, 93, 93, 0.05);
 }
 
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 350px;
+}
+
+.search-container {
+  flex: 0 1 350px;
+  max-width: 350px;
+  transition: opacity 0.3s ease;
+}
+
+.search-container[style*="hidden"] {
+  opacity: 0;
+}
+
+.search-container[style*="visible"] {
+  opacity: 1;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 25px;
+  padding: 5px 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  height: 20px;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid rgb(187, 187, 187);
+  margin-right: -30px;
+}
+
+.search-input-form {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 8px;
+  background: transparent;
+}
+
+.search-input-form::placeholder {
+  color: #999;
+}
+
+.search-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.search-button img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+.search-button:hover {
+  transform: scale(1.1);
+}
+
+.search-box:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.searchPrfNo {
+  margin-left: -50px;
+  margin-top: 5px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.nav-icons {
+  margin-left: auto;
+  margin-right: 50px; /* Space for the user icon */
+  gap: -10px;
+  width: 120px; /* Fixed width to maintain layout */
+  justify-content: flex-end;
+}
+
+.search-container {
+  flex: 0 1 350px;
+  max-width: 350px;
+}
+
+.nav-icons img {
+  width: 25px;  
+  height: 25px; 
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.nav-icons{
+  display: flex;
+  margin-left: auto;
+  gap: -10px;
+
+}
+
+.nav-icons img {
+  width: 25px;  
+  height: 25px; 
+  cursor: pointer;
+  margin-right: 70px;
+}
+
+@media print {
+  .nav-bar-container, .nav-icons {
+    display: none; 
+  }
+  
+  .print-icon {
+    display: none; 
+  }
+}
 
   /* Responsive adjustments */
   @media (max-width: 768px) {
@@ -418,10 +543,52 @@
     }
   }
 
-
-
-
-
+@media print {
+  .dashboard-header,
+  .dashboard-sidebar,
+  .nav-bar-container,
+  .sidebar-container,
+  .nav-icons,
+  .search-container {
+    display: none !important;
+  }
   
+  .dashboard-main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
   
+  .dashboard-content {
+    display: block !important;
+  }
   
+  .nutra-container::before,
+  .nutra-container::after {
+    display: none !important;
+  }
+  
+  .sidebar-item .dashboard-label {
+    display: none !important;
+  }
+  
+  .admin-dashboard {
+    box-shadow: none !important;
+    background-color: white !important;
+  }
+  
+  body {
+    background-color: white !important;
+  }
+}
+
+@media print {
+  .sidebar-item .dashboard-label {
+    display: none !important;
+  }
+  
+  /* Hide all decorative elements */
+  .sidebar-indicator {
+    display: none !important;
+  }
+}

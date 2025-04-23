@@ -13,7 +13,7 @@ html, body {
     min-height: 100vh; 
     width: 100%;
     padding: 2vw; /* Use relative padding for better scaling */
-    background-color: #E8E9EB;
+    background-color: white;
     box-sizing: border-box; 
 }
 
@@ -26,6 +26,7 @@ html, body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     box-sizing: border-box;
+    border: 1px solid #ccc; /* Light grey border */
 }
 
 .header {
@@ -67,7 +68,7 @@ html, body {
     border-collapse: collapse;
     outline: 1px solid #c1c0c0;
     font-size: 12px;
-    table-layout: fixed; /* Ensures defined column widths are respected */
+    table-layout: fixed; 
 }
 
 table {
@@ -109,12 +110,12 @@ td input {
     background: transparent;
     width: 100%;
     text-align: center;
-    padding: 2px 0; /* Reduce extra padding */
-    line-height: 1.2; /* Ensure proper text height */
-    font-size: 14px; /* Adjust for visibility */
-    height: 20px; /* Force a fixed height */
-    vertical-align: middle; /* Align in table cell */
-    appearance: none; /* Remove browser default styling */
+    padding: 2px 0; 
+    line-height: 1.2; 
+    font-size: 14px; 
+    height: 20px; 
+    vertical-align: middle; 
+    appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
 }
@@ -196,27 +197,11 @@ h3 {
     margin-left: 20px;
 }
 
-
 .nav-bar-container{
     width: 100%;
     height: 8px;
     background-color: #fff;
 }
-
-.nav-icons{
-    display: flex;
-    margin-left: auto;
-    gap: -10px;
-
-}
-
-.nav-icons img {
-    width: 25px;  
-    height: 25px; 
-    cursor: pointer;
-    margin-right: 70px;
-}
-
 
 .field-box {
     display: flex;
@@ -251,11 +236,11 @@ h3 {
     margin-right: 47px;
     outline: none;
     margin-top: 9.5px;
-    line-height: 1.2; /* Ensure proper text height */
-    font-size: 14px; /* Adjust for visibility */
-    height: 20px; /* Force a fixed height */
-    vertical-align: middle; /* Align in table cell */
-    appearance: none; /* Remove browser default styling */
+    line-height: 1.2; 
+    font-size: 14px; 
+    height: 20px; 
+    vertical-align: middle;
+    appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
 }
@@ -359,11 +344,11 @@ h3 {
     background-color: white;
     height: 14px;
     text-align: center;
-    line-height: 1.2; /* Ensure proper text height */
-    font-size: 14px; /* Adjust for visibility */
-    height: 20px; /* Force a fixed height */
-    vertical-align: middle; /* Align in table cell */
-    appearance: none; /* Remove browser default styling */
+    line-height: 1.2; 
+    font-size: 14px; 
+    height: 20px; 
+    vertical-align: middle; 
+    appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
 }
@@ -391,7 +376,6 @@ h3 {
     padding: 0 25px; 
 }
 
-/* Add-row button styling */
 .add-row-button {
     background-color: rgb(133, 129, 129);
     color: white;
@@ -470,66 +454,6 @@ h3 {
     border: 1px solid black;
   }
   
-.search-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 350px;
-}
-
-.search-box {
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border-radius: 25px;
-    padding: 5px 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 200px;
-    height: 20px;
-    transition: all 0.3s ease-in-out;
-    border: 1px solid rgb(187, 187, 187);
-    margin-right: 90px;
-}
-
-.search-input-form {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 14px;
-    padding: 8px;
-    background: transparent;
-}
-
-.search-input-form::placeholder {
-    color: #999;
-}
-
-.search-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-}
-
-.search-button img {
-    width: 20px;
-    height: 20px;
-    opacity: 0.7;
-}
-
-.search-button:hover {
-    transform: scale(1.1);
-}
-
-.search-box:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.searchPrfNo {
-    margin-left: -50px;
-    margin-top: 5px;
-}
-
 @media print {
     body {
         -webkit-print-color-adjust: exact; 
@@ -645,10 +569,10 @@ h3 {
         background: transparent;
         width: 100%;
         text-align: center;
-        padding: 0px; /* Remove extra padding */
-        line-height: 1; /* Keep line height minimal */
-        font-size: 12px; /* Adjust font size for PDF */
-        height: auto; /* Allow it to resize properly */
+        padding: 0px; 
+        line-height: 1;
+        font-size: 12px; 
+        height: auto; 
         vertical-align: middle;
     }
 }
