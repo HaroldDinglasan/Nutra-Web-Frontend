@@ -13,6 +13,7 @@ import apthealtheaderLogo from "../assets/apthealth logo.png"
 import avliheaderLogo from "../assets/avli biocare.logo.png"
 
 import StockcodeModal from "./StockcodeModal"
+import UomModal from "../components/UomModal"
 import axios from "axios"
 
 const NutraTechForm = () => {
@@ -30,6 +31,8 @@ const NutraTechForm = () => {
   const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel")
   const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || "" // Retrieve department
+  const [isUomModalOpen, setIsUomModalOpen] = useState(false)
+  const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
 
   useEffect(() => {
     if (location.state && location.state.company) {
@@ -132,6 +135,15 @@ const NutraTechForm = () => {
       newRows[selectedRowIndex].stockCode = stock.StockCode
       newRows[selectedRowIndex].unit = stock.BaseUOM
       newRows[selectedRowIndex].description = stock.StockName
+      setRows(newRows)
+    }
+  }
+
+  // Function to handle UOM selection
+  const handleUomSelect = (uom) => {
+    if (selectedUomRowIndex !== null) {
+      const newRows = [...rows]
+      newRows[selectedUomRowIndex].unit = uom
       setRows(newRows)
     }
   }
@@ -443,7 +455,19 @@ const NutraTechForm = () => {
                     </label>
                   </th>
                   <th>QUANTITY</th>
-                  <th>UNIT</th>
+                  <th>
+                    <label
+                      onClick={() => {
+                        if (!isPrfCancelled) {
+                          setIsUomModalOpen(true)
+                          setSelectedUomRowIndex(0)
+                        }
+                      }}
+                      style={{ cursor: isPrfCancelled ? "default" : "pointer" }}
+                    >
+                      UNIT
+                    </label>
+                  </th>
                   <th>DESCRIPTION</th>
                   <th>DATE NEEDED</th>
                   <th>PURPOSE OF REQUISITION</th>
@@ -473,7 +497,15 @@ const NutraTechForm = () => {
                         style={cancelledStyle}
                       />
                     </td>
-                    <td>
+                    <td
+                      onClick={() => {
+                        if (!isPrfCancelled) {
+                          setIsUomModalOpen(true)
+                          setSelectedUomRowIndex(index)
+                        }
+                      }}
+                      style={{ cursor: isPrfCancelled ? "default" : "pointer" }}
+                    >
                       <input
                         type="text"
                         name="unit"
@@ -540,6 +572,7 @@ const NutraTechForm = () => {
           </div>
 
           {isModalOpen && <StockcodeModal onClose={() => setIsModalOpen(false)} onSelectStock={handleStockSelect} />}
+          {isUomModalOpen && <UomModal onClose={() => setIsUomModalOpen(false)} onSelectUom={handleUomSelect} />}
 
           <div className="approval-section">
             <div className="approval-box">

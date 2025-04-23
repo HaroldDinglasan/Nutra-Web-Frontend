@@ -175,7 +175,7 @@
   }
   
   .log-table tbody tr {
-    background-color: #f9f9f9;
+    background-color: white;
   }
   
   .log-table tbody tr:hover {
@@ -229,7 +229,7 @@
   }
 
   .dashboard-signout-icon {
-    margin-left: 15px;
+    margin-left: 30px;
   }
 
   .dropdown-user-dashboard-label {
@@ -432,7 +432,7 @@
   height: 20px;
   transition: all 0.3s ease-in-out;
   border: 1px solid rgb(187, 187, 187);
-  margin-right: -30px;
+  margin-right: -320px;
 }
 
 .search-input-form {
