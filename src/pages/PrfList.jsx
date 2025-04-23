@@ -122,7 +122,7 @@ const DashboardAdmin = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search by PRF No..."
+                placeholder="Search"
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className="search-input"
