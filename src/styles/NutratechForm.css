@@ -19,7 +19,7 @@ html, body {
 
 .form-box-container {
     width: 90%; 
-    max-width: 1020px; 
+    max-width: 1200px; 
     padding: 2rem;
     margin-bottom: 40px;
     background-color: #fff;
@@ -263,7 +263,7 @@ h3 {
 }
 
 .approval-box {
-    width: 195px; 
+    width: 216px; 
     background-color: #ffffff; 
     padding: 10px;
     text-align: center;

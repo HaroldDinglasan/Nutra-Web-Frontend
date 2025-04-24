@@ -81,6 +81,7 @@ const NutraTechForm = () => {
           description: detail.StockName,
           dateNeeded: detail.dateNeeded,
           purpose: detail.purpose,
+          stockId: detail.stockId || "", 
         }))
 
         // If there are fewer details than rows, pad with empty rows
@@ -92,6 +93,7 @@ const NutraTechForm = () => {
             description: "",
             dateNeeded: "",
             purpose: "",
+            stockId: "",
           })
         }
 
@@ -122,6 +124,7 @@ const NutraTechForm = () => {
       description: "",
       dateNeeded: "",
       purpose: "",
+      stockId: "", // Add stockId field
     })),
   )
 
@@ -131,16 +134,22 @@ const NutraTechForm = () => {
   // Function to handle stock selection
   const handleStockSelect = (stock) => {
     if (selectedRowIndex !== null) {
+      console.log("Selected stock:", stock) // Log the entire stock object
+      console.log("Stock Id:", stock.Id) // Log the Id specifically
+      
       const newRows = [...rows]
       newRows[selectedRowIndex].stockCode = stock.StockCode
       newRows[selectedRowIndex].unit = stock.BaseUOM
       newRows[selectedRowIndex].description = stock.StockName
+      newRows[selectedRowIndex].stockId = stock.Id // Store the stock Id
       setRows(newRows)
     }
   }
 
   // Function to handle UOM selection
   const handleUomSelect = (uom) => {
+    console.log("Selected UOM:", uom) 
+    
     if (selectedUomRowIndex !== null) {
       const newRows = [...rows]
       newRows[selectedUomRowIndex].unit = uom
@@ -267,7 +276,7 @@ const NutraTechForm = () => {
       .map((row) => ({
         prfId: headerPrfId,
         headerPrfId: headerPrfId, // Include the integer ID from the header table
-        stockId: crypto.randomUUID(), // Generate unique Stock ID
+        stockId: row.stockId || crypto.randomUUID(), // Use existing stockId or generate a new one
         stockCode: row.stockCode,
         stockName: row.description, // Stock Name is in Description field
         uom: row.unit, // UOM is in Unit field
@@ -309,6 +318,7 @@ const NutraTechForm = () => {
       .filter((row) => row.stockCode) // Only update rows with selected stock
       .map((row) => ({
         prfId: prfId,
+        stockId: row.stockId, // Include stockId in the update
         stockCode: row.stockCode,
         stockName: row.description, 
         uom: row.unit,
@@ -337,7 +347,7 @@ const NutraTechForm = () => {
   }
 
   const handleAddRow = () => {
-    setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "" }])
+    setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "", stockId: "" }])
   }
 
   const handleCancel = async (prfId) => {
@@ -572,7 +582,13 @@ const NutraTechForm = () => {
           </div>
 
           {isModalOpen && <StockcodeModal onClose={() => setIsModalOpen(false)} onSelectStock={handleStockSelect} />}
-          {isUomModalOpen && <UomModal onClose={() => setIsUomModalOpen(false)} onSelectUom={handleUomSelect} />}
+          {isUomModalOpen && (
+            <UomModal
+              onClose={() => setIsUomModalOpen(false)}
+              onSelectUom={handleUomSelect}
+              stockId={rows[selectedUomRowIndex]?.stockId} // Pass the stockId from the selected row
+            />
+          )}
 
           <div className="approval-section">
             <div className="approval-box">
