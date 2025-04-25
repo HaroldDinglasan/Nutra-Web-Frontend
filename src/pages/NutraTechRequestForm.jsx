@@ -14,7 +14,8 @@ import avliheaderLogo from "../assets/avli biocare.logo.png"
 
 import StockcodeModal from "./StockcodeModal"
 import UomModal from "../components/UomModal"
-import axios from "axios"
+import Button, { SaveButton, UpdateButton, CancelButton, AddRowButton } from "../components/button"
+import { savePrfHeader, savePrfDetails, updatePrfDetails, cancelPrf } from "../components/button-function"
 
 const NutraTechForm = () => {
   const location = useLocation()
@@ -264,85 +265,20 @@ const NutraTechForm = () => {
     let headerPrfId = prfId
 
     if (!headerPrfId) {
-      headerPrfId = await handleSavePrfHeader()
+      headerPrfId = await savePrfHeader(purchaseCodeNumber, currentDate, fullname)
     }
-    if (!headerPrfId) {
-      alert("Failed to save PRF header. Please try again.")
-      return
-    }
-
-    const prfDetails = rows
-      .filter((row) => row.stockCode) // Only save rows with selected stock
-      .map((row) => ({
-        prfId: headerPrfId,
-        headerPrfId: headerPrfId, // Include the integer ID from the header table
-        stockId: row.stockId || crypto.randomUUID(), // Use existing stockId or generate a new one
-        stockCode: row.stockCode,
-        stockName: row.description, // Stock Name is in Description field
-        uom: row.unit, // UOM is in Unit field
-        qty: Number.parseInt(row.quantity, 10),
-        dateNeeded: row.dateNeeded,
-        purpose: row.purpose,
-        description: row.description,
-      }))
-
-    try {
-      const response = await fetch("http://localhost:5000/api/save-prf-details", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(prfDetails), // Send all selected stock rows
-      })
-
-      const data = await response.json()
-      if (response.ok) {
-        alert("Data saved successfully!")
-      } else {
-        alert("Error saving data: " + data.message)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-      alert("Failed to save data.")
+    
+    const success = await savePrfDetails(headerPrfId, rows)
+    if (success) {
+      setPrfId(headerPrfId)
     }
   }
 
   // Function to handle updating PRF details
   const handleUpdate = async () => {
-    if (!prfId) {
-      alert("No PRF ID found. Please search for a PRF first.")
-      return
-    }
-
-    const prfDetails = rows
-      .filter((row) => row.stockCode) // Only update rows with selected stock
-      .map((row) => ({
-        prfId: prfId,
-        stockId: row.stockId, // Include stockId in the update
-        stockCode: row.stockCode,
-        stockName: row.description, 
-        uom: row.unit,
-        qty: Number.parseInt(row.quantity, 10) || 0,
-        dateNeeded: row.dateNeeded,
-        purpose: row.purpose,
-        description: row.description,
-      }))
-
-    try {
-      const response = await axios.post("http://localhost:5000/api/update-prf-details", {
-        prfId,
-        details: prfDetails,
-      })
-
-      if (response.status === 200) {
-        alert("PRF details updated successfully!")
-        setIsUpdating(false)
-      } else {
-        alert("Error updating PRF details: " + response.data.message)
-      }
-    } catch (error) {
-      console.error("Error updating PRF details:", error)
-      alert("Failed to update PRF details. Please try again.")
+    const success = await updatePrfDetails(prfId, rows)
+    if (success) {
+      setIsUpdating(false)
     }
   }
 
@@ -350,31 +286,11 @@ const NutraTechForm = () => {
     setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "", stockId: "" }])
   }
 
-  const handleCancel = async (prfId) => {
-    if (!prfId) {
-      alert("No PRF ID found. Please search for a PRF first.")
-      return
-    }
-
-    if (!window.confirm("Are you sure you want to cancel this PRF? This action cannot be undone.")) {
-      return
-    }
-
-    try {
-      const response = await axios.post("http://localhost:5000/api/cancel-prf", {
-        prfId: prfId,
-      })
-
-      if (response.status === 200) {
-        alert("PRF has been canceled successfully!")
-        setCancelButtonLabel("Marked as Cancelled")
-        setIsPrfCancelled(true) // Update the cancelled state
-      } else {
-        alert("Error canceling PRF: " + response.data.message)
-      }
-    } catch (error) {
-      console.error("Error canceling PRF:", error)
-      alert("Failed to cancel PRF. Please try again.")
+  const handleCancel = async () => {
+    const success = await cancelPrf(prfId)
+    if (success) {
+      setCancelButtonLabel("Marked as Cancelled")
+      setIsPrfCancelled(true)
     }
   }
 
@@ -562,22 +478,19 @@ const NutraTechForm = () => {
           </div>
 
           <div className="save-button-container">
-            <button className="add-row-button" onClick={handleAddRow} disabled={isPrfCancelled}>
-              + Add Row
-            </button>
-
-            <button className="cancel-button" onClick={() => handleCancel(prfId)} disabled={isPrfCancelled}>
-              {cancelButtonLabel}
-            </button>
-
+            
+            <AddRowButton onClick={handleAddRow} disabled={isPrfCancelled} />
+            
+            <CancelButton 
+              onClick={() => handleCancel()} 
+              disabled={isPrfCancelled} 
+              label={cancelButtonLabel} 
+            />
+            
             {isUpdating ? (
-              <button className="update-button" onClick={handleUpdate} disabled={isPrfCancelled}>
-                Update
-              </button>
+              <UpdateButton onClick={handleUpdate} disabled={isPrfCancelled} />
             ) : (
-              <button className="save-button" onClick={handleSave}>
-                Save
-              </button>
+              <SaveButton onClick={handleSave} />
             )}
           </div>
 
