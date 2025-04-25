@@ -1,0 +1,585 @@
+
+html, body {
+    overflow-x: hidden; /* remove horizontal scrolling */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center; 
+    align-items: flex-start;
+    min-height: 100vh; 
+    width: 100%;
+    padding: 2vw; /* Use relative padding for better scaling */
+    background-color: white;
+    box-sizing: border-box; 
+}
+
+.form-box-container {
+    width: 90%; 
+    max-width: 1200px; 
+    padding: 2rem;
+    margin-bottom: 40px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc; /* Light grey border */
+}
+
+.header {
+    display: flex;            
+    flex-direction: column;     
+    align-items: center;        
+    text-align: center;    
+    margin-left: 15px;
+}
+
+.form-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.purchase-code-number {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 46px 34px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+}
+
+.table-container {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.table-container table {
+    width: 95%;
+    border-collapse: collapse;
+    outline: 1px solid #c1c0c0;
+    font-size: 12px;
+    table-layout: fixed; 
+}
+
+table {
+    width: 95%;
+    border-collapse: collapse;
+    outline: 1px solid #c1c0c0;
+    font-size: 12px;
+}
+
+/* Adjust column widths */
+th:nth-child(1), td:nth-child(1) { width: 12%; }  /* STOCK CODE */
+th:nth-child(2), td:nth-child(2) { width: 9%; }   /* QUANTITY */
+th:nth-child(3), td:nth-child(3) { width: 12%; }   /* UNIT */
+th:nth-child(4), td:nth-child(4) { width: 40%; }  /* DESCRIPTION (Expanded) */
+th:nth-child(5), td:nth-child(5) { width: 12%; }  /* DATE NEEDED */
+th:nth-child(6), td:nth-child(6) { width: 22%; }  /* PURPOSE OF REQUISITION */
+
+th, td {
+    padding: 4px;
+    text-align: center;
+}
+
+td {
+    border: 1px solid #c1c0c0;
+}
+
+th {
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+tbody tr:hover {
+    background-color: #f2f2f2; 
+}
+
+/* Adjust input fields inside table */
+td input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: center;
+    padding: 2px 0; 
+    line-height: 1.2; 
+    font-size: 14px; 
+    height: 20px; 
+    vertical-align: middle; 
+    appearance: none; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.field-box{
+    display: flex;
+    margin-left: 60px;
+}
+
+
+.logo img {
+    width: 340px; 
+    height: auto;   
+    margin-right: 15px; 
+}
+
+.header-three{
+    margin-top: -17px;
+    font-size: 0.9rem;
+}
+
+
+.header-four{
+    font-size: 0.9rem;
+    margin-top: 5px; 
+}
+
+
+h3 {
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.header h1,
+.header h2,
+.header h3 {
+    margin-bottom: -5px; 
+}
+
+.form-header{
+    font-size: 30px;
+}
+
+
+.header-one-label{
+    margin-top: 40px;
+    font-size: 1.5rem;
+}
+
+.header-dept-label{
+    font-size: 17px;
+    margin-top: 10px;
+    margin-left: 8px;
+    font-weight: bold;
+}
+
+.input-insert {
+    border-radius: 20px;
+    padding: 10px;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 300px;
+    
+}
+
+.input-insert input {
+    width: 100%; 
+    height: 12px;
+    padding: 8px 12px; 
+    font-size: 16px; 
+    border-radius: 5px; 
+    border: 1px solid #ccc;
+    outline: none;
+
+}
+
+.field-box{
+    margin-top: -20px;
+    margin-left: 20px;
+}
+
+.nav-bar-container{
+    width: 100%;
+    height: 8px;
+    background-color: #fff;
+}
+
+.field-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 1px;
+}
+
+.date-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto; 
+    gap: 10px;
+    margin-top: 10px;
+    height: 15px;
+}
+
+.date-label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 2px;
+}
+
+.date-input {
+    width: 180px; 
+    height: 15px; 
+    padding: 10px; 
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-right: 47px;
+    outline: none;
+    margin-top: 9.5px;
+    line-height: 1.2; 
+    font-size: 14px; 
+    height: 20px; 
+    vertical-align: middle;
+    appearance: none; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.date.date-input{
+    font-size: 20px;
+}
+
+
+.following-label{
+    display: flex;
+    margin-left: 28px;
+}
+
+.approval-section {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 40px;
+}
+
+.approval-box {
+    width: 216px; 
+    background-color: #ffffff; 
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 50px;
+    outline: 1px solid #c1c0c0;
+}
+
+.approval-box h3{
+    font-size: 17px;    
+}
+
+.signature-box {
+    width: 100%;
+    height: 43px; 
+    background-color: rgb(230, 228, 228);
+    margin: 10px 0;
+    font-weight: bold;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.approval-box .signature-label{
+    font-size: 12px;
+}
+
+.nav-bar-container {
+    width: 100%;
+    height: 5vh;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.nav-bar-logo {
+    display: flex;
+    align-items: center; 
+    gap: 15px; 
+}
+
+
+.nav-bar-logo img{
+    width: 40px; 
+    height: 40px;
+}
+
+
+.nav-bar-label{
+    font-size: 25px;
+    color: #25523B;
+    font-weight: bold;
+    margin-left: -10px;
+}   
+
+.input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    margin-top: 20px;
+    height: 50px;
+}
+
+.department-display {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 14px;   
+    appearance: none;
+    background-color: white;
+    height: 14px;
+    text-align: center;
+    line-height: 1.2; 
+    font-size: 14px; 
+    height: 20px; 
+    vertical-align: middle; 
+    appearance: none; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.header-dept-label {
+    font-size: 17px;
+    font-weight: bold;
+    white-space: nowrap; 
+    margin-bottom: 15px;
+}
+
+.full-logo {
+    display: block;
+    margin: 0 auto; 
+    max-width: 100%; 
+    height: auto; 
+}
+
+
+.save-button-container {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin-top: 20px;
+    padding: 0 25px; 
+}
+
+.add-row-button {
+    background-color: rgb(133, 129, 129);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    width: 150px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.add-row-button:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
+/* Save button styling */
+.save-button {
+    background-color: #067554;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    width: 150px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
+.cancel-button {
+    background-color: #C80018;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    width: 150px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin-left: 380px;
+  }
+  
+  .cancel-button:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+  }
+  
+  .update-button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    width: 150px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .update-button:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+  }
+  
+@media print {
+    body {
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
+    }
+
+    .nav-bar-container, .nav-icons {
+        display: none; 
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 2px;
+        background: white;
+    }
+
+    .form-box-container {
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+        border: none;
+        padding: 2px;
+        margin: 0;
+    }
+
+    .approval-section {
+        page-break-inside: avoid; 
+    }
+
+    /* ADJUST TABLE FOR PRINT */
+    .table-container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .table-container table {
+        width: 100% !important;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    th {
+        font-size: 12px;
+    }
+
+    td input {
+        border: none;
+        background: transparent;
+    }
+
+    .print-icon {
+        display: none; 
+    }
+
+    .department-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .header-dept-label {
+        white-space: nowrap;
+        font-weight: bold;
+    }
+
+    .request-text {
+        text-align: left !important;
+        margin-left: 0;
+        font-weight: bold;
+    }
+
+    .date-container{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-right: -22px;
+    }
+
+    .date-label{
+        margin-left: 10px;
+    }
+
+    .input-container .header-dept-label{
+        margin-left: -22px;
+    }
+
+    .following-label{
+        margin-left: 2px;
+    }
+
+    @page {
+        size: A4; 
+        margin: 5mm; 
+    }
+
+    .signature-box{
+        font-size: 15px;
+    }
+
+    .department-display{
+        padding: 8px;
+    }
+
+    .date-input{
+        padding: 8px;
+    }
+} 
+
+@media print {
+    td input {
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: center;
+        padding: 0px; 
+        line-height: 1;
+        font-size: 12px; 
+        height: auto; 
+        vertical-align: middle;
+    }
+}
+/* Hides save button when printing */
+@media print {
+    .save-button-container {
+        display: none !important;
+    }
+}
+
