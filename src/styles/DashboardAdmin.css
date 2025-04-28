@@ -515,6 +515,30 @@
   margin-right: 70px;
 }
 
+.new-button {
+  margin-left: 100px;
+  padding: 10px 60px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Add hover effect for better user experience */
+.new-button:hover {
+  background-color: #45a049;
+}
+
+/* Add active state for when the button is clicked */
+.new-button:active {
+  background-color: #3e8e41;
+}
+
 @media print {
   .nav-bar-container, .nav-icons {
     display: none; 

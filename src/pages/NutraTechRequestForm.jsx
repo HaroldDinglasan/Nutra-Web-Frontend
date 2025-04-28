@@ -14,7 +14,7 @@ import avliheaderLogo from "../assets/avli biocare.logo.png"
 
 import StockcodeModal from "./StockcodeModal"
 import UomModal from "../components/UomModal"
-import Button, { SaveButton, UpdateButton, CancelButton, AddRowButton } from "../components/button"
+import { SaveButton, UpdateButton, CancelButton, AddRowButton } from "../components/button"
 import { savePrfHeader, savePrfDetails, updatePrfDetails, cancelPrf } from "../components/button-function"
 
 const NutraTechForm = () => {
@@ -51,7 +51,7 @@ const NutraTechForm = () => {
     }
   }, [company])
 
-  // Listen for search results from app-layout.jsx
+  // Listen for search results from app-layout.jsx and new form events
   useEffect(() => {
     const handleSearchResults = () => {
       const searchResultsStr = sessionStorage.getItem("prfSearchResults")
@@ -82,7 +82,7 @@ const NutraTechForm = () => {
           description: detail.StockName,
           dateNeeded: detail.dateNeeded,
           purpose: detail.purpose,
-          stockId: detail.stockId || "", 
+          stockId: detail.stockId || "",
         }))
 
         // If there are fewer details than rows, pad with empty rows
@@ -106,16 +106,45 @@ const NutraTechForm = () => {
       }
     }
 
+    // Function to handle creating a new form
+    const handleNewForm = () => {
+      // Reset all form fields
+      const today = new Date()
+      setCurrentDate(today.toISOString().split("T")[0])
+      setPrfId(null)
+      setIsUpdating(false)
+      setIsPrfCancelled(false)
+      setCancelButtonLabel("Cancel")
+
+      // Generate a new purchase code
+      generatePurchaseCode(company)
+
+      // Reset rows to empty state
+      setRows(
+        Array.from({ length: 5 }, () => ({
+          stockCode: "",
+          quantity: "",
+          unit: "",
+          description: "",
+          dateNeeded: "",
+          purpose: "",
+          stockId: "",
+        })),
+      )
+    }
+
     // Check for existing search results when component mounts
     handleSearchResults()
 
-    // Listen for future search events
+    // Listen for future search events and new form events
     window.addEventListener("prfSearchCompleted", handleSearchResults)
+    window.addEventListener("prfNewForm", handleNewForm)
 
     return () => {
       window.removeEventListener("prfSearchCompleted", handleSearchResults)
+      window.removeEventListener("prfNewForm", handleNewForm)
     }
-  }, [])
+  }, [company]) // Add company as a dependency since we use it in handleNewForm
 
   const [rows, setRows] = useState(
     Array.from({ length: 5 }, () => ({
@@ -137,7 +166,7 @@ const NutraTechForm = () => {
     if (selectedRowIndex !== null) {
       console.log("Selected stock:", stock) // Log the entire stock object
       console.log("Stock Id:", stock.Id) // Log the Id specifically
-      
+
       const newRows = [...rows]
       newRows[selectedRowIndex].stockCode = stock.StockCode
       newRows[selectedRowIndex].unit = stock.BaseUOM
@@ -149,8 +178,8 @@ const NutraTechForm = () => {
 
   // Function to handle UOM selection
   const handleUomSelect = (uom) => {
-    console.log("Selected UOM:", uom) 
-    
+    console.log("Selected UOM:", uom)
+
     if (selectedUomRowIndex !== null) {
       const newRows = [...rows]
       newRows[selectedUomRowIndex].unit = uom
@@ -267,7 +296,7 @@ const NutraTechForm = () => {
     if (!headerPrfId) {
       headerPrfId = await savePrfHeader(purchaseCodeNumber, currentDate, fullname)
     }
-    
+
     const success = await savePrfDetails(headerPrfId, rows)
     if (success) {
       setPrfId(headerPrfId)
@@ -283,7 +312,10 @@ const NutraTechForm = () => {
   }
 
   const handleAddRow = () => {
-    setRows([...rows, { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "", stockId: "" }])
+    setRows([
+      ...rows,
+      { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "", stockId: "" },
+    ])
   }
 
   const handleCancel = async () => {
@@ -478,15 +510,12 @@ const NutraTechForm = () => {
           </div>
 
           <div className="save-button-container">
-            
             <AddRowButton onClick={handleAddRow} disabled={isPrfCancelled} />
-            
-            <CancelButton 
-              onClick={() => handleCancel()} 
-              disabled={isPrfCancelled} 
-              label={cancelButtonLabel} 
-            />
-            
+
+            {isUpdating && (
+              <CancelButton onClick={() => handleCancel()} disabled={isPrfCancelled} label={cancelButtonLabel} />
+            )}
+
             {isUpdating ? (
               <UpdateButton onClick={handleUpdate} disabled={isPrfCancelled} />
             ) : (

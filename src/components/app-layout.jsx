@@ -30,6 +30,11 @@ const AppLayout = ({ children }) => {
     }
   }, [location])
 
+  // clear search input when changing side bar label
+  useEffect(() => {
+    setSearchInput("")
+  }, [activeSection])
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen)
   }
@@ -78,6 +83,26 @@ const AppLayout = ({ children }) => {
 
       if (saveButton) saveButton.style.display = "flex" // Show button again
     })
+  }
+
+   // Function to handle creating a new PRF form
+   const handleNewPrf = () => {
+    // Clear any existing search results
+    sessionStorage.removeItem("prfSearchResults")
+
+    // Clear search input
+    setSearchInput("")
+
+    // Navigate to the form page with a fresh state
+    const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc"
+    navigate("/nutraTech/form", {
+      state: {
+        company,
+        isNew: true, // Flag to indicate this is a new form
+      },
+    })
+
+    window.dispatchEvent(new CustomEvent("prfNewForm"))
   }
 
   // Search PRF function
@@ -151,6 +176,17 @@ const AppLayout = ({ children }) => {
                   <img className="searchPrfNo" src={search || "/placeholder.svg"} alt="Search" />
                 </button>
               </div>
+            </div>
+
+            <div className="buttons-container">
+              {activeSection === "prfRequest" && (
+                <button
+                  className="new-button"
+                  onClick={handleNewPrf}
+                >
+                  New
+                </button>
+              )}
             </div>
 
             <div

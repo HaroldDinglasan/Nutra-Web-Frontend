@@ -8,6 +8,7 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
   const [uomList, setUomList] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [baseUOM, setBaseUOM] = useState("")
 
   useEffect(() => {
     const fetchUomCodes = async () => {
@@ -25,6 +26,12 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
         console.log("UomModal: UOMCodes response:", response.data)
 
         setUomList(response.data)
+
+        // Set the BaseUOM if available in the first record
+        if (response.data.length > 0 && response.data[0].BaseUOM) {
+          setBaseUOM(response.data[0].BaseUOM)
+        }
+        
         setLoading(false)
       } catch (err) {
         console.error("UomModal: Error fetching UOMCodes:", err)
@@ -63,6 +70,7 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
                 <thead>
                   <tr>
                     <th>UOM Code</th>
+                    <th>Base UOM</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -70,6 +78,7 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
                     uomList.map((uom) => (
                       <tr key={uom.Id} onClick={() => handleSelectUom(uom)} className="uom-table-row">
                         <td>{uom.UOMCode}</td>
+                        <td>{uom.BaseUOM}</td>
                       </tr>
                     ))
                   ) : (
