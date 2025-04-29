@@ -12,17 +12,14 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
 
   useEffect(() => {
     const fetchUomCodes = async () => {
-      if (!stockId) {
-        console.log("UomModal: No stockId provided")
-        setLoading(false)
-        setError("No stock selected. Please select a stock first.")
-        return
-      }
-
       try {
         setLoading(true)
 
-        const response = await axios.get(`http://localhost:5000/api/uomcodes/${stockId}`)
+        // If no stockId is provided, fetch all UOMs
+        const id = stockId || "all"
+        console.log(`UomModal: Fetching UOMCodes for StockId/Code: ${id}`)
+
+        const response = await axios.get(`http://localhost:5000/api/uomcodes/${id}`)
         console.log("UomModal: UOMCodes response:", response.data)
 
         setUomList(response.data)
@@ -31,7 +28,7 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
         if (response.data.length > 0 && response.data[0].BaseUOM) {
           setBaseUOM(response.data[0].BaseUOM)
         }
-        
+
         setLoading(false)
       } catch (err) {
         console.error("UomModal: Error fetching UOMCodes:", err)
@@ -70,7 +67,8 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
                 <thead>
                   <tr>
                     <th>UOM Code</th>
-                    <th>Base UOM</th>
+                    <th>Description</th>
+                    <th>Rate</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -78,12 +76,15 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
                     uomList.map((uom) => (
                       <tr key={uom.Id} onClick={() => handleSelectUom(uom)} className="uom-table-row">
                         <td>{uom.UOMCode}</td>
-                        <td>{uom.BaseUOM}</td>
+                        <td>{uom.Description}</td>
+                        <td>{uom.Rate}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td className="no-results">No UOM codes found for this stock</td>
+                      <td colSpan="2" className="no-results">
+                        No UOM codes found
+                      </td>
                     </tr>
                   )}
                 </tbody>

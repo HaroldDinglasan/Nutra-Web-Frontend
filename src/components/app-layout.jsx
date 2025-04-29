@@ -10,6 +10,7 @@ import search from "../assets/search.png"
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
 import "../styles/DashboardAdmin.css"
+import { SaveButton, UpdateButton } from "../components/button"
 
 const AppLayout = ({ children }) => {
   const navigate = useNavigate()
@@ -17,6 +18,8 @@ const AppLayout = ({ children }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("")
   const [searchInput, setSearchInput] = useState("")
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [isPrfCancelled, setIsPrfCancelled] = useState(false)
 
   useEffect(() => {
     if (location.pathname === "/prf/list") {
@@ -34,6 +37,20 @@ const AppLayout = ({ children }) => {
   useEffect(() => {
     setSearchInput("")
   }, [activeSection])
+
+  useEffect(() => {
+    const handleFormStateChange = (event) => {
+      if (event.detail) {
+        setIsUpdating(event.detail.isUpdating)
+        setIsPrfCancelled(event.detail.isPrfCancelled)
+      }
+    }
+
+    window.addEventListener("prfFormStateChanged", handleFormStateChange)
+    return () => {
+      window.removeEventListener("prfFormStateChanged", handleFormStateChange)
+    }
+  }, [])
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen)
@@ -85,8 +102,8 @@ const AppLayout = ({ children }) => {
     })
   }
 
-   // Function to handle creating a new PRF form
-   const handleNewPrf = () => {
+  // Function to handle creating a new PRF form
+  const handleNewPrf = () => {
     // Clear any existing search results
     sessionStorage.removeItem("prfSearchResults")
 
@@ -180,14 +197,26 @@ const AppLayout = ({ children }) => {
 
             <div className="buttons-container">
               {activeSection === "prfRequest" && (
-                <button
-                  className="new-button"
-                  onClick={handleNewPrf}
-                >
-                  New
-                </button>
+                <>
+                  <button className="new-button" onClick={handleNewPrf}>
+                    New
+                  </button>
+                </>
               )}
             </div>
+
+            {activeSection === "prfRequest" && (
+              <div className="save-update-button">
+                {isUpdating ? (
+                  <UpdateButton
+                    onClick={() => window.dispatchEvent(new CustomEvent("prfUpdateClicked"))}
+                    disabled={isPrfCancelled}
+                  />
+                ) : (
+                  <SaveButton onClick={() => window.dispatchEvent(new CustomEvent("prfSaveClicked"))} />
+                )}
+              </div>
+            )}
 
             <div
               className="nav-icons"

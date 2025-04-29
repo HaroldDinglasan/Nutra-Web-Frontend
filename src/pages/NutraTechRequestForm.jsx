@@ -14,7 +14,7 @@ import avliheaderLogo from "../assets/avli biocare.logo.png"
 
 import StockcodeModal from "./StockcodeModal"
 import UomModal from "../components/UomModal"
-import { SaveButton, UpdateButton, CancelButton, AddRowButton } from "../components/button"
+import { CancelButton, AddRowButton } from "../components/button"
 import { savePrfHeader, savePrfDetails, updatePrfDetails, cancelPrf } from "../components/button-function"
 
 const NutraTechForm = () => {
@@ -82,7 +82,7 @@ const NutraTechForm = () => {
           description: detail.StockName,
           dateNeeded: detail.dateNeeded,
           purpose: detail.purpose,
-          stockId: detail.stockId || "",
+          stockId: detail.stockId || detail.StockCode || "", // Use StockCode as fallback if stockId is not available
         }))
 
         // If there are fewer details than rows, pad with empty rows
@@ -331,6 +331,54 @@ const NutraTechForm = () => {
     color: isPrfCancelled ? "red" : "inherit",
   }
 
+  useEffect(() => {
+    // Notify parent component about form state
+    window.dispatchEvent(
+      new CustomEvent("prfFormStateChanged", {
+        detail: {
+          isUpdating,
+          isPrfCancelled,
+        },
+      }),
+    )
+  }, [isUpdating, isPrfCancelled])
+
+  useEffect(() => {
+    const handleSaveClick = async () => {
+      console.log("Save clicked - Form data:", { purchaseCodeNumber, currentDate, fullname })
+      let headerPrfId = prfId
+
+      if (!headerPrfId) {
+        headerPrfId = await savePrfHeader(purchaseCodeNumber, currentDate, fullname)
+      }
+
+      if (headerPrfId) {
+        const success = await savePrfDetails(headerPrfId, rows)
+        if (success) {
+          setPrfId(headerPrfId)
+        }
+      } else {
+        console.error("Failed to save PRF header")
+      }
+    }
+
+    const handleUpdateClick = async () => {
+      console.log("Update clicked")
+      const success = await updatePrfDetails(prfId, rows)
+      if (success) {
+        setIsUpdating(false)
+      }
+    }
+
+    window.addEventListener("prfSaveClicked", handleSaveClick)
+    window.addEventListener("prfUpdateClicked", handleUpdateClick)
+
+    return () => {
+      window.removeEventListener("prfSaveClicked", handleSaveClick)
+      window.removeEventListener("prfUpdateClicked", handleUpdateClick)
+    }
+  }, [rows, prfId, purchaseCodeNumber, currentDate, fullname])
+
   return (
     <>
       <div className="form-container">
@@ -515,12 +563,6 @@ const NutraTechForm = () => {
             {isUpdating && (
               <CancelButton onClick={() => handleCancel()} disabled={isPrfCancelled} label={cancelButtonLabel} />
             )}
-
-            {isUpdating ? (
-              <UpdateButton onClick={handleUpdate} disabled={isPrfCancelled} />
-            ) : (
-              <SaveButton onClick={handleSave} />
-            )}
           </div>
 
           {isModalOpen && <StockcodeModal onClose={() => setIsModalOpen(false)} onSelectStock={handleStockSelect} />}
@@ -528,7 +570,7 @@ const NutraTechForm = () => {
             <UomModal
               onClose={() => setIsUomModalOpen(false)}
               onSelectUom={handleUomSelect}
-              stockId={rows[selectedUomRowIndex]?.stockId} // Pass the stockId from the selected row
+              stockId={rows[selectedUomRowIndex]?.stockId || rows[selectedUomRowIndex]?.stockCode || "all"} // Pass stockId, stockCode, or 'all'
             />
           )}
 
