@@ -118,8 +118,12 @@ export const updatePrfDetails = async (prfId, rows) => {
       return false
     }
   } catch (error) {
-    console.error("Error updating PRF details:", error)
-    alert("Failed to update PRF details. Please try again.")
+    if (error.response && error.response.data && error.response.data.message) {
+      alert(error.response.data.message)
+    } else {
+      console.error("Error updating PRF details:", error)
+      alert("Failed to update PRF details. Please try again.")
+    }
     return false
   }
 }
