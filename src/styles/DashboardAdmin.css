@@ -527,16 +527,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 14px;
 }
 
-/* Add hover effect for better user experience */
 .new-button:hover {
-  background-color: #45a049;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
 }
 
-/* Add active state for when the button is clicked */
-.new-button:active {
-  background-color: #3e8e41;
+.save-update-button{
+  margin-left: 30px;
 }
 
 @media print {
