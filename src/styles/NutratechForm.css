@@ -428,9 +428,17 @@ h3 {
   }
   
 @media print {
+    html,
     body {
-        -webkit-print-color-adjust: exact; 
-        print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      background-color: white !important;
+      margin: 0;
+      padding: 0;
+    }
+
+    * {
+        background-color: transparent !important;
     }
 
     .nav-bar-container, .nav-icons {
@@ -442,7 +450,8 @@ h3 {
         max-width: 100%;
         padding: 2px;
         background: white;
-        margin-top: 30mm; /* Add top margin to push form down when printing */
+        margin-top: 10mm;
+        min-height: auto; /* Remove the 100vh height to prevent extra space */
     }
 
     .form-box-container {
@@ -452,6 +461,12 @@ h3 {
         border: none;
         padding: 2px;
         margin: 0;
+    }
+
+    /* Prevent page breaks inside rows */
+    tr {
+        page-break-inside: avoid;
+        height: auto !important;
     }
 
     .approval-section {
@@ -469,8 +484,8 @@ h3 {
         border-collapse: collapse;
         table-layout: fixed;
     }
-    th {
-        font-size: 12px;
+    .table-container table th {
+        font-size: 10px;
     }
 
     td input {
@@ -545,7 +560,7 @@ h3 {
         text-align: center;
         padding: 0px; 
         line-height: 1;
-        font-size: 12px; 
+        font-size: 10px; 
         height: auto; 
         vertical-align: middle;
     }

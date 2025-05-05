@@ -122,14 +122,14 @@ h1 {
     background-color: darkgreen;
 }
 
-.login-link{
+.register-login-link{
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 13.5px;
     color: #007F00;
     cursor: pointer;
-    margin-top: -38px;
+    margin-top: -20px;
 }
 
 .reg-input-container{
@@ -156,7 +156,7 @@ h1 {
     cursor: pointer;
 }
 
-.login-link p:hover{
+.register-login-link p:hover{
     color: rgb(0, 30, 0);
 }
 
@@ -316,7 +316,7 @@ h1 {
         font-size: 14px;
     }
 
-    .login-link {
+    .register-login-link {
         font-size: 12px;
     }
 }
@@ -340,7 +340,7 @@ h1 {
         font-size: 12px;
     }
 
-    .login-link {
+    .register-login-link {
         font-size: 11px;
     }
 }

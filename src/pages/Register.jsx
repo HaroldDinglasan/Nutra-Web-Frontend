@@ -224,7 +224,7 @@ const Register = () => {
 
                 <button type="submit" className="register-button" onClick={handleRegister}>REGISTER</button>
 
-                <div className="login-link">
+                <div className="register-login-link">
                     <p>Already have an Account? <Link to="/login" className="login-click">Login here</Link></p>
                 </div>
             </div>
