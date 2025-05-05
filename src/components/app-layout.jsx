@@ -3,13 +3,12 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import NutraTechLogo from "../assets/NTBI.png"
-import userLogout from "../assets/user-signout.png"
 import downloadLogo from "../assets/downloads.png"
 import printLogo from "../assets/printing.png"
 import search from "../assets/search.png"
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
-import "../styles/DashboardAdmin.css"
+import "../styles/app-layout.css"
 import { SaveButton, UpdateButton } from "../components/button"
 
 const AppLayout = ({ children }) => {
@@ -20,6 +19,7 @@ const AppLayout = ({ children }) => {
   const [searchInput, setSearchInput] = useState("")
   const [isUpdating, setIsUpdating] = useState(false)
   const [isPrfCancelled, setIsPrfCancelled] = useState(false)
+  const [cancelLimitReached, setCancelLimitReached] = useState(false)
 
   useEffect(() => {
     if (location.pathname === "/prf/list") {
@@ -43,6 +43,7 @@ const AppLayout = ({ children }) => {
       if (event.detail) {
         setIsUpdating(event.detail.isUpdating)
         setIsPrfCancelled(event.detail.isPrfCancelled)
+        setCancelLimitReached(event.detail.cancelLimitReached)
       }
     }
 
@@ -184,7 +185,7 @@ const AppLayout = ({ children }) => {
               <div className="search-box">
                 <input
                   type="text"
-                  placeholder="Search"
+                  placeholder="Search PRF No."
                   className="search-input-form"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
@@ -199,7 +200,8 @@ const AppLayout = ({ children }) => {
               {activeSection === "prfRequest" && (
                 <>
                   <button className="new-button" onClick={handleNewPrf}>
-                    New
+                    <span className="button-icon">+</span>
+                    <span>New PRF</span>
                   </button>
                 </>
               )}
@@ -210,7 +212,7 @@ const AppLayout = ({ children }) => {
                 {isUpdating ? (
                   <UpdateButton
                     onClick={() => window.dispatchEvent(new CustomEvent("prfUpdateClicked"))}
-                    disabled={isPrfCancelled}
+                    disabled={isPrfCancelled || cancelLimitReached}
                   />
                 ) : (
                   <SaveButton onClick={() => window.dispatchEvent(new CustomEvent("prfSaveClicked"))} />
@@ -222,31 +224,24 @@ const AppLayout = ({ children }) => {
               className="nav-icons"
               style={{ visibility: activeSection === "prfRequest" ? "visible" : "hidden", display: "flex" }}
             >
-              <img
-                src={printLogo || "/placeholder.svg"}
-                alt="Print Logo"
-                onClick={handlePrint}
-                className="print-icon"
-              />
-              <img
-                src={downloadLogo || "/placeholder.svg"}
-                alt="Download Logo"
-                onClick={handleDownloadPDF}
-                className="download-icon"
-              />
+              <div className="icon-wrapper" onClick={handlePrint} title="Print">
+                <img src={printLogo || "/placeholder.svg"} alt="Print" className="action-icon" />
+              </div>
+              <div className="icon-wrapper" onClick={handleDownloadPDF} title="Download PDF">
+                <img src={downloadLogo || "/placeholder.svg"} alt="Download" className="action-icon" />
+              </div>
             </div>
 
             <div className="user-dashboard-container">
-              <img
-                src={userLogout || "/placeholder.svg"}
-                alt="User Logo"
-                onClick={toggleDropdown}
-                className="user-dashboard-icon"
-              />
+              <div className="user-profile" onClick={toggleDropdown}>
+                <span className="user-initial">{fullname.charAt(0)}</span>
+              </div>
               {dropdownOpen && (
                 <div className="dropdown-menu-dashboard">
                   <div className="user-info-dashboard">
-                    <img src={userLogout || "/placeholder.svg"} alt="User Signout" className="dashboard-signout-icon" />
+                    <div className="user-avatar">
+                      <span>{fullname.charAt(0)}</span>
+                    </div>
                     <p className="dropdown-user-dashboard-label">{fullname}</p>
                   </div>
                   <button className="signout-dashboard-button" onClick={handleSignOut}>
@@ -260,8 +255,29 @@ const AppLayout = ({ children }) => {
 
         <div className="dashboard-content">
           <aside className="dashboard-sidebar sidebar-container">
+            <div className="sidebar-header">
+              <h3>Menu</h3>
+            </div>
             <div className={`sidebar-item ${activeSection === "entry" ? "active" : ""}`} onClick={navigateToDashboard}>
               <div className="sidebar-indicator"></div>
+              <div className="sidebar-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+              </div>
               <span className="dashboard-label">Dashboard</span>
             </div>
 
@@ -270,6 +286,26 @@ const AppLayout = ({ children }) => {
               onClick={navigateToPurchaseList}
             >
               <div className="sidebar-indicator"></div>
+              <div className="sidebar-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+              </div>
               <span className="dashboard-label">Purchase List</span>
             </div>
 
@@ -278,11 +314,37 @@ const AppLayout = ({ children }) => {
               onClick={navigateToPrfRequest}
             >
               <div className="sidebar-indicator"></div>
+              <div className="sidebar-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
               <span className="dashboard-label">PRF Request</span>
             </div>
           </aside>
 
-          <main className="dashboard-main">{children}</main>
+          <main className="dashboard-main">
+            <div className="page-title">
+              {activeSection === "entry" && <h1>Dashboard</h1>}
+              {activeSection === "list" && <h1>Purchase List</h1>}
+              {activeSection === "prfRequest" && <h1>Purchase Request Form</h1>}
+            </div>
+            <div className="main-content">{children}</div>
+          </main>
         </div>
       </div>
     </div>

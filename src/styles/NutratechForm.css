@@ -165,7 +165,7 @@ h3 {
     font-size: 1.5rem;
 }
 
-.header-dept-label{
+.nutra-header-dept-label{
     font-size: 17px;
     margin-top: 10px;
     margin-left: 8px;
@@ -211,7 +211,7 @@ h3 {
     padding: 10px 1px;
 }
 
-.date-container {
+.nutra-date-container {
     display: flex;
     align-items: center;
     margin-left: auto; 
@@ -220,13 +220,13 @@ h3 {
     height: 15px;
 }
 
-.date-label {
+.nutra-date-label {
     font-size: 16px;
     font-weight: bold;
     margin-top: 2px;
 }
 
-.date-input {
+.input-date-nutra {
     width: 180px; 
     height: 15px; 
     padding: 10px; 
@@ -243,6 +243,7 @@ h3 {
     appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
+    height: 35px;
 }
 
 .date.date-input{
@@ -323,17 +324,16 @@ h3 {
     margin-left: -10px;
 }   
 
-.input-container {
+.search-input-container-type {
     display: flex;
     align-items: center;
     gap: 10px;
     width: 100%;
     max-width: 500px;
     margin-top: 20px;
-    height: 50px;
 }
 
-.department-display {
+.department-type{
     width: 100%;
     padding: 10px;
     border-radius: 5px;
@@ -351,9 +351,10 @@ h3 {
     appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
+    height: 35px;
 }
 
-.header-dept-label {
+.nutra-header-dept-label {
     font-size: 17px;
     font-weight: bold;
     white-space: nowrap; 
@@ -441,6 +442,7 @@ h3 {
         max-width: 100%;
         padding: 2px;
         background: white;
+        margin-top: 30mm; /* Add top margin to push form down when printing */
     }
 
     .form-box-container {
@@ -487,7 +489,7 @@ h3 {
         gap: 10px;
     }
 
-    .header-dept-label {
+    .nutra-header-dept-label {
         white-space: nowrap;
         font-weight: bold;
     }
@@ -498,18 +500,18 @@ h3 {
         font-weight: bold;
     }
 
-    .date-container{
+    .nutra-date-container{
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-right: -22px;
     }
 
-    .date-label{
+    .nutra-date-label{
         margin-left: 10px;
     }
 
-    .input-container .header-dept-label{
+    .search-input-container-type .nutra-header-dept-label{
         margin-left: -22px;
     }
 
@@ -530,7 +532,7 @@ h3 {
         padding: 8px;
     }
 
-    .date-input{
+    .input-date-nutra{
         padding: 8px;
     }
 } 

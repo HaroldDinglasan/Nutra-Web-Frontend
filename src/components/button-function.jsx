@@ -135,7 +135,7 @@ export const cancelPrf = async (prfId) => {
     return false
   }
 
-  if (!window.confirm("Are you sure you want to cancel this PRF? This action cannot be undone.")) {
+  if (!window.confirm("Are you sure you want to cancel this PRF?")) {
     return false
   }
 
@@ -145,15 +145,32 @@ export const cancelPrf = async (prfId) => {
     })
 
     if (response.status === 200) {
-      alert("PRF has been canceled successfully!")
-      return true
+     
+      const result = {
+        success: true,
+        newCancelCount: response.data.newCancelCount,
+        isFullyCancelled: response.data.isFullyCancelled || response.data.newCancelCount >= 3,
+      }
+
+      // Update the alert messages in cancelPrf function
+      if (result.isFullyCancelled) {
+        alert("PRF has been fully cancelled.")
+      } else {
+        alert(`PRF cancellation count: ${response.data.newCancelCount}/3.`)
+      }
+
+      return result
     } else {
       alert("Error canceling PRF: " + response.data.message)
       return false
     }
   } catch (error) {
-    console.error("Error canceling PRF:", error)
-    alert("Failed to cancel PRF. Please try again.")
+    if (error.response && error.response.data && error.response.data.message) {
+      alert(error.response.data.message)
+    } else {
+      console.error("Error canceling PRF:", error)
+      alert("Failed to cancel PRF. Please try again.")
+    }
     return false
   }
 }

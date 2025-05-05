@@ -1,8 +1,7 @@
 "use client"
-import "../styles/Button.css" 
+import "../styles/Button.css"
 
 const Button = ({ variant = "primary", onClick, children, disabled = false, className = "", type = "button" }) => {
-  
   const getButtonClass = () => {
     switch (variant) {
       case "save":
@@ -34,7 +33,7 @@ export const SaveButton = ({ onClick, disabled, children = "Save" }) => {
   )
 }
 
-export const UpdateButton = ({ onClick, disabled, children = "Update" }) => {
+export const UpdateButton = ({ onClick, disabled = false, children = "Update" }) => {
   return (
     <Button variant="update" onClick={onClick} disabled={disabled}>
       {children}
