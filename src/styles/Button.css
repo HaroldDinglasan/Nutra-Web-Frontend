@@ -179,30 +179,6 @@ td input {
     margin-top: 2px;
 }
 
-.date-input {
-    width: 180px; 
-    height: 15px; 
-    padding: 10px; 
-    font-size: 14px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    margin-right: 47px;
-    outline: none;
-    margin-top: 9.5px;
-    line-height: 1.2; 
-    font-size: 14px; 
-    height: 20px; 
-    vertical-align: middle;
-    appearance: none; 
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
-
-.date.date-input{
-    font-size: 20px;
-}
-
-
 .following-label{
     display: flex;
     margin-left: 28px;
@@ -284,26 +260,6 @@ td input {
     max-width: 500px;
     margin-top: 20px;
     height: 50px;
-}
-
-.department-display {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    outline: none;
-    font-size: 14px;   
-    appearance: none;
-    background-color: white;
-    height: 14px;
-    text-align: center;
-    line-height: 1.2; 
-    font-size: 14px; 
-    height: 20px; 
-    vertical-align: middle; 
-    appearance: none; 
-    -webkit-appearance: none;
-    -moz-appearance: none;
 }
 
 .header-dept-label {

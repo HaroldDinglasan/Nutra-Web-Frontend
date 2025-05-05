@@ -30,10 +30,56 @@ const NutraTechForm = () => {
   const [isUpdating, setIsUpdating] = useState(false) // Track if we're in update mode
   const [isPrfCancelled, setIsPrfCancelled] = useState(false) // Track if the PRF is cancelled
   const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel")
+  const [prfDate, setPrfDate] = useState(null) // Store the PRF date
+  const [cancelCount, setCancelCount] = useState(0) // Track cancel count
+  const [showCancelButton, setShowCancelButton] = useState(true) // Control cancel button visibility
+  const [cancelLimitReached, setCancelLimitReached] = useState(false) // Track if cancel limit is reached
+
   const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || "" // Retrieve department
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
+
+  
+  // Refresh PRF data
+  const refreshPrfData = async () => {
+    if (!prfId || !purchaseCodeNumber) return
+
+    try {
+      
+      const response = await fetch(
+        `http://localhost:5000/api/search-prf?prfNo=${encodeURIComponent(purchaseCodeNumber)}`,
+      )
+
+      if (response.ok) {
+        const data = await response.json()
+
+        if (data.found) {
+          // Update cancel count
+          const currentCancelCount =
+            data.cancelCount || (data.header && data.header.cancelCount ? Number.parseInt(data.header.cancelCount) : 0)
+
+          setCancelCount(currentCancelCount)
+
+          // Check if fully cancelled
+          const isFullyCancelled =
+            currentCancelCount >= 3 || (data.header && data.header.prfIsCancel === 1) || data.isCancel === 1
+
+          setIsPrfCancelled(isFullyCancelled)
+          setCancelLimitReached(currentCancelCount >= 3)
+
+          // Update button label
+          if (isFullyCancelled) {
+            setCancelButtonLabel("Cancel Limit Reached")
+          } else {
+            setCancelButtonLabel(`Cancel (${currentCancelCount}/3)`)
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error refreshing PRF data:", error)
+    }
+  }
 
   useEffect(() => {
     if (location.state && location.state.company) {
@@ -51,7 +97,7 @@ const NutraTechForm = () => {
     }
   }, [company])
 
-  // Listen for search results from app-layout.jsx and new form events
+  // Listen for search results from App-layout.jsx
   useEffect(() => {
     const handleSearchResults = () => {
       const searchResultsStr = sessionStorage.getItem("prfSearchResults")
@@ -62,30 +108,63 @@ const NutraTechForm = () => {
         setPurchaseCodeNumber(data.header.prfNo)
         setCurrentDate(data.header.prfDate.split("T")[0])
         setPrfId(data.header.prfId)
+        setPrfDate(new Date(data.header.prfDate))
 
-        // Check if the PRF is cancelled and update state
-        const isCancelled = data.header.prfIsCancel === true
-        setIsPrfCancelled(isCancelled)
+        // Get cancel count from the server relocalStorage
+        let currentCancelCount = 0
 
-        // Set the cancel button label depending on cancel
-        if (data.header.prfIsCancel === true) {
-          setCancelButtonLabel("Marked as Cancelled")
+        // Get cancel count from localStorage first (this would be set by cancelPrf)
+        const storedCancelCount = localStorage.getItem(`prf_${data.header.prfId}_cancelCount`)
+        if (storedCancelCount) {
+          currentCancelCount = Number.parseInt(storedCancelCount, 10)
+        } else if (data.header.cancelCount) {
+        
+          currentCancelCount = Number.parseInt(data.header.cancelCount)
+        }
+
+        setCancelCount(currentCancelCount)
+
+        // Check if the PRF is cancelled from the response
+        // The backend returns prfIsCancel instead of isCancel
+        const isCancelled = data.header.prfIsCancel === 1 || data.isCancel === 1
+        const limitReached = currentCancelCount >= 3
+
+        // Set cancellation states based on count or isCancel flag
+        setIsPrfCancelled(limitReached || isCancelled)
+        setCancelLimitReached(limitReached)
+
+        // Set the cancel button label depending on cancel status and count
+        if (isCancelled || limitReached) {
+          setCancelButtonLabel(limitReached ? "Cancel Limit Reached" : `Cancel (${currentCancelCount}/3)`)
+        } else if (currentCancelCount > 0) {
+          setCancelButtonLabel(`Cancel (${currentCancelCount}/3)`)
         } else {
           setCancelButtonLabel("Cancel")
         }
 
+        // Check if PRF date is today
+        const prfDateObj = new Date(data.header.prfDate)
+        const today = new Date()
+        const isSameDay =
+          prfDateObj.getFullYear() === today.getFullYear() &&
+          prfDateObj.getMonth() === today.getMonth() &&
+          prfDateObj.getDate() === today.getDate()
+
+        // Show cancel button
+        setShowCancelButton(isSameDay && !isCancelled)
+
         // Set the PRF details in the table
         const newRows = data.details.map((detail) => ({
           stockCode: detail.StockCode,
-          quantity: detail.quantity.toString(),
+          quantity: detail.quantity ? detail.quantity.toString() : "",
           unit: detail.unit,
-          description: detail.StockName,
+          description: detail.StockName || detail.description,
           dateNeeded: detail.dateNeeded,
           purpose: detail.purpose,
-          stockId: detail.stockId || detail.StockCode || "", // Use StockCode as fallback if stockId is not available
+          stockId: detail.stockId || detail.StockCode || "",
         }))
 
-        // If there are fewer details than rows, pad with empty rows
+      
         while (newRows.length < 5) {
           newRows.push({
             stockCode: "",
@@ -112,9 +191,13 @@ const NutraTechForm = () => {
       const today = new Date()
       setCurrentDate(today.toISOString().split("T")[0])
       setPrfId(null)
+      setPrfDate(today)
+      setCancelCount(0)
+      setCancelLimitReached(false)
       setIsUpdating(false)
       setIsPrfCancelled(false)
       setCancelButtonLabel("Cancel")
+      setShowCancelButton(true) // Always show cancel button for new forms
 
       // Generate a new purchase code
       generatePurchaseCode(company)
@@ -132,7 +215,6 @@ const NutraTechForm = () => {
         })),
       )
     }
-
     // Check for existing search results when component mounts
     handleSearchResults()
 
@@ -145,6 +227,26 @@ const NutraTechForm = () => {
       window.removeEventListener("prfNewForm", handleNewForm)
     }
   }, [company]) // Add company as a dependency since we use it in handleNewForm
+
+  // Add a focus/visibility event listener to refresh data when returning to the page
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && prfId && purchaseCodeNumber) {
+        refreshPrfData()
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    // Also refresh when the component mounts if we have a prfId and purchaseCodeNumber
+    if (prfId && purchaseCodeNumber) {
+      refreshPrfData()
+    }
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [prfId, purchaseCodeNumber]) // Add purchaseCodeNumber as a dependency
 
   const [rows, setRows] = useState(
     Array.from({ length: 5 }, () => ({
@@ -267,6 +369,7 @@ const NutraTechForm = () => {
       if (response.ok) {
         console.log("PRF header saved:", data.prfId) // Get PRF ID from backend
         setPrfId(data.prfId) // Store the backend-generated PRF ID
+        setPrfDate(new Date(currentDate)) // Store the PRF date
         return data.prfId // Return PRF ID from backend
       } else {
         console.error("Error saving PRF header:", data.message)
@@ -319,29 +422,54 @@ const NutraTechForm = () => {
   }
 
   const handleCancel = async () => {
-    const success = await cancelPrf(prfId)
-    if (success) {
-      setCancelButtonLabel("Marked as Cancelled")
-      setIsPrfCancelled(true)
+    // Don't allow cancellation if limit is reached
+    if (cancelLimitReached) {
+      return
+    }
+
+    const result = await cancelPrf(prfId)
+    if (result && result.success) {
+      // Update cancel count
+      const newCancelCount = result.newCancelCount
+      setCancelCount(newCancelCount)
+
+      // Store cancel count in localStorage for persistence
+      localStorage.setItem(`prf_${prfId}_cancelCount`, newCancelCount.toString())
+
+      // Check if we've reached the limit
+      if (newCancelCount >= 3) {
+        setCancelLimitReached(true)
+        setCancelButtonLabel("Cancel Limit Reached")
+        setIsPrfCancelled(true) // Mark as cancelled on 3rd cancellation
+      } else {
+        // For 1st and 2nd cancellations, just update the button label
+        setCancelButtonLabel(`Cancel (${newCancelCount}/3)`)
+        setIsPrfCancelled(false) // Don't mark as cancelled for 1st and 2nd
+      }
+
+      // Refresh data a short delay to ensure the backend has updated
+      setTimeout(() => {
+        refreshPrfData()
+      }, 500)
     }
   }
-
-  // Style for cancelled PRF details
+  // Style for Cancel 
   const cancelledStyle = {
-    color: isPrfCancelled ? "red" : "inherit",
+    color: cancelCount >= 3 || isPrfCancelled ? "red" : "inherit",
+    // backgroundColor: cancelCount >= 3 || isPrfCancelled ? "rgba(255, 0, 0, 0.05)" : "inherit",
   }
 
   useEffect(() => {
-    // Notify parent component about form state
     window.dispatchEvent(
       new CustomEvent("prfFormStateChanged", {
         detail: {
           isUpdating,
-          isPrfCancelled,
+          isPrfCancelled: isPrfCancelled || cancelCount >= 3,
+          cancelLimitReached: cancelLimitReached || cancelCount >= 3,
         },
       }),
     )
-  }, [isUpdating, isPrfCancelled])
+  }, [isUpdating, isPrfCancelled, cancelCount, cancelLimitReached])
 
   useEffect(() => {
     const handleSaveClick = async () => {
@@ -383,7 +511,7 @@ const NutraTechForm = () => {
     <>
       <div className="form-container">
         <div className="form-box-container">
-          {isPrfCancelled && (
+          {(cancelCount >= 3 || isPrfCancelled) && (
             <div
               className="cancelled-banner"
               style={{
@@ -419,19 +547,19 @@ const NutraTechForm = () => {
           </div>
 
           <div className="field-box">
-            <div className="input-container">
-              <label className="header-dept-label" htmlFor="department">
+            <div className="search-input-container-type">
+              <label className="nutra-header-dept-label" htmlFor="department">
                 Department (charge to):
               </label>
-              <input type="text" id="department" className="department-display" value={department} readOnly />
+              <input type="text" id="department" className="department-type" value={department} readOnly />
             </div>
 
-            <div className="date-container">
-              <label className="date-label">Date:</label>
+            <div className="nutra-date-container">
+              <label className="nutra-date-label">Date:</label>
               <input
                 type="date"
                 id="date"
-                className="date-input"
+                className="input-date-nutra"
                 value={currentDate}
                 onChange={handleDateChange}
                 required
@@ -450,12 +578,12 @@ const NutraTechForm = () => {
                   <th>
                     <label
                       onClick={() => {
-                        if (!isPrfCancelled) {
+                        if (!isPrfCancelled && cancelCount < 3) {
                           setIsModalOpen(true)
                           setSelectedRowIndex(0)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled ? "default" : "pointer" }}
+                      style={{ cursor: isPrfCancelled || cancelCount >= 3 ? "default" : "pointer" }}
                     >
                       STOCK CODE
                     </label>
@@ -464,12 +592,12 @@ const NutraTechForm = () => {
                   <th>
                     <label
                       onClick={() => {
-                        if (!isPrfCancelled) {
+                        if (!isPrfCancelled && cancelCount < 3) {
                           setIsUomModalOpen(true)
                           setSelectedUomRowIndex(0)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled ? "default" : "pointer" }}
+                      style={{ cursor: isPrfCancelled || cancelCount >= 3 ? "default" : "pointer" }}
                     >
                       UNIT
                     </label>
@@ -484,12 +612,12 @@ const NutraTechForm = () => {
                   <tr key={index} style={cancelledStyle}>
                     <td
                       onClick={() => {
-                        if (!isPrfCancelled) {
+                        if (!isPrfCancelled && cancelCount < 3) {
                           setIsModalOpen(true)
                           setSelectedRowIndex(index)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled ? "default" : "pointer" }}
+                      style={{ cursor: isPrfCancelled || cancelCount >= 3 ? "default" : "pointer" }}
                     >
                       <input type="text" name="stockCode" value={row.stockCode} readOnly style={cancelledStyle} />
                     </td>
@@ -499,25 +627,25 @@ const NutraTechForm = () => {
                         name="quantity"
                         value={row.quantity}
                         onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled}
+                        readOnly={cancelLimitReached || isPrfCancelled || cancelCount >= 3}
                         style={cancelledStyle}
                       />
                     </td>
                     <td
                       onClick={() => {
-                        if (!isPrfCancelled) {
+                        if (!isPrfCancelled && cancelCount < 3) {
                           setIsUomModalOpen(true)
                           setSelectedUomRowIndex(index)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled ? "default" : "pointer" }}
+                      style={{ cursor: isPrfCancelled || cancelCount >= 3 ? "default" : "pointer" }}
                     >
                       <input
                         type="text"
                         name="unit"
                         value={row.unit}
                         onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled}
+                        readOnly={cancelLimitReached || isPrfCancelled || cancelCount >= 3}
                         style={cancelledStyle}
                       />
                     </td>
@@ -527,7 +655,7 @@ const NutraTechForm = () => {
                         name="description"
                         value={row.description}
                         onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled}
+                        readOnly={cancelLimitReached || isPrfCancelled || cancelCount >= 3}
                         style={cancelledStyle}
                       />
                     </td>
@@ -537,7 +665,7 @@ const NutraTechForm = () => {
                         name="dateNeeded"
                         value={row.dateNeeded}
                         onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled}
+                        readOnly={cancelLimitReached || isPrfCancelled || cancelCount >= 3}
                         style={cancelledStyle}
                       />
                     </td>
@@ -547,7 +675,7 @@ const NutraTechForm = () => {
                         name="purpose"
                         value={row.purpose}
                         onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled}
+                        readOnly={cancelLimitReached || isPrfCancelled || cancelCount >= 3}
                         style={cancelledStyle}
                       />
                     </td>
@@ -558,10 +686,10 @@ const NutraTechForm = () => {
           </div>
 
           <div className="save-button-container">
-            <AddRowButton onClick={handleAddRow} disabled={isPrfCancelled} />
+            <AddRowButton onClick={handleAddRow} disabled={isPrfCancelled || cancelCount >= 3} />
 
-            {isUpdating && (
-              <CancelButton onClick={() => handleCancel()} disabled={isPrfCancelled} label={cancelButtonLabel} />
+            {isUpdating && showCancelButton && (
+              <CancelButton onClick={() => handleCancel()} disabled={cancelLimitReached} label={cancelButtonLabel} />
             )}
           </div>
 
@@ -608,7 +736,7 @@ const NutraTechForm = () => {
         }
         
         input:read-only {
-          background-color: ${isPrfCancelled ? "rgba(255, 0, 0, 0.05)" : "inherit"};
+          background-color: ${isPrfCancelled || cancelCount >= 3 ? "rgba(255, 0, 0, 0.05)" : "inherit"};
         }
       `}</style>
     </>
