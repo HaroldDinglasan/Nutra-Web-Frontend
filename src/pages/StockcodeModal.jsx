@@ -85,9 +85,8 @@ const StockcodeModal = ({ onClose, onSelectStock }) => {
               <div className="search-list-wrapper">
                 <svg
                   className="search-icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -103,14 +102,14 @@ const StockcodeModal = ({ onClose, onSelectStock }) => {
                   placeholder="Search..."
                   value={searchStocks}
                   onChange={handleSearchChange}
-                  className="search-input"
+                  className="search-input-modal"
                 />
                 {searchStocks && (
                   <button className="clear-search" onClick={clearSearch}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
+                      width="20"
+                      height="20"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"

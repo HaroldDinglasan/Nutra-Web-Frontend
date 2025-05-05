@@ -117,14 +117,14 @@ h1 {
     background-color: darkgreen;
 }
 
-.register-link{
+.login-register-link{
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 13.5px;
     color: #007F00;
     cursor: pointer;
-    margin-top: -45px;
+    margin-top: -25px;
 }
 
 .log-input-container {
@@ -151,7 +151,7 @@ h1 {
     cursor: pointer;
 }
 
-.register-link p:hover{
+.login-register-link p:hover{
     color: rgb(0, 30, 0);
 }
 
@@ -269,7 +269,7 @@ h1 {
         width: 95%;
     }
 
-    .register-link {
+    .login-register-link {
         font-size: 0.85rem;
     }
 }

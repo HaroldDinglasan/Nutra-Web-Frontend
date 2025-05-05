@@ -151,7 +151,7 @@ const Login = () => {
           LOGIN
         </button>
 
-        <div className="register-link">
+        <div className="login-register-link">
           <p>
             Don't have an Account?{" "}
             <a className="reg-click" href="register/form">
