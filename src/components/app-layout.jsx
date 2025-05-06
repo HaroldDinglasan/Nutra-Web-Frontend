@@ -338,10 +338,10 @@ const AppLayout = ({ children }) => {
           </aside>
 
           <main className="dashboard-main">
-            <div className="page-title">
-              {activeSection === "entry" && <h1>Dashboard</h1>}
-              {activeSection === "list" && <h1>Purchase List</h1>}
-              {activeSection === "prfRequest" && <h1>Purchase Request Form</h1>}
+            <div className="page-titles">
+              {activeSection === "entry"}
+              {activeSection === "list"}
+              {activeSection === "prfRequest"}
             </div>
             <div className="main-content">{children}</div>
           </main>

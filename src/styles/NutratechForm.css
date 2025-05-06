@@ -428,14 +428,25 @@ h3 {
   }
   
 @media print {
-    html,
-    body {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      background-color: white !important;
-      margin: 0;
-      padding: 0;
-    }
+   /* Target ALL elements to remove scrollbars */
+  html,
+  body,
+  div,
+  section,
+  main,
+  article,
+  aside,
+  header,
+  footer,
+  nav,
+  form {
+    overflow: visible !important;
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE and Edge */
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+  }
 
     * {
         background-color: transparent !important;
@@ -451,7 +462,8 @@ h3 {
         padding: 2px;
         background: white;
         margin-top: 10mm;
-        min-height: auto; /* Remove the 100vh height to prevent extra space */
+        min-height: auto; 
+        overflow-x: hidden;
     }
 
     .form-box-container {
@@ -461,6 +473,19 @@ h3 {
         border: none;
         padding: 2px;
         margin: 0;
+    }
+
+    .logo img {
+        width: 250px; 
+        height: auto;   
+    }
+
+    .header-three {
+        font-size: 11px;
+    }
+
+    .header-four {
+        font-size: 11px;
     }
 
     /* Prevent page breaks inside rows */
