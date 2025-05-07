@@ -510,6 +510,10 @@
   .canceled-row td {
     color: var(--error-color) !important;
   }
+
+  .settings-icon {
+    margin-top: 5px;
+  }
   
   /* Responsive Adjustments */
   @media (max-width: 1024px) {

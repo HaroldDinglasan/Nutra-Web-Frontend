@@ -1,0 +1,281 @@
+.approval-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .approval-modal {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 550px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalFadeIn 0.3s ease-out;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -60%);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+  
+  .approval-modal-header {
+    background-color: #4caf50;
+    color: white;
+    padding: 16px 20px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  .approval-modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .approval-subtitle {
+    text-align: center;
+    padding: 12px 20px;
+    color: #555;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .approval-form {
+    padding: 20px;
+  }
+  
+  .approval-section {
+    margin-bottom: 20px;
+  }
+  
+  .section-title {
+    color: #333;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: -22px;
+    margin-right: -50px;
+    margin-left: 20px;
+    text-align: right;
+    padding-right: 10px;
+  }
+  
+  .form-grid {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 80px 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .form-label {
+    display: flex;
+    font-size: 0.9rem;
+    color: #555;
+    padding-right: 10px;
+    margin-left: -20px;
+  }
+
+  .approvedby-form-label {
+    display: flex;
+    font-size: 0.9rem;
+    color: #555;
+    padding-right: 10px;
+    margin-left: -30px;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    margin-left: -50px;
+  }
+
+  .approvedby-form-input {
+    width: 340px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    margin-left: -60px;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: #4caf50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+  }
+  
+  .approval-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px; 
+    margin-top: 40px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .approval-cancel-button {
+    width: 150px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+  }
+  
+  .approval-cancel-button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .approval-save-button {
+    width: 150px;
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+  }
+  
+  .approval-save-button:hover {
+    background-color: #3d8b40;
+  }
+  
+  /* Additional styles for the settings icon in app-layout.jsx */
+  .settings-icon-wrapper {
+    position: relative;
+    cursor: pointer;
+    margin-left: 10px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+  
+  .settings-icon-wrapper:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .settings-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+  }
+  
+  .settings-svg {
+    transition: transform 0.3s ease;
+  }
+  
+  .settings-icon-wrapper:hover .settings-svg {
+    transform: rotate(30deg);
+    color: #4caf50;
+  }
+  
+  .settings-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    z-index: 100;
+    margin-top: 8px;
+    animation: dropdownFadeIn 0.2s ease-out;
+  }
+  
+  @keyframes dropdownFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .settings-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.2s;
+  }
+  
+  .settings-dropdown-item:hover {
+    background-color: #f5f5f5;
+    color: #4caf50;
+  }
+  
+  .settings-dropdown-item svg {
+    color: #4caf50;
+  }
+  
