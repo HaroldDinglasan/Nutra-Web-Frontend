@@ -56,70 +56,6 @@ html, body {
     margin-bottom: 8px;
 }
 
-.table-container {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    margin-top: 15px;
-}
-
-.table-container table {
-    width: 95%;
-    border-collapse: collapse;
-    outline: 1px solid #c1c0c0;
-    font-size: 12px;
-    table-layout: fixed; 
-}
-
-table {
-    width: 95%;
-    border-collapse: collapse;
-    outline: 1px solid #c1c0c0;
-    font-size: 12px;
-}
-
-/* Adjust column widths */
-th:nth-child(1), td:nth-child(1) { width: 12%; }  /* STOCK CODE */
-th:nth-child(2), td:nth-child(2) { width: 9%; }   /* QUANTITY */
-th:nth-child(3), td:nth-child(3) { width: 12%; }   /* UNIT */
-th:nth-child(4), td:nth-child(4) { width: 40%; }  /* DESCRIPTION (Expanded) */
-th:nth-child(5), td:nth-child(5) { width: 12%; }  /* DATE NEEDED */
-th:nth-child(6), td:nth-child(6) { width: 22%; }  /* PURPOSE OF REQUISITION */
-
-th, td {
-    padding: 4px;
-    text-align: center;
-}
-
-td {
-    border: 1px solid #c1c0c0;
-}
-
-th {
-    font-size: 0.9rem;
-    cursor: pointer;
-}
-
-tbody tr:hover {
-    background-color: #f2f2f2; 
-}
-
-/* Adjust input fields inside table */
-td input {
-    border: none;
-    background: transparent;
-    width: 100%;
-    text-align: center;
-    padding: 2px 0; 
-    line-height: 1.2; 
-    font-size: 14px; 
-    height: 20px; 
-    vertical-align: middle; 
-    appearance: none; 
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
-
 .field-box{
     display: flex;
     margin-left: 60px;
@@ -182,45 +118,6 @@ td input {
 .following-label{
     display: flex;
     margin-left: 28px;
-}
-
-.approval-section {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 40px;
-}
-
-.approval-box {
-    width: 216px; 
-    background-color: #ffffff; 
-    padding: 10px;
-    text-align: center;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 50px;
-    outline: 1px solid #c1c0c0;
-}
-
-.approval-box h3{
-    font-size: 17px;    
-}
-
-.signature-box {
-    width: 100%;
-    height: 43px; 
-    background-color: rgb(230, 228, 228);
-    margin: 10px 0;
-    font-weight: bold;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.approval-box .signature-label{
-    font-size: 12px;
 }
 
 .nav-bar-container {

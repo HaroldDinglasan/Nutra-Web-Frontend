@@ -56,6 +56,7 @@ const Login = () => {
         localStorage.setItem("userDepartment", data.user.departmentType);
         localStorage.setItem("userDepartmentId", data.user.departmentId); // Store department Id
         localStorage.setItem("userCompany", selectedCompany) // Store selected Company
+        localStorage.setItem("userId", data.user.userID) // Store the userID
 
         navigate("/prf/list#dashboard", {
           state: { company: selectedCompany },

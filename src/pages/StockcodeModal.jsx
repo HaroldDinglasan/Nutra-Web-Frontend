@@ -75,7 +75,7 @@ const StockcodeModal = ({ onClose, onSelectStock }) => {
         <div className="stock-box-container" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
             <h2>Stock Items</h2>
-            <button className="close-button" alt="close" onClick={onClose}>
+            <button className="stockcode-close-button" alt="close" onClick={onClose}>
               <img src={closeButton || "/placeholder.svg"} alt="close" className="close-icon" />
             </button>
           </div>
