@@ -415,6 +415,13 @@ const NutraTechForm = () => {
   }
 
   const handleSave = async () => {
+    // Check if there are any rows with stock codes
+    const validRows = rows.filter((row) => row.stockCode && row.stockCode.trim())
+    if (validRows.length === 0) {
+      alert("Please fill out PRF details first before saving")
+      return
+    }
+
     // Check if any row with a stock code has an empty purpose field
     const hasEmptyPurpose = rows.some((row) => row.stockCode && !row.purpose.trim())
 
@@ -503,6 +510,14 @@ const NutraTechForm = () => {
   useEffect(() => {
     const handleSaveClick = async () => {
       console.log("Save clicked - Form data:", { purchaseCodeNumber, currentDate, fullname })
+
+      // Check if there are any rows with stock codes
+      const validRows = rows.filter((row) => row.stockCode && row.stockCode.trim())
+      if (validRows.length === 0) {
+        alert("Please fill out PRF details first before saving")
+        return
+      }
+
       let headerPrfId = prfId
 
       if (!headerPrfId) {

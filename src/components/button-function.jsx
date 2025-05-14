@@ -44,6 +44,31 @@ export const savePrfDetails = async (headerPrfId, rows) => {
     return false
   }
 
+  // Check if any row with a stockCode has an empty purpose field or date needed field
+  const hasEmptyFields = rows.some((row) => {
+    if (row.stockCode) {
+      const emptyPurpose = !row.purpose || !row.purpose.trim()
+      const emptyDateNeeded = !row.dateNeeded || !row.dateNeeded.trim()
+
+      if (emptyPurpose && emptyDateNeeded) {
+        alert("Purpose of Requisition and Date Needed are required for all items")
+        return true
+      } else if (emptyPurpose) {
+        alert("Purpose of Requisition is required for all items")
+        return true
+      } else if (emptyDateNeeded) {
+        alert("Date Needed is required for all items")
+        return true
+      }
+    }
+    return false
+  })
+
+  if (hasEmptyFields) {
+    // Return false to prevent saving
+    return false
+  }
+
   const prfDetails = rows
     .filter((row) => row.stockCode)
     .map((row) => ({
