@@ -56,7 +56,7 @@ const AppLayout = ({ children }) => {
     }
   }, [])
 
-  // Close dropdowns when clicking outside
+  // close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".settings-icon-wrapper") && !event.target.closest(".settings-dropdown-menu")) {
@@ -136,12 +136,12 @@ const AppLayout = ({ children }) => {
     })
   }
 
-  // Function to handle creating a new PRF form
+  // create a new PRF form
   const handleNewPrf = () => {
-    // Clear any existing search results
+    // clear existing search results
     sessionStorage.removeItem("prfSearchResults")
 
-    // Clear search input
+    // clear search input
     setSearchInput("")
 
     // Navigate to the form page with a fresh state
@@ -149,14 +149,14 @@ const AppLayout = ({ children }) => {
     navigate("/nutraTech/form", {
       state: {
         company,
-        isNew: true, // Flag to indicate this is a new form
+        isNew: true,
       },
     })
 
     window.dispatchEvent(new CustomEvent("prfNewForm"))
   }
 
-  // Search PRF function
+  // search PRF function
   const handleSearchPrf = async () => {
     if (!searchInput.trim()) {
       alert("Please enter a PRF number to search")
@@ -178,15 +178,15 @@ const AppLayout = ({ children }) => {
       if (response.ok && data.found) {
         console.log("PRF found:", data)
 
-        // Store the search results in sessionStorage to pass to NutraTechForm
+        // store the prf search results in sessionStorage to pass to NutraTechForm
         sessionStorage.setItem("prfSearchResults", JSON.stringify(data))
 
-        // Navigate to the form page if not already there
+        // navigate to the form page if not already there
         if (location.pathname !== "/nutratech/form") {
           const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc"
           navigate("/nutratech/form", { state: { company } })
         } else {
-          // If already on the form page, trigger a refresh
+        
           window.dispatchEvent(new CustomEvent("prfSearchCompleted"))
         }
 
@@ -264,7 +264,6 @@ const AppLayout = ({ children }) => {
                 <img src={downloadLogo || "/placeholder.svg"} alt="Download" className="action-icon" />
               </div>
 
-              {/* Settings Icon */}
               <div className="settings-icon-wrapper" onClick={toggleSettingsDropdown} title="Settings">
                 <div className="settings-icon">
                   <svg

@@ -28,7 +28,7 @@ const ApprovalModal = ({ onClose, userId }) => {
     setCurrentUserId(userId || localStorage.getItem("userId") || "")
   }, [userId])
 
-  // States for custom dropdowns
+  // states for custom dropdowns
   const [openDropdown, setOpenDropdown] = useState(null)
   const [searchTerms, setSearchTerms] = useState({
     checkedByUser: "",
@@ -36,25 +36,24 @@ const ApprovalModal = ({ onClose, userId }) => {
     receivedByUser: "",
   })
 
-  // Refs for dropdown containers
+  // refs for dropdown containers
   const dropdownRefs = {
     checkedByUser: useRef(null),
     approvedByUser: useRef(null),
     receivedByUser: useRef(null),
   }
 
-  // Refs for search inputs to maintain focus
+  // refs for search inputs to maintain focus
   const searchInputRefs = {
     checkedByUser: useRef(null),
     approvedByUser: useRef(null),
     receivedByUser: useRef(null),
   }
 
-  // Flag to prevent focus loss during typing
+  // prevent focus loss during typing
   const isTypingRef = useRef(false)
 
-
-  // Get userId from localStorage if not provided as prop
+  // get userId from localStorage if not provided as prop
   useEffect(() => {
     if (!currentUserId) {
       const storedUserId = localStorage.getItem("userId")
