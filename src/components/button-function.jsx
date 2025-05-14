@@ -145,19 +145,14 @@ export const cancelPrf = async (prfId) => {
     })
 
     if (response.status === 200) {
-     
       const result = {
         success: true,
         newCancelCount: response.data.newCancelCount,
-        isFullyCancelled: response.data.isFullyCancelled || response.data.newCancelCount >= 3,
+        isFullyCancelled: false, // Removed the concept of fully cancelled
       }
 
-      // Update the alert messages in cancelPrf function
-      if (result.isFullyCancelled) {
-        alert("PRF has been fully cancelled.")
-      } else {
-        alert(`PRF cancellation count: ${response.data.newCancelCount}/3.`)
-      }
+      // // Simple alert for cancellation
+      // alert(`PRF has been cancelled (Cancel count: ${response.data.newCancelCount})`)
 
       return result
     } else {

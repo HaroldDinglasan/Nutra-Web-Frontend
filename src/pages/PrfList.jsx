@@ -19,6 +19,20 @@ const DashboardAdmin = () => {
     fetchPrfList()
   }, [])
 
+  // Function to check if a date is the same as today
+  const checkIsSameDay = (dateToCheck) => {
+    if (!dateToCheck) return false
+
+    const today = new Date()
+    const checkDate = new Date(dateToCheck)
+
+    return (
+      checkDate.getFullYear() === today.getFullYear() &&
+      checkDate.getMonth() === today.getMonth() &&
+      checkDate.getDate() === today.getDate()
+    )
+  }
+
   // Effect to filter the PRF list
   useEffect(() => {
     if (!searchTerm.trim()) {
@@ -63,7 +77,7 @@ const DashboardAdmin = () => {
 
       if (!currentUser) {
         console.error("❌ User not found in localStorage")
-  
+
         const response = await axios.get("http://localhost:5000/api/prf-list")
         setPrfList(response.data)
         setFilteredPrfList(response.data)
@@ -136,8 +150,22 @@ const DashboardAdmin = () => {
 
   // Check if a row is canceled
   const isRowCanceled = (prf) => {
-    // Check if header or details are marked as canceled
-    return prf.prfIsCancel === true || prf.detailsIsCancel === true
+    // Check if header or details are marked as canceled in the database
+    const isDbCancelled =
+      prf.prfIsCancel === true ||
+      prf.prfIsCancel === 1 ||
+      prf.detailsIsCancel === true ||
+      prf.detailsIsCancel === 1 ||
+      prf.isCancel === true ||
+      prf.isCancel === 1
+
+    // Check if the PRF date is not today (past the creation day)
+    const isSameDay = checkIsSameDay(prf.prfDate)
+
+    // A PRF is considered cancelled if:
+    // 1. It's marked as cancelled in the database OR
+    // 2. It's not created today (past the creation day)
+    return isDbCancelled || !isSameDay
   }
 
   return (
@@ -208,16 +236,19 @@ const DashboardAdmin = () => {
             </thead>
             <tbody>
               {filteredPrfList.length > 0 ? (
-                filteredPrfList.map((prf, index) => (
-                  <tr key={index} className={isRowCanceled(prf) ? "canceled-row" : ""}>
-                    <td>No. {prf.prfNo}</td>
-                    <td>{prf.preparedBy}</td>
-                    <td>{formatDate(prf.dateNeeded)}</td>
-                    <td>{prf.StockName || "No stock name available"}</td>
-                    <td>{prf.quantity || "N/A"}</td>
-                    <td>{prf.unit || "N/A"}</td>
-                  </tr>
-                ))
+                filteredPrfList.map((prf, index) => {
+                  const isCancelled = isRowCanceled(prf)
+                  return (
+                    <tr key={index} className={isCancelled ? "canceled-row" : ""}>
+                      <td style={{ color: isCancelled ? "red" : "inherit" }}>No. {prf.prfNo}</td>
+                      <td>{prf.preparedBy}</td>
+                      <td>{formatDate(prf.dateNeeded)}</td>
+                      <td>{prf.StockName || "No stock name available"}</td>
+                      <td>{prf.quantity || "N/A"}</td>
+                      <td>{prf.unit || "N/A"}</td>
+                    </tr>
+                  )
+                })
               ) : (
                 <tr>
                   <td colSpan="6">No matching PRF records found.</td>
@@ -227,6 +258,11 @@ const DashboardAdmin = () => {
           </table>
         </div>
       )}
+      <style jsx>{`
+        .canceled-row {
+          background-color: rgba(255, 0, 0, 0.05);
+        }
+      `}</style>
     </>
   )
 }
