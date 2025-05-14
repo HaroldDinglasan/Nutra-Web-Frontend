@@ -12,6 +12,9 @@ const DashboardAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("") // Store search term
   const showDashboard = location.hash === "#dashboard"
 
+  // Get user fullname from localStorage
+  const fullname = localStorage.getItem("userFullname") || "User"
+
   useEffect(() => {
     fetchPrfList()
   }, [])
@@ -52,13 +55,58 @@ const DashboardAdmin = () => {
     setFilteredPrfList(filtered)
   }, [searchTerm, prfList])
 
+  // fetchPrfList function to handle potential issues with user data
   const fetchPrfList = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/prf-list")
-      setPrfList(response.data)
-      setFilteredPrfList(response.data) // Filtered list with all data
+      // Get the current user fullname from localStorage
+      const currentUser = localStorage.getItem("userFullname")
+
+      if (!currentUser) {
+        console.error("❌ User not found in localStorage")
+  
+        const response = await axios.get("http://localhost:5000/api/prf-list")
+        setPrfList(response.data)
+        setFilteredPrfList(response.data)
+        return
+      }
+
+      console.log(`Fetching PRFs for user: ${currentUser}`)
+
+      // Fetch PRFs for the current user only
+      const response = await axios.get(`http://localhost:5000/api/prf-list/user/${encodeURIComponent(currentUser)}`)
+
+      console.log(`Received ${response.data.length} PRFs from server`)
+
+      if (response.data.length === 0) {
+        console.log("No PRFs found for this user, checking if there's a case-sensitivity issue...")
+
+        // If no PRFs found, try fetching all PRFs as a fallback
+        const allPrfsResponse = await axios.get("http://localhost:5000/api/prf-list")
+
+        // Filter client-side with case-insensitive comparison
+        const userPrfs = allPrfsResponse.data.filter(
+          (prf) => prf.preparedBy && prf.preparedBy.toLowerCase() === currentUser.toLowerCase(),
+        )
+
+        console.log(`Found ${userPrfs.length} PRFs after case-insensitive filtering`)
+
+        setPrfList(userPrfs)
+        setFilteredPrfList(userPrfs)
+      } else {
+        setPrfList(response.data)
+        setFilteredPrfList(response.data)
+      }
     } catch (error) {
       console.error("❌ Error fetching PRF List:", error)
+
+      // Fallback to fetching all PRFs if there's an error
+      try {
+        const response = await axios.get("http://localhost:5000/api/prf-list")
+        setPrfList(response.data)
+        setFilteredPrfList(response.data)
+      } catch (fallbackError) {
+        console.error("❌ Error fetching fallback PRF List:", fallbackError)
+      }
     }
   }
 
@@ -92,9 +140,6 @@ const DashboardAdmin = () => {
     return prf.prfIsCancel === true || prf.detailsIsCancel === true
   }
 
-  // Get user fullname from localStorage
-  const fullname = localStorage.getItem("userFullname") || "User"
-
   return (
     <>
       {showDashboard ? (
@@ -103,35 +148,18 @@ const DashboardAdmin = () => {
         </div>
       ) : (
         <div className="log-table-container">
-        <div className="search-container">
-          <div className="search-box-list">
-            <input
-              type="text"
-              placeholder="Search"
-              className="search-input-form"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-            <button className="search-button" onClick={() => handleSearchChange({ target: { value: searchTerm } })}>
-              <svg
-                className="searchPrfNo"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </button>
-            {searchTerm && (
-              <button className="clear-search" onClick={clearSearch}>
+          <div className="search-container">
+            <div className="search-box-list">
+              <input
+                type="text"
+                placeholder="Search"
+                className="search-input-form"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+              <button className="search-button" onClick={() => handleSearchChange({ target: { value: searchTerm } })}>
                 <svg
+                  className="searchPrfNo"
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
                   height="20"
@@ -142,13 +170,30 @@ const DashboardAdmin = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </button>
-            )}
+              {searchTerm && (
+                <button className="clear-search" onClick={clearSearch}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
 
           <table className="log-table">
             <thead>
