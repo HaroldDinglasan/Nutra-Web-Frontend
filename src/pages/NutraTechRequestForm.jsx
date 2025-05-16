@@ -16,6 +16,7 @@ import StockcodeModal from "./StockcodeModal"
 import UomModal from "../components/UomModal"
 import { CancelButton, AddRowButton } from "../components/button"
 import { savePrfHeader, savePrfDetails, updatePrfDetails, cancelPrf } from "../components/button-function"
+import axios from "axios"
 
 const NutraTechForm = () => {
   const location = useLocation()
@@ -39,6 +40,89 @@ const NutraTechForm = () => {
   const department = localStorage.getItem("userDepartment") || "" // Retrieve department
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
+
+  // State for approval names
+  const [approvalNames, setApprovalNames] = useState({
+    checkedByUser: localStorage.getItem("checkedByUser") || "",
+    approvedByUser: localStorage.getItem("approvedByUser") || "",
+    receivedByUser: localStorage.getItem("receivedByUser") || "",
+  })
+
+  // Listen for approval settings updates
+  useEffect(() => {
+    const handleApprovalSettingsUpdated = (event) => {
+      if (event.detail) {
+        setApprovalNames({
+          checkedByUser: event.detail.checkedByUser || "",
+          approvedByUser: event.detail.approvedByUser || "",
+          receivedByUser: event.detail.receivedByUser || "",
+        })
+      }
+    }
+
+    window.addEventListener("approvalSettingsUpdated", handleApprovalSettingsUpdated)
+    return () => {
+      window.removeEventListener("approvalSettingsUpdated", handleApprovalSettingsUpdated)
+    }
+  }, [])
+
+  // Fetch approval settings when component mounts
+  useEffect(() => {
+    const fetchApprovalSettings = async () => {
+      const userId = localStorage.getItem("userId")
+      if (!userId) return
+
+      try {
+        const response = await axios.get(`http://localhost:5000/api/approvals/user/${userId}`)
+
+        if (response.data.data && response.data.data.length > 0) {
+          const approval = response.data.data[0]
+
+          // Fetch employee names for the IDs
+          const fetchEmployeeNames = async (ids) => {
+            const names = {}
+
+            for (const [key, id] of Object.entries(ids)) {
+              if (id) {
+                try {
+                  const empResponse = await axios.get(`http://localhost:5000/api/employee/${id}`)
+                  if (empResponse.data && empResponse.data.FullName) {
+                    names[key] = empResponse.data.FullName
+                  }
+                } catch (error) {
+                  console.error(`Error fetching employee for ${key}:`, error)
+                }
+              }
+            }
+
+            return names
+          }
+
+          const employeeNames = await fetchEmployeeNames({
+            checkedByUser: approval.CheckedById,
+            approvedByUser: approval.ApprovedById,
+            receivedByUser: approval.ReceivedById,
+          })
+
+          // Update state with fetched names
+          setApprovalNames({
+            checkedByUser: employeeNames.checkedByUser || localStorage.getItem("checkedByUser") || "",
+            approvedByUser: employeeNames.approvedByUser || localStorage.getItem("approvedByUser") || "",
+            receivedByUser: employeeNames.receivedByUser || localStorage.getItem("receivedByUser") || "",
+          })
+
+          // Also update localStorage
+          if (employeeNames.checkedByUser) localStorage.setItem("checkedByUser", employeeNames.checkedByUser)
+          if (employeeNames.approvedByUser) localStorage.setItem("approvedByUser", employeeNames.approvedByUser)
+          if (employeeNames.receivedByUser) localStorage.setItem("receivedByUser", employeeNames.receivedByUser)
+        }
+      } catch (error) {
+        console.error("Error fetching approval settings:", error)
+      }
+    }
+
+    fetchApprovalSettings()
+  }, [])
 
   // check if a date is the same as today
   const checkIsSameDay = (dateToCheck) => {
@@ -199,9 +283,9 @@ const NutraTechForm = () => {
       }
     }
 
-    // Function to handle creating a new form
+    // Create new form
     const handleNewForm = () => {
-      // Reset all form fields
+      // Reset all fields
       const today = new Date()
       setCurrentDate(today.toISOString().split("T")[0])
       setPrfId(null)
@@ -228,6 +312,12 @@ const NutraTechForm = () => {
           stockId: "",
         })),
       )
+      // Reset Approval names
+      setApprovalNames({
+        checkedByUser: "",
+        approvedByUser: "",
+        receivedByUser: "",
+      })
     }
 
     // Check for existing search results when component mounts
@@ -782,19 +872,19 @@ const NutraTechForm = () => {
 
             <div className="approval-box">
               <h3>Checked By:</h3>
-              <div className="signature-box"></div>
+              <div className="signature-box">{approvalNames.checkedByUser}</div>
               <p className="signature-label">Signature over printed Name / Date</p>
             </div>
 
             <div className="approval-box">
               <h3>Approved By:</h3>
-              <div className="signature-box"></div>
+              <div className="signature-box">{approvalNames.approvedByUser}</div>
               <p className="signature-label">Signature over printed Name / Date</p>
             </div>
 
             <div className="approval-box">
               <h3>Received By:</h3>
-              <div className="signature-box"></div>
+              <div className="signature-box">{approvalNames.receivedByUser}</div>
               <p className="signature-label">Date / Time / Signature</p>
             </div>
           </div>

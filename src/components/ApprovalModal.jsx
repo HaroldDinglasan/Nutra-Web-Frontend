@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import "../styles/ApprovalModal.css"
 import axios from "axios"
 
-const ApprovalModal = ({ onClose, userId }) => {
+const ApprovalModal = ({ onClose }) => {
   const [employees, setEmployees] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -20,13 +20,28 @@ const ApprovalModal = ({ onClose, userId }) => {
     receivedByUserOid: null,
   })
 
-  const [currentUserId, setCurrentUserId] = useState(userId || localStorage.getItem("userId") || "")
+  // Get userId from localStorage
+  const [currentUserId, setCurrentUserId] = useState(null)
+  const [currentUserName, setCurrentUserName] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    setCurrentUserId(userId || localStorage.getItem("userId") || "")
-  }, [userId])
+    // Get userId from localStorage
+    const userId = localStorage.getItem("userId")
+
+    if (userId) {
+      setCurrentUserId(Number(userId))
+
+      // Set the current user as the default for all approval roles
+      setFormData((prev) => ({
+        ...prev,
+        checkedByUserOid: Number(userId),
+        approvedByUserOid: Number(userId),
+        receivedByUserOid: Number(userId),
+      }))
+    }
+  }, [])
 
   // states for custom dropdowns
   const [openDropdown, setOpenDropdown] = useState(null)
@@ -53,29 +68,6 @@ const ApprovalModal = ({ onClose, userId }) => {
   // prevent focus loss during typing
   const isTypingRef = useRef(false)
 
-  // get userId from localStorage if not provided as prop
-  useEffect(() => {
-    if (!currentUserId) {
-      const storedUserId = localStorage.getItem("userId")
-      if (storedUserId) {
-        setCurrentUserId(Number(storedUserId))
-      } else {
-        // Get user object and extract ID
-        const userStr = localStorage.getItem("user")
-        if (userStr) {
-          try {
-            const user = JSON.parse(userStr)
-            if (user && user.userID) {
-              setCurrentUserId(user.userID)
-            }
-          } catch (error) {
-            console.error("Error parsing user data:", error)
-          }
-        }
-      }
-    }
-  }, [currentUserId, userId])
-
   // Fetch employees from the API
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -96,6 +88,49 @@ const ApprovalModal = ({ onClose, userId }) => {
 
     fetchEmployees()
   }, [])
+
+  // Load existing approval settings if available
+  useEffect(() => {
+    const fetchExistingApprovals = async () => {
+      if (!currentUserId) return
+
+      try {
+        const response = await axios.get(`http://localhost:5000/api/approvals/user/${currentUserId}`)
+
+        if (response.data.data && response.data.data.length > 0) {
+          const approval = response.data.data[0]
+
+          // Find employee names for the IDs
+          const findEmployeeName = (id) => {
+            const employee = employees.find((emp) => emp.Oid === id)
+            return employee ? employee.FullName : currentUserName
+          }
+
+          // Only update if we have employees loaded
+          if (employees.length > 0) {
+            setFormData({
+              checkedByUser: findEmployeeName(approval.CheckedById),
+              checkedByEmail: approval.CheckedByEmail || "",
+              checkedByUserOid: approval.CheckedById || currentUserId,
+              approvedByUser: findEmployeeName(approval.ApprovedById),
+              approvedByEmail: approval.ApprovedByEmail || "",
+              approvedByUserOid: approval.ApprovedById || currentUserId,
+              receivedByUser: findEmployeeName(approval.ReceivedById),
+              receivedByEmail: approval.ReceivedByEmail || "",
+              receivedByUserOid: approval.ReceivedById || currentUserId,
+            })
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching existing approvals:", error)
+  
+      }
+    }
+
+    if (employees.length > 0) {
+      fetchExistingApprovals()
+    }
+  }, [currentUserId, employees, currentUserName])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -174,11 +209,11 @@ const ApprovalModal = ({ onClose, userId }) => {
     }
   }
 
-  // Filter employees based on search term - FIXED with null check
+  // Filter employees based on search term 
   const getFilteredEmployees = (field) => {
     const searchTerm = searchTerms[field].toLowerCase()
     if (!searchTerm) {
-      return employees.slice(0, 5) // Show only first 5 when not searching
+      return employees.slice(0, 5) // Show only 5 list employee
     }
     return employees.filter((emp) => emp && emp.FullName && emp.FullName.toLowerCase().includes(searchTerm))
   }
@@ -188,22 +223,61 @@ const ApprovalModal = ({ onClose, userId }) => {
     setSubmitting(true)
     setError(null)
 
+    // Ensure we have the current user ID
+    if (!currentUserId) {
+      const userId = localStorage.getItem("userId")
+      if (!userId) {
+        setError("User ID not found. Please log in again.")
+        setSubmitting(false)
+        return
+      }
+      setCurrentUserId(Number(userId))
+    }
+
     try {
-      // Create the approval data object to send to the backend
+      // Check if an approval record already exists for this user
+      const checkResponse = await axios.get(`http://localhost:5000/api/approvals/user/${currentUserId}`)
+
+      // Ensure all approval IDs have values (use currentUserId as default)
       const approvalData = {
-        UserID: currentUserId, 
-        ApplicType: "PRF", // Default value as specified
-        CheckedById: formData.checkedByUserOid || null,
+        UserID: currentUserId,
+        ApplicType: "PRF",
+        CheckedById: formData.checkedByUserOid || currentUserId,
         CheckedByEmail: formData.checkedByEmail || null,
-        ApprovedById: formData.approvedByUserOid || null,
+        ApprovedById: formData.approvedByUserOid || currentUserId,
         ApprovedByEmail: formData.approvedByEmail || null,
-        ReceivedById: formData.receivedByUserOid || null,
+        ReceivedById: formData.receivedByUserOid || currentUserId,
         ReceivedByEmail: formData.receivedByEmail || null,
       }
 
-      const response = await axios.post("http://localhost:5000/api/approvals", approvalData)
+      let response
 
-      console.log("Approval settings saved:", response.data)
+      // If approval record exists, update it
+      if (checkResponse.data.data && checkResponse.data.data.length > 0) {
+        const approvalId = checkResponse.data.data[0].ApproverAssignID
+        response = await axios.put(`http://localhost:5000/api/approvals/${approvalId}`, approvalData)
+        console.log("Approval settings updated:", response.data)
+      } else {
+        // Otherwise create a new record
+        response = await axios.post("http://localhost:5000/api/approvals", approvalData)
+        console.log("Approval settings created:", response.data)
+      }
+
+      // Save approval names to localStorage for use in the form
+      localStorage.setItem("checkedByUser", formData.checkedByUser)
+      localStorage.setItem("approvedByUser", formData.approvedByUser)
+      localStorage.setItem("receivedByUser", formData.receivedByUser)
+
+      window.dispatchEvent(
+        new CustomEvent("approvalSettingsUpdated", {
+          detail: {
+            checkedByUser: formData.checkedByUser,
+            approvedByUser: formData.approvedByUser,
+            receivedByUser: formData.receivedByUser,
+          },
+        }),
+      )
+
       alert("Approval settings saved successfully!")
       onClose()
     } catch (error) {
