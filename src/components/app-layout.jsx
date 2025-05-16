@@ -136,13 +136,18 @@ const AppLayout = ({ children }) => {
     })
   }
 
-  // create a new PRF form
+  // Create a new PRF form
   const handleNewPrf = () => {
-    // clear existing search results
+    // Clear existing search results
     sessionStorage.removeItem("prfSearchResults")
 
-    // clear search input
+    // Clear search input
     setSearchInput("")
+
+    // Clear approval names from localStorage for new form
+    localStorage.removeItem("checkedByUser")
+    localStorage.removeItem("approvedByUser")
+    localStorage.removeItem("receivedByUser")
 
     // Navigate to the form page with a fresh state
     const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc"
@@ -153,7 +158,19 @@ const AppLayout = ({ children }) => {
       },
     })
 
+    // Dispatch event to reset the form
     window.dispatchEvent(new CustomEvent("prfNewForm"))
+
+    // Also dispatch an event to clear approval names
+    window.dispatchEvent(
+      new CustomEvent("approvalSettingsUpdated", {
+        detail: {
+          checkedByUser: "",
+          approvedByUser: "",
+          receivedByUser: "",
+        },
+      }),
+    )
   }
 
   // search PRF function
@@ -186,7 +203,6 @@ const AppLayout = ({ children }) => {
           const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc"
           navigate("/nutratech/form", { state: { company } })
         } else {
-        
           window.dispatchEvent(new CustomEvent("prfSearchCompleted"))
         }
 
