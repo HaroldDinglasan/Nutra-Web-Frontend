@@ -14,8 +14,8 @@ import avliheaderLogo from "../assets/avli biocare.logo.png"
 
 import StockcodeModal from "./StockcodeModal"
 import UomModal from "../components/UomModal"
-import { CancelButton, AddRowButton } from "../components/button"
-import { savePrfHeader, savePrfDetails, updatePrfDetails, cancelPrf } from "../components/button-function"
+import { CancelButton, AddRowButton, UncancelButton } from "../components/button"
+import { savePrfHeader, savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
 
 const NutraTechForm = () => {
@@ -32,8 +32,6 @@ const NutraTechForm = () => {
   const [isPrfCancelled, setIsPrfCancelled] = useState(false) // Track if the PRF is cancelled
   const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel")
   const [prfDate, setPrfDate] = useState(null) // Store the PRF date
-  const [cancelCount, setCancelCount] = useState(0) // Track cancel count
-  const [showCancelButton, setShowCancelButton] = useState(true) // Control cancel button visibility
   const [isSameDay, setIsSameDay] = useState(true) // Track if PRF date is the same as current date
 
   const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
@@ -143,6 +141,8 @@ const NutraTechForm = () => {
     if (!prfId || !purchaseCodeNumber) return
 
     try {
+      console.log("Refreshing PRF data for:", { prfId, purchaseCodeNumber })
+
       const response = await fetch(
         `http://localhost:5000/api/search-prf?prfNo=${encodeURIComponent(purchaseCodeNumber)}`,
       )
@@ -151,12 +151,6 @@ const NutraTechForm = () => {
         const data = await response.json()
 
         if (data.found) {
-          // Update cancel count
-          const currentCancelCount =
-            data.cancelCount || (data.header && data.header.cancelCount ? Number.parseInt(data.header.cancelCount) : 0)
-
-          setCancelCount(currentCancelCount)
-
           // Get PRF date
           const prfDateObj = new Date(data.header.prfDate)
           setPrfDate(prfDateObj)
@@ -165,24 +159,35 @@ const NutraTechForm = () => {
           const sameDay = checkIsSameDay(prfDateObj)
           setIsSameDay(sameDay)
 
-          // Check if PRF is cancelled
-          // A PRF is considered cancelled if:
-          // 1. It's marked as cancelled in the database OR
-          // 2. It's not created today (past the creation day)
-          const isDbCancelled = (data.header && data.header.prfIsCancel === 1) || data.isCancel === 1
+          // Check if PRF is cancelled in the database
+          // Look in multiple places for the cancel status
+          const isDbCancelled =
+            (data.header && data.header.prfIsCancel === 1) ||
+            (data.header && data.header.isCancel === 1) ||
+            data.isCancel === 1
+
+          console.log("Database cancel status:", isDbCancelled)
+
+          // A PRF is considered cancelled if it's marked as cancelled in the database
+          // OR if it's not created today (past the creation day)
           const isCancelled = isDbCancelled || !sameDay
 
+          // Important: Update the state with the database value
           setIsPrfCancelled(isCancelled)
 
           // Update button label
-          if (isCancelled) {
+          if (isDbCancelled) {
             setCancelButtonLabel("Cancelled")
           } else {
             setCancelButtonLabel("Cancel")
           }
 
-          // Show cancel button only if it's the same day
-          setShowCancelButton(sameDay && !isDbCancelled)
+          console.log("Updated state after refresh:", {
+            sameDay,
+            isDbCancelled,
+            isCancelled,
+            isPrfCancelled: isCancelled,
+          })
         }
       }
     } catch (error) {
@@ -226,16 +231,6 @@ const NutraTechForm = () => {
         const sameDay = checkIsSameDay(prfDateObj)
         setIsSameDay(sameDay)
 
-        // Get cancel count from the server or localStorage
-        let currentCancelCount = 0
-        const storedCancelCount = localStorage.getItem(`prf_${data.header.prfId}_cancelCount`)
-        if (storedCancelCount) {
-          currentCancelCount = Number.parseInt(storedCancelCount, 10)
-        } else if (data.header.cancelCount) {
-          currentCancelCount = Number.parseInt(data.header.cancelCount)
-        }
-        setCancelCount(currentCancelCount)
-
         // Check if the PRF is cancelled from the response
         const isDbCancelled = data.header.prfIsCancel === 1 || data.isCancel === 1
         const isCancelled = isDbCancelled || !sameDay
@@ -243,14 +238,17 @@ const NutraTechForm = () => {
         setIsPrfCancelled(isCancelled)
 
         // Set the cancel button label
-        if (isCancelled) {
+        if (isDbCancelled) {
           setCancelButtonLabel("Cancelled")
         } else {
           setCancelButtonLabel("Cancel")
         }
 
-        // Show cancel button only if it's the same day
-        setShowCancelButton(sameDay && !isDbCancelled)
+        console.log("Search results - Button visibility:", {
+          sameDay,
+          isDbCancelled,
+          isCancelled,
+        })
 
         // Set the PRF details in the table
         const newRows = data.details.map((detail) => ({
@@ -290,11 +288,9 @@ const NutraTechForm = () => {
       setCurrentDate(today.toISOString().split("T")[0])
       setPrfId(null)
       setPrfDate(today)
-      setCancelCount(0)
       setIsUpdating(false)
       setIsPrfCancelled(false)
       setCancelButtonLabel("Cancel")
-      setShowCancelButton(true)
       setIsSameDay(true)
 
       // Generate a new purchase code
@@ -556,27 +552,111 @@ const NutraTechForm = () => {
   }
 
   const handleCancel = async () => {
-    // Don't allow cancellation if not on the same day or already cancelled
+    // Don't allow cancellation if not on the same day
     if (!isSameDay || isPrfCancelled) {
+      alert("PRF can only be cancelled on the same day it was created")
       return
     }
 
     const result = await cancelPrf(prfId)
     if (result && result.success) {
-      // Update cancel count
-      const newCancelCount = result.newCancelCount
-      setCancelCount(newCancelCount)
-
-      // Store cancel count in localStorage for persistence
-      localStorage.setItem(`prf_${prfId}_cancelCount`, newCancelCount.toString())
-
       // Update the button label
-      setCancelButtonLabel("Cancel")
+      setCancelButtonLabel("Cancelled")
 
-      // Refresh data with a short delay to ensure the backend has updated
-      setTimeout(() => {
+      // Update the cancelled state - make sure this is set to true
+      setIsPrfCancelled(true)
+
+      console.log("PRF cancelled successfully, updating state:", {
+        isPrfCancelled: true,
+        isSameDay,
+      })
+
+      // Force a direct API call to verify the cancellation was successful
+      try {
+        const verifyResponse = await axios.get(
+          `http://localhost:5000/api/search-prf?prfNo=${encodeURIComponent(purchaseCodeNumber)}`,
+        )
+
+        if (verifyResponse.data && verifyResponse.data.found) {
+          const isDbCancelled =
+            (verifyResponse.data.header && verifyResponse.data.header.prfIsCancel === 1) ||
+            verifyResponse.data.isCancel === 1
+
+          console.log("Verification of cancel status:", isDbCancelled)
+
+          if (!isDbCancelled) {
+            console.warn("Warning: Database does not show PRF as cancelled despite successful cancel operation")
+            alert(
+              "Warning: The PRF may not have been properly cancelled in the database. Please try again or contact support.",
+            )
+          }
+        }
+      } catch (error) {
+        console.error("Error verifying cancellation:", error)
+      }
+    }
+  }
+
+  const handleUncancel = async () => {
+    // Don't allow uncancellation if not on the same day
+    if (!isSameDay) {
+      alert("PRF can only be uncancelled on the same day it was created")
+      return
+    }
+
+    console.log("Uncancelling PRF with ID:", prfId)
+    console.log("Current state before uncancel:", { isPrfCancelled, isSameDay })
+
+    // First verify if the PRF is actually cancelled in the database
+    try {
+      const verifyResponse = await axios.get(
+        `http://localhost:5000/api/search-prf?prfNo=${encodeURIComponent(purchaseCodeNumber)}`,
+      )
+
+      if (verifyResponse.data && verifyResponse.data.found) {
+        const isDbCancelled =
+          (verifyResponse.data.header && verifyResponse.data.header.prfIsCancel === 1) ||
+          verifyResponse.data.isCancel === 1
+
+        console.log("Verification of cancel status before uncancel:", isDbCancelled)
+
+        if (!isDbCancelled) {
+          console.warn("Warning: Database does not show PRF as cancelled, cannot uncancel")
+          alert("This PRF is not marked as cancelled in the database. Refreshing data...")
+          refreshPrfData()
+          return
+        }
+      }
+    } catch (error) {
+      console.error("Error verifying cancellation status:", error)
+      // Continue with uncancel attempt even if verification fails
+    }
+
+    const result = await uncancelPrf(prfId)
+    console.log("Uncancel result:", result)
+
+    if (result) {
+      if (result.success) {
+        // Update the button label
+        setCancelButtonLabel("Cancel")
+
+        // Update the cancelled state
+        setIsPrfCancelled(false)
+
+        console.log("PRF uncancelled successfully, updating state:", {
+          isPrfCancelled: false,
+          isSameDay,
+        })
+
+        // Refresh data after a short delay to ensure the backend has updated
+        setTimeout(() => {
+          refreshPrfData()
+        }, 1000)
+      } else if (result.needsRefresh) {
+        // If the backend state doesn't match our frontend state, refresh the data
+        console.log("Frontend/backend state mismatch, refreshing data...")
         refreshPrfData()
-      }, 500)
+      }
     }
   }
 
@@ -657,6 +737,9 @@ const NutraTechForm = () => {
       window.removeEventListener("prfUpdateClicked", handleUpdateClick)
     }
   }, [rows, prfId, purchaseCodeNumber, currentDate, fullname])
+
+  // Determine if buttons should be shown based on same day check
+  const showActionButtons = isSameDay && isUpdating
 
   return (
     <>
@@ -845,12 +928,16 @@ const NutraTechForm = () => {
           <div className="save-button-container">
             <AddRowButton onClick={handleAddRow} disabled={isPrfCancelled || !isSameDay} />
 
-            {isUpdating && showCancelButton && (
-              <CancelButton
-                onClick={() => handleCancel()}
-                disabled={isPrfCancelled || !isSameDay}
-                label={cancelButtonLabel}
-              />
+            {showActionButtons && (
+              <div className="action-buttons">
+                <CancelButton
+                  onClick={handleCancel}
+                  disabled={isPrfCancelled || !isSameDay}
+                  label={cancelButtonLabel}
+                />
+                {/* Always show the uncancel button, but only enable it when the PRF is cancelled */}
+                <UncancelButton onClick={handleUncancel} disabled={!isPrfCancelled} label="Uncancel" />
+              </div>
             )}
           </div>
 
@@ -898,6 +985,33 @@ const NutraTechForm = () => {
         
         input:read-only {
           background-color: ${isPrfCancelled ? "rgba(255, 0, 0, 0.05)" : "inherit"};
+        }
+        
+        .uncancel-button {
+          background-color: #4caf50;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: background-color 0.3s;
+          margin-left: 8px;
+        }
+        
+        .uncancel-button:hover {
+          background-color: #45a049;
+        }
+        
+        .uncancel-button:disabled {
+          background-color: #cccccc;
+          cursor: not-allowed;
+        }
+        
+        .action-buttons {
+          display: flex;
+          gap: 8px;
+          margin-left: 8px;
         }
       `}</style>
     </>

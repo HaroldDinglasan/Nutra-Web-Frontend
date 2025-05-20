@@ -221,6 +221,27 @@ html, body {
     border: 1px solid black;
 }
 
+.uncancel-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.uncancel-button:hover {
+  background-color: #45a049;
+}
+
+.uncancel-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+
 .cancel-button {
     background-color: #C80018;
     color: white;

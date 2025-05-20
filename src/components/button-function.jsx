@@ -153,7 +153,7 @@ export const updatePrfDetails = async (prfId, rows) => {
   }
 }
 
-// Function to cancel PRF
+// CancelPrf function to ensure proper database update
 export const cancelPrf = async (prfId) => {
   if (!prfId) {
     alert("No PRF ID found. Please search for a PRF first.")
@@ -165,21 +165,31 @@ export const cancelPrf = async (prfId) => {
   }
 
   try {
+    
     const response = await axios.post("http://localhost:5000/api/cancel-prf", {
       prfId: prfId,
     })
 
     if (response.status === 200) {
-      const result = {
-        success: true,
-        newCancelCount: response.data.newCancelCount,
-        isFullyCancelled: false, // Removed the concept of fully cancelled
+      
+      if (response.data && response.data.success) {
+        const result = {
+          success: true,
+          isCancel: 1, // Explicitly set to 1 for cancelled
+          message: response.data.message || "PRF cancelled successfully",
+        }
+        alert(result.message)
+        return result
+      } else {
+        // The server returned 200 but didn't indicate success
+        alert(
+          "Warning: The server response didn't confirm the cancellation was successful. Please verify the PRF status.",
+        )
+        return {
+          success: false,
+          message: "Cancellation status unclear",
+        }
       }
-
-      // // Simple alert for cancellation
-      // alert(`PRF has been cancelled (Cancel count: ${response.data.newCancelCount})`)
-
-      return result
     } else {
       alert("Error canceling PRF: " + response.data.message)
       return false
@@ -190,6 +200,85 @@ export const cancelPrf = async (prfId) => {
     } else {
       console.error("Error canceling PRF:", error)
       alert("Failed to cancel PRF. Please try again.")
+    }
+    return false
+  }
+}
+
+// UncancelPrf function to handle the database update properly
+export const uncancelPrf = async (prfId) => {
+  if (!prfId) {
+    alert("No PRF ID found. Please search for a PRF first.")
+    return false
+  }
+
+  if (!window.confirm("Are you sure you want to uncancel this PRF?")) {
+    return false
+  }
+
+  try {
+    // console.log("Sending uncancel request for PRF ID:", prfId)
+
+    const response = await axios.post("http://localhost:5000/api/uncancel-prf", {
+      prfId: prfId,
+    })
+
+    // console.log("Uncancel PRF response:", response.data)
+
+    if (response.status === 200 && response.data.success) {
+      const result = {
+        success: true,
+        isCancel: 0, // Explicitly set to 0 for uncancelled
+        message: response.data.message || "PRF uncancelled successfully",
+      }
+
+      alert(result.message)
+
+      // Verify the update was successful by making a direct API call
+      try {
+        const purchaseCodeNumber = document.querySelector('input[id="purchaseCodeNumber"]')?.value || ""
+        if (purchaseCodeNumber) {
+          const verifyResponse = await axios.get(
+            `http://localhost:5000/api/search-prf?prfNo=${encodeURIComponent(purchaseCodeNumber)}`,
+          )
+
+          if (verifyResponse.data && verifyResponse.data.found) {
+            const isDbCancelled =
+              (verifyResponse.data.header && verifyResponse.data.header.prfIsCancel === 1) ||
+              verifyResponse.data.isCancel === 1
+
+            console.log("Verification of uncancel status:", !isDbCancelled)
+
+            if (isDbCancelled) {
+              // console.warn("Warning: Database still shows PRF as cancelled despite successful uncancel operation")
+              // alert(
+              //   "Warning: The PRF may not have been properly uncancelled in the database. Please refresh and try again."
+              // )
+              return { success: false, needsRefresh: true }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error verifying uncancellation:", error)
+      }
+
+      return result
+    } else {
+      alert("Error uncanceling PRF: " + (response.data.message || "Unknown error"))
+      return false
+    }
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      // If the server says the PRF is not cancelled
+      if (error.response.data.message.includes("not marked as cancelled")) {
+        alert("The system shows this PRF is not cancelled. Refreshing data...")
+        return { success: false, needsRefresh: true }
+      } else {
+        alert(error.response.data.message)
+      }
+    } else {
+      console.error("Error uncanceling PRF:", error)
+      alert("Failed to uncancel PRF. Please try again.")
     }
     return false
   }

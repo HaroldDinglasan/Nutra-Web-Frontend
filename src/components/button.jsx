@@ -10,6 +10,8 @@ const Button = ({ variant = "primary", onClick, children, disabled = false, clas
         return "update-button"
       case "cancel":
         return "cancel-button"
+      case "uncancel":
+        return "uncancel-button"
       case "add-row":
         return "add-row-button"
       default:
@@ -44,6 +46,14 @@ export const UpdateButton = ({ onClick, disabled = false, children = "Update" })
 export const CancelButton = ({ onClick, disabled, label = "Cancel" }) => {
   return (
     <Button variant="cancel" onClick={onClick} disabled={disabled}>
+      {label}
+    </Button>
+  )
+}
+
+export const UncancelButton = ({ onClick, label = "Uncancel" }) => {
+  return (
+    <Button variant="uncancel" onClick={onClick}>
       {label}
     </Button>
   )
