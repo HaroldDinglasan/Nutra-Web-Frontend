@@ -162,10 +162,9 @@ const DashboardAdmin = () => {
     // Check if the PRF date is not today (past the creation day)
     const isSameDay = checkIsSameDay(prf.prfDate)
 
-    // A PRF is considered cancelled if:
-    // 1. It's marked as cancelled in the database OR
-    // 2. It's not created today (past the creation day)
-    return isDbCancelled || !isSameDay
+    // A PRF is considered cancelled ONLY if:
+    // It's marked as cancelled in the database
+    return isDbCancelled
   }
 
   return (

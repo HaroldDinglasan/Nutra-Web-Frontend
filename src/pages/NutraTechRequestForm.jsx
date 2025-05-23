@@ -170,7 +170,10 @@ const NutraTechForm = () => {
 
           // A PRF is considered cancelled if it's marked as cancelled in the database
           // OR if it's not created today (past the creation day)
-          const isCancelled = isDbCancelled || !sameDay
+          // const isCancelled = isDbCancelled
+
+          // A PRF is considered cancelled ONLY if it's marked as cancelled in the database
+          const isCancelled = isDbCancelled
 
           // Important: Update the state with the database value
           setIsPrfCancelled(isCancelled)
@@ -233,7 +236,7 @@ const NutraTechForm = () => {
 
         // Check if the PRF is cancelled from the response
         const isDbCancelled = data.header.prfIsCancel === 1 || data.isCancel === 1
-        const isCancelled = isDbCancelled || !sameDay
+        const isCancelled = isDbCancelled
 
         setIsPrfCancelled(isCancelled)
 
