@@ -25,6 +25,11 @@
     left: 50%;
     transform: translate(-50%, -50%);
   }
+
+  .section-title {
+    display: flex;
+    margin-bottom: 15px;
+  }
   
   @keyframes modalFadeIn {
     from {
@@ -86,7 +91,7 @@
     margin-bottom: 20px;
   }
   
-  .section-title {
+  .checkBy-label {
     color: #333;
     font-size: 1rem;
     font-weight: 500;
@@ -105,20 +110,39 @@
     align-items: center;
   }
   
-  .form-label {
+  /* .form-label {
     display: flex;
     font-size: 0.9rem;
     color: #555;
     padding-right: 10px;
-    margin-left: -20px;
-  }
+    margin-left: 20px;
+  } */
 
   .approvedby-form-label {
     display: flex;
     font-size: 0.9rem;
     color: #555;
     padding-right: 10px;
-    margin-left: -30px;
+    margin-left: -40px;
+    margin-top: 10px
+  }
+
+  .receivedBy-form-label {
+    display: flex;
+    font-size: 0.9rem;
+    color: #555;
+    padding-right: 10px;
+    margin-left: -40px;
+  }
+
+  .form-input-receivedBy {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    margin-left: -80px;
   }
   
   .form-input {
@@ -131,14 +155,54 @@
     margin-left: -50px;
   }
 
-  .approvedby-form-input {
-    width: 340px;
+  .checkby-form-input {
+    width: 80%;
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.9rem;
     transition: border-color 0.2s;
-    margin-left: -60px;
+    margin-left: 20px
+  }
+
+  .checkby-email-input {
+    width: 80%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    margin-left: 20px;
+  }
+
+  .checkby-form-label {
+    display: flex;
+    font-size: 0.9rem;
+    color: #555;
+    padding-right: 10px;
+    margin-left: 60px
+  }
+
+  .approvedby-form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    margin-left: -80px;
+    margin-top: 20px;
+  }
+
+  .receivedBy-form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    margin-left: -40px;
+    margin-top: 20px;
   }
   
   .form-input:focus {

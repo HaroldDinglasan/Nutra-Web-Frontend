@@ -15,10 +15,10 @@ import avliheaderLogo from "../assets/avli biocare.logo.png"
 import StockcodeModal from "./StockcodeModal"
 import UomModal from "../components/UomModal"
 import { CancelButton, AddRowButton, UncancelButton } from "../components/button"
-import { savePrfHeader, savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
+import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
 
-const NutraTechForm = () => {
+export default function NutraTechForm() {
   const location = useLocation()
   const navigate = useNavigate()
   const [currentDate, setCurrentDate] = useState(() => {
@@ -45,6 +45,17 @@ const NutraTechForm = () => {
     approvedByUser: localStorage.getItem("approvedByUser") || "",
     receivedByUser: localStorage.getItem("receivedByUser") || "",
   })
+
+  // NEW: Dispatch PRF ID updates to the layout
+  useEffect(() => {
+    if (prfId) {
+      window.dispatchEvent(
+        new CustomEvent("prfIdUpdated", {
+          detail: { prfId },
+        }),
+      )
+    }
+  }, [prfId])
 
   // Listen for approval settings updates
   useEffect(() => {
@@ -278,6 +289,20 @@ const NutraTechForm = () => {
 
         setRows(newRows)
         setIsUpdating(true) // Set to update mode since we're loading existing data
+
+        // Set approval names from search results if available
+        if (data.approvalNames) {
+          setApprovalNames({
+            checkedByUser: data.approvalNames.checkedByUser || "",
+            approvedByUser: data.approvalNames.approvedByUser || "",
+            receivedByUser: data.approvalNames.receivedByUser || "",
+          })
+
+          // Also update localStorage
+          localStorage.setItem("checkedByUser", data.approvalNames.checkedByUser || "")
+          localStorage.setItem("approvedByUser", data.approvalNames.approvedByUser || "")
+          localStorage.setItem("receivedByUser", data.approvalNames.receivedByUser || "")
+        }
 
         // Clear the session storage
         sessionStorage.removeItem("prfSearchResults")
@@ -530,7 +555,7 @@ const NutraTechForm = () => {
     let headerPrfId = prfId
 
     if (!headerPrfId) {
-      headerPrfId = await savePrfHeader(purchaseCodeNumber, currentDate, fullname)
+      headerPrfId = await handleSavePrfHeader()
     }
 
     const success = await savePrfDetails(headerPrfId, rows)
@@ -675,10 +700,11 @@ const NutraTechForm = () => {
           isUpdating,
           isPrfCancelled,
           isSameDay,
+          prfId, // NEW: Include prfId in the event
         },
       }),
     )
-  }, [isUpdating, isPrfCancelled, isSameDay])
+  }, [isUpdating, isPrfCancelled, isSameDay, prfId])
 
   useEffect(() => {
     const handleSaveClick = async () => {
@@ -694,7 +720,7 @@ const NutraTechForm = () => {
       let headerPrfId = prfId
 
       if (!headerPrfId) {
-        headerPrfId = await savePrfHeader(purchaseCodeNumber, currentDate, fullname)
+        headerPrfId = await handleSavePrfHeader()
       }
 
       if (headerPrfId) {
@@ -1020,5 +1046,3 @@ const NutraTechForm = () => {
     </>
   )
 }
-
-export default NutraTechForm
