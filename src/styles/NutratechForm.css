@@ -64,7 +64,7 @@ html, body {
 }
 
 .table-container table {
-    width: 95%;
+    width: 100%;
     border-collapse: collapse;
     outline: 1px solid #c1c0c0;
     font-size: 12px;
@@ -96,8 +96,9 @@ td {
 }
 
 th {
-    font-size: 14px;
+    font-size: 12px;
     cursor: pointer;
+    padding: 8px 5px;
 }
 
 tbody tr:hover {
@@ -233,7 +234,7 @@ h3 {
     font-size: 14px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    margin-right: 47px;
+    margin-right: 20px;
     outline: none;
     margin-top: 9.5px;
     line-height: 1.2; 
@@ -251,9 +252,9 @@ h3 {
 }
 
 
-.following-label{
+.following-label label{
     display: flex;
-    margin-left: 28px;
+    margin-left: -29px;
 }
 
 .approval-section {
@@ -358,6 +359,7 @@ h3 {
     font-weight: bold;
     white-space: nowrap; 
     margin-bottom: 15px;
+    margin-left: -24px;
 }
 
 .full-logo {

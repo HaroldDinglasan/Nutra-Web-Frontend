@@ -22,24 +22,14 @@ const ApprovalModal = ({ onClose }) => {
 
   // Get userId from localStorage
   const [currentUserId, setCurrentUserId] = useState(null)
-  const [currentUserName, setCurrentUserName] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     // Get userId from localStorage
     const userId = localStorage.getItem("userId")
-
     if (userId) {
       setCurrentUserId(Number(userId))
-
-      // Set the current user as the default for all approval roles
-      setFormData((prev) => ({
-        ...prev,
-        checkedByUserOid: Number(userId),
-        approvedByUserOid: Number(userId),
-        receivedByUserOid: Number(userId),
-      }))
     }
   }, [])
 
@@ -68,7 +58,7 @@ const ApprovalModal = ({ onClose }) => {
   // prevent focus loss during typing
   const isTypingRef = useRef(false)
 
-  // Fetch employees from the API
+  // Fetch employees from the AVLI SecuritySystemUser table
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -77,6 +67,7 @@ const ApprovalModal = ({ onClose }) => {
           throw new Error("Failed to fetch employees")
         }
         const data = await response.json()
+        console.log("Fetched employees:", data)
         setEmployees(data)
         setLoading(false)
       } catch (error) {
@@ -100,10 +91,10 @@ const ApprovalModal = ({ onClose }) => {
         if (response.data.data && response.data.data.length > 0) {
           const approval = response.data.data[0]
 
-          // Find employee names for the IDs
-          const findEmployeeName = (id) => {
-            const employee = employees.find((emp) => emp.Oid === id)
-            return employee ? employee.FullName : currentUserName
+          // Find employee names for the Oids
+          const findEmployeeName = (oid) => {
+            const employee = employees.find((emp) => emp.Oid === oid)
+            return employee ? employee.FullName : ""
           }
 
           // Only update if we have employees loaded
@@ -111,26 +102,25 @@ const ApprovalModal = ({ onClose }) => {
             setFormData({
               checkedByUser: findEmployeeName(approval.CheckedById),
               checkedByEmail: approval.CheckedByEmail || "",
-              checkedByUserOid: approval.CheckedById || currentUserId,
+              checkedByUserOid: approval.CheckedById || null,
               approvedByUser: findEmployeeName(approval.ApprovedById),
               approvedByEmail: approval.ApprovedByEmail || "",
-              approvedByUserOid: approval.ApprovedById || currentUserId,
+              approvedByUserOid: approval.ApprovedById || null,
               receivedByUser: findEmployeeName(approval.ReceivedById),
               receivedByEmail: approval.ReceivedByEmail || "",
-              receivedByUserOid: approval.ReceivedById || currentUserId,
+              receivedByUserOid: approval.ReceivedById || null,
             })
           }
         }
       } catch (error) {
         console.error("Error fetching existing approvals:", error)
-  
       }
     }
 
     if (employees.length > 0) {
       fetchExistingApprovals()
     }
-  }, [currentUserId, employees, currentUserName])
+  }, [currentUserId, employees])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -209,11 +199,11 @@ const ApprovalModal = ({ onClose }) => {
     }
   }
 
-  // Filter employees based on search term 
+  // Filter employees based on search term
   const getFilteredEmployees = (field) => {
     const searchTerm = searchTerms[field].toLowerCase()
     if (!searchTerm) {
-      return employees.slice(0, 5) // Show only 5 list employee
+      return employees.slice(0, 5) // Show only 5 employees initially
     }
     return employees.filter((emp) => emp && emp.FullName && emp.FullName.toLowerCase().includes(searchTerm))
   }
@@ -238,15 +228,15 @@ const ApprovalModal = ({ onClose }) => {
       // Check if an approval record already exists for this user
       const checkResponse = await axios.get(`http://localhost:5000/api/approvals/user/${currentUserId}`)
 
-      // Ensure all approval IDs have values (use currentUserId as default)
+      // Use the selected employees' Oids for approval IDs
       const approvalData = {
         UserID: currentUserId,
         ApplicType: "PRF",
-        CheckedById: formData.checkedByUserOid || currentUserId,
+        CheckedById: formData.checkedByUserOid,
         CheckedByEmail: formData.checkedByEmail || null,
-        ApprovedById: formData.approvedByUserOid || currentUserId,
+        ApprovedById: formData.approvedByUserOid,
         ApprovedByEmail: formData.approvedByEmail || null,
-        ReceivedById: formData.receivedByUserOid || currentUserId,
+        ReceivedById: formData.receivedByUserOid,
         ReceivedByEmail: formData.receivedByEmail || null,
       }
 
@@ -354,7 +344,7 @@ const ApprovalModal = ({ onClose }) => {
               <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
                 {getFilteredEmployees(field).map((employee, index) => (
                   <li
-                    key={index}
+                    key={employee.Oid}
                     onClick={() => handleSelectUser(field, employee.FullName, employee.Oid)}
                     style={{
                       padding: "8px 12px",
@@ -416,12 +406,12 @@ const ApprovalModal = ({ onClose }) => {
         )}
 
         <form onSubmit={handleSubmit} className="approval-form">
-          <div className="approval-section">
+          <div className="approval-section-modal">
             <div className="section-title">CheckedBy:</div>
             <div className="form-grid">
-              <CustomDropdown field="checkedByUser" label="user" className="form-input" />
+              <CustomDropdown field="checkedByUser" label="user" className="checkby-form-input" />
 
-              <label htmlFor="checkedByEmail" className="form-label">
+              <label htmlFor="checkedByEmail" className="checkby-form-label">
                 email
               </label>
               <input
@@ -431,7 +421,7 @@ const ApprovalModal = ({ onClose }) => {
                 value={formData.checkedByEmail}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                className="form-input"
+                className="checkby-email-input"
               />
             </div>
           </div>
@@ -459,9 +449,9 @@ const ApprovalModal = ({ onClose }) => {
           <div className="approval-section">
             <div className="section-title">ReceivedBy:</div>
             <div className="form-grid">
-              <CustomDropdown field="receivedByUser" label="user" className="form-input" />
+              <CustomDropdown field="receivedByUser" label="user" className="receivedBy-form-input" />
 
-              <label htmlFor="receivedByEmail" className="form-label">
+              <label htmlFor="receivedByEmail" className="receivedBy-form-label">
                 email
               </label>
               <input
@@ -471,7 +461,7 @@ const ApprovalModal = ({ onClose }) => {
                 value={formData.receivedByEmail}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                className="form-input"
+                className="form-input-receivedBy"
               />
             </div>
           </div>
