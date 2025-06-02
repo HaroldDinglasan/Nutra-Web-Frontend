@@ -8,7 +8,8 @@ const ApprovalModal = ({ onClose }) => {
   const [employees, setEmployees] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const [formData, setFormData] = useState({
+  // Initial form state - extracted to a constant for reusability
+  const initialFormData = {
     checkedByUser: "",
     checkedByEmail: "",
     checkedByUserOid: null,
@@ -18,28 +19,25 @@ const ApprovalModal = ({ onClose }) => {
     receivedByUser: "",
     receivedByEmail: "",
     receivedByUserOid: null,
-  })
+  }
+
+  const [formData, setFormData] = useState(initialFormData)
 
   // Get userId from localStorage
   const [currentUserId, setCurrentUserId] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    // Get userId from localStorage
-    const userId = localStorage.getItem("userId")
-    if (userId) {
-      setCurrentUserId(Number(userId))
-    }
-  }, [])
-
-  // states for custom dropdowns
-  const [openDropdown, setOpenDropdown] = useState(null)
-  const [searchTerms, setSearchTerms] = useState({
+  // Initial search terms state
+  const initialSearchTerms = {
     checkedByUser: "",
     approvedByUser: "",
     receivedByUser: "",
-  })
+  }
+
+  // states for custom dropdowns
+  const [openDropdown, setOpenDropdown] = useState(null)
+  const [searchTerms, setSearchTerms] = useState(initialSearchTerms)
 
   // refs for dropdown containers
   const dropdownRefs = {
@@ -57,6 +55,29 @@ const ApprovalModal = ({ onClose }) => {
 
   // prevent focus loss during typing
   const isTypingRef = useRef(false)
+
+  // Function to reset all form fields
+  const resetFormFields = () => {
+    setFormData(initialFormData)
+    setSearchTerms(initialSearchTerms)
+    setOpenDropdown(null)
+    setError(null)
+    setSubmitting(false)
+  }
+
+  // Enhanced onClose function that resets fields
+  const handleClose = () => {
+    resetFormFields()
+    onClose()
+  }
+
+  useEffect(() => {
+    // Get userId from localStorage
+    const userId = localStorage.getItem("userId")
+    if (userId) {
+      setCurrentUserId(Number(userId))
+    }
+  }, [])
 
   // Fetch employees from the AVLI SecuritySystemUser table
   useEffect(() => {
@@ -269,6 +290,9 @@ const ApprovalModal = ({ onClose }) => {
       )
 
       alert("Approval settings saved successfully!")
+      
+      // Reset form fields after successful save and close modal
+      resetFormFields()
       onClose()
     } catch (error) {
       console.error("Error saving approval settings:", error)
@@ -389,7 +413,7 @@ const ApprovalModal = ({ onClose }) => {
       <div className="approval-modal">
         <div className="approval-modal-header">
           <h2>Approval Settings</h2>
-          <button className="close-button" onClick={onClose}>
+          <button className="close-button" onClick={handleClose}>
             ×
           </button>
         </div>
@@ -406,13 +430,16 @@ const ApprovalModal = ({ onClose }) => {
         )}
 
         <form onSubmit={handleSubmit} className="approval-form">
+          
           <div className="approval-section-modal">
             <div className="section-title">CheckedBy:</div>
+             
             <div className="form-grid">
-              <CustomDropdown field="checkedByUser" label="user" className="checkby-form-input" />
+
+              <CustomDropdown field="checkedByUser"  className="checkby-form-input" />
 
               <label htmlFor="checkedByEmail" className="checkby-form-label">
-                email
+                {/* email */}
               </label>
               <input
                 type="email"
@@ -429,10 +456,10 @@ const ApprovalModal = ({ onClose }) => {
           <div className="approval-section">
             <div className="section-title">ApprovedBy:</div>
             <div className="form-grid">
-              <CustomDropdown field="approvedByUser" label="user" className="approvedby-form-input" />
+              <CustomDropdown field="approvedByUser"  className="approvedby-form-input" />
 
               <label htmlFor="approvedByEmail" className="approvedby-form-label">
-                email
+                {/* email */}
               </label>
               <input
                 type="email"
@@ -449,10 +476,10 @@ const ApprovalModal = ({ onClose }) => {
           <div className="approval-section">
             <div className="section-title">ReceivedBy:</div>
             <div className="form-grid">
-              <CustomDropdown field="receivedByUser" label="user" className="receivedBy-form-input" />
+              <CustomDropdown field="receivedByUser"  className="receivedby-form-input" />
 
               <label htmlFor="receivedByEmail" className="receivedBy-form-label">
-                email
+                {/* email */}
               </label>
               <input
                 type="email"
@@ -467,7 +494,7 @@ const ApprovalModal = ({ onClose }) => {
           </div>
 
           <div className="button-container">
-            <button type="button" className="approval-cancel-button" onClick={onClose} disabled={submitting}>
+            <button type="button" className="approval-cancel-button" onClick={handleClose} disabled={submitting}>
               Cancel
             </button>
             <button type="submit" className="approval-save-button" disabled={submitting}>
