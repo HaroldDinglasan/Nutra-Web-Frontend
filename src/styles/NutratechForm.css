@@ -64,7 +64,7 @@ html, body {
 }
 
 .table-container table {
-    width: 100%;
+    width: 95%;
     border-collapse: collapse;
     outline: 1px solid #c1c0c0;
     font-size: 12px;
@@ -234,7 +234,7 @@ h3 {
     font-size: 14px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    margin-right: 20px;
+    margin-right: 50px;
     outline: none;
     margin-top: 9.5px;
     line-height: 1.2; 
@@ -254,7 +254,7 @@ h3 {
 
 .following-label label{
     display: flex;
-    margin-left: -29px;
+    margin-left: -2px;
 }
 
 .approval-section {
@@ -359,7 +359,7 @@ h3 {
     font-weight: bold;
     white-space: nowrap; 
     margin-bottom: 15px;
-    margin-left: -24px;
+    margin-left: -1px;
 }
 
 .full-logo {
@@ -369,24 +369,8 @@ h3 {
     height: auto; 
 }
 
-
-.add-row-button {
-    background-color: rgb(133, 129, 129);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    width: 150px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.add-row-button:hover {
-    background-color: white;
-    color: black;
-    border: 1px solid black;
+.action-buttons {
+    margin-right: -25px;
 }
 
 .cancel-button {

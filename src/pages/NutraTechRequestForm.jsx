@@ -30,23 +30,26 @@ export default function NutraTechForm() {
   const [prfId, setPrfId] = useState(null) // Store the PRF ID
   const [isUpdating, setIsUpdating] = useState(false) // Track if we're in update mode
   const [isPrfCancelled, setIsPrfCancelled] = useState(false) // Track if the PRF is cancelled
-  const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel")
+  const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel") 
   const [prfDate, setPrfDate] = useState(null) // Store the PRF date
   const [isSameDay, setIsSameDay] = useState(true) // Track if PRF date is the same as current date
 
-  const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
+  const fullname = localStorage.getItem("userFullname") || ""  // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || "" // Retrieve department
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
 
-  // State for approval names
+  // State for approval names - Initialize as empty
   const [approvalNames, setApprovalNames] = useState({
-    checkedByUser: localStorage.getItem("checkedByUser") || "",
-    approvedByUser: localStorage.getItem("approvedByUser") || "",
-    receivedByUser: localStorage.getItem("receivedByUser") || "",
+    checkedByUser: "",
+    approvedByUser: "",
+    receivedByUser: "",
   })
 
-  // NEW: Dispatch PRF ID updates to the layout
+  // Track if we should fetch approval settings
+  const [shouldFetchApprovals, setShouldFetchApprovals] = useState(false)
+
+  //  Dispatch PRF ID updates to the layout
   useEffect(() => {
     if (prfId) {
       window.dispatchEvent(
@@ -66,18 +69,27 @@ export default function NutraTechForm() {
           approvedByUser: event.detail.approvedByUser || "",
           receivedByUser: event.detail.receivedByUser || "",
         })
+
+        // If we're setting approval names from the modal, enable fetching for future loads
+        if (event.detail.checkedByUser || event.detail.approvedByUser || event.detail.receivedByUser) {
+          setShouldFetchApprovals(true)
+        }
       }
     }
 
     window.addEventListener("approvalSettingsUpdated", handleApprovalSettingsUpdated)
+
     return () => {
       window.removeEventListener("approvalSettingsUpdated", handleApprovalSettingsUpdated)
     }
   }, [])
 
-  // Fetch approval settings when component mounts
+  // fetch approval settings when explicitly needed
   useEffect(() => {
     const fetchApprovalSettings = async () => {
+      // Only fetch if we should fetch approvals AND we're updating an existing PRF
+      if (!shouldFetchApprovals || !isUpdating) return
+
       const userId = localStorage.getItem("userId")
       if (!userId) return
 
@@ -87,7 +99,6 @@ export default function NutraTechForm() {
         if (response.data.data && response.data.data.length > 0) {
           const approval = response.data.data[0]
 
-          // Fetch employee names for the IDs
           const fetchEmployeeNames = async (ids) => {
             const names = {}
 
@@ -113,17 +124,22 @@ export default function NutraTechForm() {
             receivedByUser: approval.ReceivedById,
           })
 
-          // Update state with fetched names
-          setApprovalNames({
-            checkedByUser: employeeNames.checkedByUser || localStorage.getItem("checkedByUser") || "",
-            approvedByUser: employeeNames.approvedByUser || localStorage.getItem("approvedByUser") || "",
-            receivedByUser: employeeNames.receivedByUser || localStorage.getItem("receivedByUser") || "",
-          })
+          // Only update if we have names and we're still in update mode
+          if (
+            isUpdating &&
+            (employeeNames.checkedByUser || employeeNames.approvedByUser || employeeNames.receivedByUser)
+          ) {
+            setApprovalNames({
+              checkedByUser: employeeNames.checkedByUser || "",
+              approvedByUser: employeeNames.approvedByUser || "",
+              receivedByUser: employeeNames.receivedByUser || "",
+            })
 
-          // Also update localStorage
-          if (employeeNames.checkedByUser) localStorage.setItem("checkedByUser", employeeNames.checkedByUser)
-          if (employeeNames.approvedByUser) localStorage.setItem("approvedByUser", employeeNames.approvedByUser)
-          if (employeeNames.receivedByUser) localStorage.setItem("receivedByUser", employeeNames.receivedByUser)
+            // Update localStorage
+            if (employeeNames.checkedByUser) localStorage.setItem("checkedByUser", employeeNames.checkedByUser)
+            if (employeeNames.approvedByUser) localStorage.setItem("approvedByUser", employeeNames.approvedByUser)
+            if (employeeNames.receivedByUser) localStorage.setItem("receivedByUser", employeeNames.receivedByUser)
+          }
         }
       } catch (error) {
         console.error("Error fetching approval settings:", error)
@@ -131,9 +147,9 @@ export default function NutraTechForm() {
     }
 
     fetchApprovalSettings()
-  }, [])
+  }, [shouldFetchApprovals, isUpdating]) // Only run when these specific conditions change
 
-  // check if a date is the same as today
+  // Check if a date is the same as today
   const checkIsSameDay = (dateToCheck) => {
     if (!dateToCheck) return false
 
@@ -165,13 +181,10 @@ export default function NutraTechForm() {
           // Get PRF date
           const prfDateObj = new Date(data.header.prfDate)
           setPrfDate(prfDateObj)
-
           // Check if PRF date is today
           const sameDay = checkIsSameDay(prfDateObj)
           setIsSameDay(sameDay)
-
           // Check if PRF is cancelled in the database
-          // Look in multiple places for the cancel status
           const isDbCancelled =
             (data.header && data.header.prfIsCancel === 1) ||
             (data.header && data.header.isCancel === 1) ||
@@ -179,17 +192,11 @@ export default function NutraTechForm() {
 
           console.log("Database cancel status:", isDbCancelled)
 
-          // A PRF is considered cancelled if it's marked as cancelled in the database
-          // OR if it's not created today (past the creation day)
-          // const isCancelled = isDbCancelled
-
           // A PRF is considered cancelled ONLY if it's marked as cancelled in the database
           const isCancelled = isDbCancelled
 
-          // Important: Update the state with the database value
           setIsPrfCancelled(isCancelled)
 
-          // Update button label
           if (isDbCancelled) {
             setCancelButtonLabel("Cancelled")
           } else {
@@ -288,7 +295,8 @@ export default function NutraTechForm() {
         }
 
         setRows(newRows)
-        setIsUpdating(true) // Set to update mode since we're loading existing data
+        setIsUpdating(true)
+        setShouldFetchApprovals(true) // Enable fetching approvals for existing PRF
 
         // Set approval names from search results if available
         if (data.approvalNames) {
@@ -298,13 +306,11 @@ export default function NutraTechForm() {
             receivedByUser: data.approvalNames.receivedByUser || "",
           })
 
-          // Also update localStorage
           localStorage.setItem("checkedByUser", data.approvalNames.checkedByUser || "")
           localStorage.setItem("approvedByUser", data.approvalNames.approvedByUser || "")
           localStorage.setItem("receivedByUser", data.approvalNames.receivedByUser || "")
         }
 
-        // Clear the session storage
         sessionStorage.removeItem("prfSearchResults")
       }
     }
@@ -320,6 +326,7 @@ export default function NutraTechForm() {
       setIsPrfCancelled(false)
       setCancelButtonLabel("Cancel")
       setIsSameDay(true)
+      setShouldFetchApprovals(false) // Disable fetching approvals for new PRF
 
       // Generate a new purchase code
       generatePurchaseCode(company)
@@ -336,7 +343,8 @@ export default function NutraTechForm() {
           stockId: "",
         })),
       )
-      // Reset Approval names
+
+      // Clear approval names for new form
       setApprovalNames({
         checkedByUser: "",
         approvedByUser: "",
@@ -367,7 +375,6 @@ export default function NutraTechForm() {
 
     document.addEventListener("visibilitychange", handleVisibilityChange)
 
-    // Also refresh when the component mounts if we have a prfId and purchaseCodeNumber
     if (prfId && purchaseCodeNumber) {
       refreshPrfData()
     }
@@ -375,7 +382,7 @@ export default function NutraTechForm() {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
-  }, [prfId, purchaseCodeNumber]) // Add purchaseCodeNumber as a dependency
+  }, [prfId, purchaseCodeNumber])
 
   const [rows, setRows] = useState(
     Array.from({ length: 5 }, () => ({
@@ -385,7 +392,7 @@ export default function NutraTechForm() {
       description: "",
       dateNeeded: "",
       purpose: "",
-      stockId: "", // Add stockId field
+      stockId: "",
     })),
   )
 
@@ -395,14 +402,14 @@ export default function NutraTechForm() {
   // Function to handle stock selection
   const handleStockSelect = (stock) => {
     if (selectedRowIndex !== null) {
-      console.log("Selected stock:", stock) // Log the entire stock object
-      console.log("Stock Id:", stock.Id) // Log the Id specifically
+      console.log("Selected stock:", stock)
+      console.log("Stock Id:", stock.Id)
 
       const newRows = [...rows]
       newRows[selectedRowIndex].stockCode = stock.StockCode
       newRows[selectedRowIndex].unit = stock.BaseUOM
       newRows[selectedRowIndex].description = stock.StockName
-      newRows[selectedRowIndex].stockId = stock.Id // Store the stock Id
+      newRows[selectedRowIndex].stockId = stock.Id
       setRows(newRows)
     }
   }
@@ -590,7 +597,6 @@ export default function NutraTechForm() {
     if (result && result.success) {
       // Update the button label
       setCancelButtonLabel("Cancelled")
-
       // Update the cancelled state - make sure this is set to true
       setIsPrfCancelled(true)
 
@@ -675,13 +681,11 @@ export default function NutraTechForm() {
           isPrfCancelled: false,
           isSameDay,
         })
-
         // Refresh data after a short delay to ensure the backend has updated
         setTimeout(() => {
           refreshPrfData()
         }, 1000)
       } else if (result.needsRefresh) {
-        // If the backend state doesn't match our frontend state, refresh the data
         console.log("Frontend/backend state mismatch, refreshing data...")
         refreshPrfData()
       }
@@ -700,7 +704,7 @@ export default function NutraTechForm() {
           isUpdating,
           isPrfCancelled,
           isSameDay,
-          prfId, // NEW: Include prfId in the event
+          prfId,
         },
       }),
     )
@@ -710,7 +714,6 @@ export default function NutraTechForm() {
     const handleSaveClick = async () => {
       console.log("Save clicked - Form data:", { purchaseCodeNumber, currentDate, fullname })
 
-      // Check if there are any rows with stock codes
       const validRows = rows.filter((row) => row.stockCode && row.stockCode.trim())
       if (validRows.length === 0) {
         alert("Please fill out PRF details first before saving")
@@ -736,12 +739,10 @@ export default function NutraTechForm() {
     const handleUpdateClick = async () => {
       console.log("Update clicked")
 
-      // Check if any row with a stock code has an empty purpose field
       const hasEmptyPurpose = rows.some((row) => row.stockCode && !row.purpose.trim())
 
       if (hasEmptyPurpose) {
         alert("Purpose of Requisition is required for all items")
-        // Highlight the empty purpose fields
         const purposeInputs = document.querySelectorAll('input[name="purpose"]')
         rows.forEach((row, index) => {
           if (row.stockCode && !row.purpose.trim()) {
@@ -964,7 +965,6 @@ export default function NutraTechForm() {
                   disabled={isPrfCancelled || !isSameDay}
                   label={cancelButtonLabel}
                 />
-                {/* Always show the uncancel button, but only enable it when the PRF is cancelled */}
                 <UncancelButton onClick={handleUncancel} disabled={!isPrfCancelled} label="Uncancel" />
               </div>
             )}
@@ -975,14 +975,14 @@ export default function NutraTechForm() {
             <UomModal
               onClose={() => setIsUomModalOpen(false)}
               onSelectUom={handleUomSelect}
-              stockId={rows[selectedUomRowIndex]?.stockId || rows[selectedUomRowIndex]?.stockCode || "all"} // Pass stockId, stockCode, or 'all'
+              stockId={rows[selectedUomRowIndex]?.stockId || rows[selectedUomRowIndex]?.stockCode || "all"}
             />
           )}
 
           <div className="approval-section">
             <div className="approval-box">
               <h3>Prepared By:</h3>
-              <div className="signature-box">{fullname}</div>{" "}
+              <div className="signature-box">{fullname}</div>
               <p className="signature-label">Signature over printed Name / Date</p>
             </div>
 

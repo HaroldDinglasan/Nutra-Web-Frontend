@@ -1,345 +1,617 @@
 .approval-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(0, 0, 0, 0.6));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+/* Update the approval-modal class to make it scrollable */
+.approval-modal {
+  background: linear-gradient(145deg, #ffffff, #f8fffe);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(76, 175, 80, 0.15), 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  width: 580px;
+  max-width: 90%;
+  max-height: 90vh; /* Limit height to 90% of viewport */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+  animation: modalFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(76, 175, 80, 0.1);
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: rgba(76, 175, 80, 0.5) rgba(248, 255, 254, 0.5); /* For Firefox */
+}
+
+/* Add custom scrollbar styling for WebKit browsers */
+.approval-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.approval-modal::-webkit-scrollbar-track {
+  background: rgba(248, 255, 254, 0.5);
+  border-radius: 10px;
+}
+
+.approval-modal::-webkit-scrollbar-thumb {
+  background: rgba(76, 175, 80, 0.5);
+  border-radius: 10px;
+}
+
+.approval-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 175, 80, 0.7);
+}
+
+.section-title {
+  display: flex;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #2e7d32;
+  font-size: 1.1rem;
+  text-shadow: 0 1px 2px rgba(76, 175, 80, 0.1);
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  border-radius: 1px;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.9);
   }
-  
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Fix the approval-modal-header to stay at the top when scrolling */
+.approval-modal-header {
+  background: linear-gradient(135deg, #4caf50, #66bb6a);
+  color: white;
+  padding: 20px 24px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.approval-modal-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+}
+
+.close-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  line-height: 1;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.approval-subtitle {
+  text-align: center;
+  padding: 16px 24px;
+  color: #555;
+  font-size: 0.95rem;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+  background: linear-gradient(90deg, rgba(76, 175, 80, 0.02), rgba(255, 255, 255, 0.8), rgba(76, 175, 80, 0.02));
+  font-style: italic;
+}
+
+.approval-form {
+  padding: 24px;
+  background: rgba(248, 255, 254, 0.3);
+}
+
+.approval-section {
+  margin-bottom: 28px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(76, 175, 80, 0.1);
+  transition: all 0.3s ease;
+  position: relative; /* Add position relative */
+}
+
+.approval-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.approval-section-modal {
+  margin-bottom: 28px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(76, 175, 80, 0.1);
+  transition: all 0.3s ease;
+  position: relative; /* Add position relative */
+}
+
+.approval-section-modal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.checkBy-label {
+  color: #2e7d32;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: -22px;
+  margin-right: -50px;
+  margin-left: 20px;
+  text-align: right;
+  padding-right: 10px;
+}
+
+.form-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 80px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Fix the form-label to match approvedby-form-label */
+.form-label {
+  display: flex;
+  font-size: 0.9rem;
+  color: #2e7d32;
+  padding-right: 10px;
+  margin-left: -40px; /* Changed from -35px to -40px to match other labels */
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.approvedby-form-label {
+  display: flex;
+  font-size: 0.9rem;
+  color: #2e7d32;
+  padding-right: 10px;
+  margin-left: -40px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.receivedBy-form-label {
+  display: flex;
+  font-size: 0.9rem;
+  color: #2e7d32;
+  padding-right: 10px;
+  margin-left: -40px;
+  font-weight: 500;
+}
+
+.form-input-receivedBy {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-left: -80px;
+  background: rgba(248, 255, 254, 0.5);
+}
+
+.form-input-receivedBy:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  background: white;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-left: -50px;
+  background: rgba(248, 255, 254, 0.5);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  background: white;
+}
+
+.checkby-form-input {
+  width: 75%;
+  padding: 12px 16px;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-left: 20px;
+  background: rgba(248, 255, 254, 0.5);
+  cursor: pointer;
+}
+
+.checkby-form-input:hover {
+  border-color: rgba(76, 175, 80, 0.4);
+  background: white;
+}
+
+.checkby-email-input {
+  width: 75%;
+  padding: 12px 16px;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-left: 20px;
+  background: rgba(248, 255, 254, 0.5);
+}
+
+.checkby-email-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  background: white;
+}
+
+.checkby-form-label {
+  display: flex;
+  font-size: 0.9rem;
+  color: #2e7d32;
+  padding-right: 10px;
+  margin-left: 60px;
+  font-weight: 500;
+}
+
+.approvedby-form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-left: -80px;
+  margin-top: 10px;
+  background: rgba(248, 255, 254, 0.5);
+  cursor: pointer;
+}
+
+.approvedby-form-input:hover {
+  border-color: rgba(76, 175, 80, 0.4);
+  background: white;
+}
+
+.receivedby-form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  margin-left: -80px;
+  background: rgba(248, 255, 254, 0.5);
+  cursor: pointer;
+}
+
+.receivedby-form-input:hover {
+  border-color: rgba(76, 175, 80, 0.4);
+  background: white;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.approval-cancel-button {
+  width: 150px;
+  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  color: #495057;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.approval-cancel-button:hover {
+  background: linear-gradient(145deg, #e9ecef, #dee2e6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.approval-save-button {
+  width: 150px;
+  background: linear-gradient(135deg, #4caf50, #66bb6a);
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.approval-save-button:hover {
+  background: linear-gradient(135deg, #43a047, #5cb85c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.approval-save-button:disabled {
+  background: linear-gradient(135deg, #a5d6a7, #c8e6c9);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+/* Custom dropdown enhancements */
+.custom-dropdown-container {
+  position: relative;
+  z-index: 1000; /* Increased from 50 to 1000 */
+}
+
+/* When dropdown is open, increase z-index */
+.custom-dropdown-container.dropdown-open {
+  z-index: 10000;
+}
+
+.dropdown-menu {
+  position: fixed; /* Changed from absolute to fixed */
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  margin-top: 4px;
+  background: white;
+  z-index: 9999; /* Increased from 100 to 9999 */
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: dropdownSlideIn 0.2s ease-out;
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu input {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-bottom: 2px solid rgba(76, 175, 80, 0.1);
+  background: rgba(248, 255, 254, 0.5);
+  font-size: 0.9rem;
+}
+
+.dropdown-menu input:focus {
+  outline: none;
+  background: white;
+  border-bottom-color: #4caf50;
+}
+
+.dropdown-menu ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dropdown-menu li {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.dropdown-menu li:hover {
+  background: linear-gradient(90deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.dropdown-menu li:last-child {
+  border-bottom: none;
+}
+
+/* Settings icon styles */
+.settings-icon-wrapper {
+  position: relative;
+  cursor: pointer;
+  margin-left: 10px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.settings-icon-wrapper:hover {
+  background: rgba(76, 175, 80, 0.2);
+  transform: scale(1.1);
+}
+
+.settings-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4caf50;
+}
+
+.settings-svg {
+  transition: transform 0.3s ease;
+}
+
+.settings-icon-wrapper:hover .settings-svg {
+  transform: rotate(30deg);
+  color: #2e7d32;
+}
+
+.settings-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+  z-index: 100;
+  margin-top: 8px;
+  animation: dropdownFadeIn 0.3s ease-out;
+  border: 1px solid rgba(76, 175, 80, 0.1);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.settings-dropdown-item:hover {
+  background: linear-gradient(90deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.settings-dropdown-item svg {
+  color: #4caf50;
+}
+
+/* Error message styling */
+.error-message {
+  color: #d32f2f;
+  margin: 10px 0;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #ffebee, #ffcdd2);
+  border-radius: 8px;
+  border-left: 4px solid #d32f2f;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.1);
+}
+
+/* Loading state */
+.approval-form input:disabled,
+.approval-form select:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
   .approval-modal {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    width: 550px;
-    max-width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: modalFadeIn 0.3s ease-out;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    width: 95%;
+    margin: 20px;
   }
 
-  .section-title {
-    display: flex;
-    margin-bottom: 15px;
-  }
-  
-  @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: translate(-50%, -60%);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, -50%);
-    }
-  }
-  
-  .approval-modal-header {
-    background-color: #4caf50;
-    color: white;
-    padding: 16px 20px;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-  }
-  
-  .approval-modal-header h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-    text-align: center;
-  }
-  
-  .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: white;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  
-  .approval-subtitle {
-    text-align: center;
-    padding: 12px 20px;
-    color: #555;
-    font-size: 0.9rem;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .approval-form {
-    padding: 20px;
-  }
-  
-  .approval-section {
-    margin-bottom: 20px;
-  }
-  
-  .checkBy-label {
-    color: #333;
-    font-size: 1rem;
-    font-weight: 500;
-    margin-top: -22px;
-    margin-right: -50px;
-    margin-left: 20px;
-    text-align: right;
-    padding-right: 10px;
-  }
-  
   .form-grid {
-    display: grid;
-    width: 100%;
-    grid-template-columns: 80px 1fr;
-    gap: 10px;
-    align-items: center;
-  }
-  
-  /* .form-label {
-    display: flex;
-    font-size: 0.9rem;
-    color: #555;
-    padding-right: 10px;
-    margin-left: 20px;
-  } */
-
-  .approvedby-form-label {
-    display: flex;
-    font-size: 0.9rem;
-    color: #555;
-    padding-right: 10px;
-    margin-left: -40px;
-    margin-top: 10px
-  }
-
-  .receivedBy-form-label {
-    display: flex;
-    font-size: 0.9rem;
-    color: #555;
-    padding-right: 10px;
-    margin-left: -40px;
-  }
-
-  .form-input-receivedBy {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-    margin-left: -80px;
-  }
-  
-  .form-input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-    margin-left: -50px;
-  }
-
-  .checkby-form-input {
-    width: 80%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-    margin-left: 20px
-  }
-
-  .checkby-email-input {
-    width: 80%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-    margin-left: 20px;
-  }
-
-  .checkby-form-label {
-    display: flex;
-    font-size: 0.9rem;
-    color: #555;
-    padding-right: 10px;
-    margin-left: 60px
-  }
-
-  .approvedby-form-input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-    margin-left: -80px;
-    margin-top: 20px;
-  }
-
-  .receivedBy-form-input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-    margin-left: -40px;
-    margin-top: 20px;
-  }
-  
-  .form-input:focus {
-    outline: none;
-    border-color: #4caf50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
-  }
-  
-  .approval-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .button-container {
-    display: flex;
-    justify-content: center;
-    gap: 50px; 
-    margin-top: 40px;
-    width: 100%;
-    margin-bottom: 20px;
+    flex-direction: column;
+    gap: 12px;
   }
-  
-  .approval-cancel-button {
-    width: 150px;
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
-    color: #333;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: background-color 0.2s;
-  }
-  
-  .approval-cancel-button:hover {
-    background-color: #e0e0e0;
-  }
-  
+
+  .approval-cancel-button,
   .approval-save-button {
-    width: 150px;
-    background-color: #4caf50;
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: background-color 0.2s;
-  }
-  
-  .approval-save-button:hover {
-    background-color: #3d8b40;
-  }
-  
-  /* Additional styles for the settings icon in app-layout.jsx */
-  .settings-icon-wrapper {
-    position: relative;
-    cursor: pointer;
-    margin-left: 10px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s;
-  }
-  
-  .settings-icon-wrapper:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-  
-  .settings-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #555;
-  }
-  
-  .settings-svg {
-    transition: transform 0.3s ease;
-  }
-  
-  .settings-icon-wrapper:hover .settings-svg {
-    transform: rotate(30deg);
-    color: #4caf50;
-  }
-  
-  .settings-dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    min-width: 180px;
-    z-index: 100;
-    margin-top: 8px;
-    animation: dropdownFadeIn 0.2s ease-out;
-  }
-  
-  @keyframes dropdownFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .settings-dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
     width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #333;
-    transition: background-color 0.2s;
   }
-  
-  .settings-dropdown-item:hover {
-    background-color: #f5f5f5;
-    color: #4caf50;
-  }
-  
-  .settings-dropdown-item svg {
-    color: #4caf50;
-  }
-  
+}

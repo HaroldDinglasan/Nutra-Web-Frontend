@@ -41,6 +41,27 @@ const AppLayout = ({ children }) => {
     setSearchInput("")
   }, [activeSection])
 
+  // Clear approval names when navigating away from PRF Request
+  useEffect(() => {
+    if (activeSection !== "prfRequest") {
+      // Clear approval names from localStorage when not in PRF Request section
+      localStorage.removeItem("checkedByUser")
+      localStorage.removeItem("approvedByUser")
+      localStorage.removeItem("receivedByUser")
+
+      // Dispatch event to clear approval names in the form component
+      window.dispatchEvent(
+        new CustomEvent("approvalSettingsUpdated", {
+          detail: {
+            checkedByUser: "",
+            approvedByUser: "",
+            receivedByUser: "",
+          },
+        }),
+      )
+    }
+  }, [activeSection])
+
   useEffect(() => {
     const handleFormStateChange = (event) => {
       if (event.detail) {
@@ -96,19 +117,72 @@ const AppLayout = ({ children }) => {
     navigate("/login")
   }
 
-  // Navigation functions
+  // Navigation functions with approval clearing
   const navigateToDashboard = () => {
+    // Clear approval names when navigating away from PRF Request
+    if (activeSection === "prfRequest") {
+      localStorage.removeItem("checkedByUser")
+      localStorage.removeItem("approvedByUser")
+      localStorage.removeItem("receivedByUser")
+
+      window.dispatchEvent(
+        new CustomEvent("approvalSettingsUpdated", {
+          detail: {
+            checkedByUser: "",
+            approvedByUser: "",
+            receivedByUser: "",
+          },
+        }),
+      )
+    }
+
     setActiveSection("entry")
     navigate("/prf/list#dashboard")
   }
 
   const navigateToPurchaseList = () => {
+    // Clear approval names when navigating away from PRF Request
+    if (activeSection === "prfRequest") {
+      localStorage.removeItem("checkedByUser")
+      localStorage.removeItem("approvedByUser")
+      localStorage.removeItem("receivedByUser")
+
+      window.dispatchEvent(
+        new CustomEvent("approvalSettingsUpdated", {
+          detail: {
+            checkedByUser: "",
+            approvedByUser: "",
+            receivedByUser: "",
+          },
+        }),
+      )
+    }
+
     setActiveSection("list")
     navigate("/prf/list")
   }
 
   const navigateToPrfRequest = () => {
     setActiveSection("prfRequest")
+
+    // Clear approval names when navigating to PRF Request
+    // This ensures a fresh start when opening the form
+    if (!location.state?.isNew) {
+      localStorage.removeItem("checkedByUser")
+      localStorage.removeItem("approvedByUser")
+      localStorage.removeItem("receivedByUser")
+
+      window.dispatchEvent(
+        new CustomEvent("approvalSettingsUpdated", {
+          detail: {
+            checkedByUser: "",
+            approvedByUser: "",
+            receivedByUser: "",
+          },
+        }),
+      )
+    }
+
     const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc"
     navigate("/nutratech/form", { state: { company } })
   }
@@ -295,7 +369,7 @@ const AppLayout = ({ children }) => {
                     className="settings-svg"
                   >
                     <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                   </svg>
                 </div>
                 {settingsDropdownOpen && (
