@@ -71,6 +71,11 @@ const ApprovalModal = ({ onClose }) => {
     onClose()
   }
 
+  // Initialize with empty form when modal opens
+  useEffect(() => {
+    resetFormFields()
+  }, [])
+
   useEffect(() => {
     // Get userId from localStorage
     const userId = localStorage.getItem("userId")
@@ -101,47 +106,7 @@ const ApprovalModal = ({ onClose }) => {
     fetchEmployees()
   }, [])
 
-  // Load existing approval settings if available
-  useEffect(() => {
-    const fetchExistingApprovals = async () => {
-      if (!currentUserId) return
-
-      try {
-        const response = await axios.get(`http://localhost:5000/api/approvals/user/${currentUserId}`)
-
-        if (response.data.data && response.data.data.length > 0) {
-          const approval = response.data.data[0]
-
-          // Find employee names for the Oids
-          const findEmployeeName = (oid) => {
-            const employee = employees.find((emp) => emp.Oid === oid)
-            return employee ? employee.FullName : ""
-          }
-
-          // Only update if we have employees loaded
-          if (employees.length > 0) {
-            setFormData({
-              checkedByUser: findEmployeeName(approval.CheckedById),
-              checkedByEmail: approval.CheckedByEmail || "",
-              checkedByUserOid: approval.CheckedById || null,
-              approvedByUser: findEmployeeName(approval.ApprovedById),
-              approvedByEmail: approval.ApprovedByEmail || "",
-              approvedByUserOid: approval.ApprovedById || null,
-              receivedByUser: findEmployeeName(approval.ReceivedById),
-              receivedByEmail: approval.ReceivedByEmail || "",
-              receivedByUserOid: approval.ReceivedById || null,
-            })
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching existing approvals:", error)
-      }
-    }
-
-    if (employees.length > 0) {
-      fetchExistingApprovals()
-    }
-  }, [currentUserId, employees])
+  // REMOVED: Load existing approval settings - modal will always start empty
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -290,7 +255,7 @@ const ApprovalModal = ({ onClose }) => {
       )
 
       alert("Approval settings saved successfully!")
-      
+
       // Reset form fields after successful save and close modal
       resetFormFields()
       onClose()
@@ -430,13 +395,11 @@ const ApprovalModal = ({ onClose }) => {
         )}
 
         <form onSubmit={handleSubmit} className="approval-form">
-          
           <div className="approval-section-modal">
             <div className="section-title">CheckedBy:</div>
-             
-            <div className="form-grid">
 
-              <CustomDropdown field="checkedByUser"  className="checkby-form-input" />
+            <div className="form-grid">
+              <CustomDropdown field="checkedByUser" className="checkby-form-input" />
 
               <label htmlFor="checkedByEmail" className="checkby-form-label">
                 {/* email */}
@@ -456,7 +419,7 @@ const ApprovalModal = ({ onClose }) => {
           <div className="approval-section">
             <div className="section-title">ApprovedBy:</div>
             <div className="form-grid">
-              <CustomDropdown field="approvedByUser"  className="approvedby-form-input" />
+              <CustomDropdown field="approvedByUser" className="approvedby-form-input" />
 
               <label htmlFor="approvedByEmail" className="approvedby-form-label">
                 {/* email */}
@@ -476,7 +439,7 @@ const ApprovalModal = ({ onClose }) => {
           <div className="approval-section">
             <div className="section-title">ReceivedBy:</div>
             <div className="form-grid">
-              <CustomDropdown field="receivedByUser"  className="receivedby-form-input" />
+              <CustomDropdown field="receivedByUser" className="receivedby-form-input" />
 
               <label htmlFor="receivedByEmail" className="receivedBy-form-label">
                 {/* email */}
