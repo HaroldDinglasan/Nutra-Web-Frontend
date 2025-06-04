@@ -34,6 +34,7 @@ export default function NutraTechForm() {
   const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel")
   const [prfDate, setPrfDate] = useState(null) // Store the PRF date
   const [isSameDay, setIsSameDay] = useState(true) // Track if PRF date is the same as current date
+  const [globalPurpose, setGlobalPurpose] = useState("")
 
   const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || "" // Retrieve department
@@ -440,6 +441,15 @@ export default function NutraTechForm() {
     })),
   )
 
+  // Sync globalPurpose when rows are loaded from search results
+  useEffect(() => {
+    const firstPurpose = rows.find((row) => row.purpose)?.purpose || ""
+    if (firstPurpose && !globalPurpose) {
+      // If we have purpose data in rows but no globalPurpose set, sync it
+      setGlobalPurpose(firstPurpose)
+    }
+  }, [rows, globalPurpose])
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedRowIndex, setSelectedRowIndex] = useState(null)
 
@@ -473,6 +483,11 @@ export default function NutraTechForm() {
     const { name, value } = event.target
     const newRows = [...rows]
 
+    // Prevent manual editing of purpose field since it's controlled by globalPurpose
+    if (name === "purpose") {
+      return // Don't allow manual changes to purpose
+    }
+
     if (name === "quantity") {
       // Updated validation for integers AND decimals
       if (/^\d*\.?\d*$/.test(value)) {
@@ -488,12 +503,6 @@ export default function NutraTechForm() {
     } else {
       newRows[index][name] = value
       setRows(newRows)
-
-      // Reset styling for purpose field when user starts typing
-      if (name === "purpose") {
-        event.target.style.border = ""
-        event.target.placeholder = ""
-      }
     }
   }
 
@@ -637,7 +646,7 @@ export default function NutraTechForm() {
         unit: "",
         description: "",
         dateNeeded: getCurrentDate(),
-        purpose: "",
+        purpose: globalPurpose, // Use the global purpose for new rows
         stockId: "",
       },
     ])
@@ -901,7 +910,35 @@ export default function NutraTechForm() {
           </div>
 
           <div className="following-label">
-            <label>I would like to request the following :</label>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+              <label>I would like to request the following :</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <label htmlFor="globalPurpose" style={{ fontSize: "14px", fontWeight: "500" }}>
+                  Purpose of Requisition:
+                </label>
+                <input
+                  type="text"
+                  id="globalPurpose"
+                  value={globalPurpose}
+                  className="purpose-item-input"
+                  onChange={(e) => {
+                    setGlobalPurpose(e.target.value)
+                    // Update all rows with the new purpose
+                    if (rows) {
+                      const newRows = rows.map((row) => ({
+                        ...row,
+                        purpose: e.target.value,
+                      }))
+                      setRows(newRows)
+                    }
+                  }}
+                  placeholder="Enter purpose for all items"
+                  onFocus={(e) => (e.target.style.borderColor = "#3b82f6")}
+                  onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                  disabled={isPrfCancelled || !isSameDay}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="table-container">
@@ -1018,9 +1055,13 @@ export default function NutraTechForm() {
                         type="text"
                         name="purpose"
                         value={row.purpose}
-                        onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled || !isSameDay}
-                        style={{ color: isPrfCancelled ? "red" : "inherit" }}
+                        readOnly={true}
+                        style={{
+                          color: isPrfCancelled ? "red" : "inherit",
+                          backgroundColor: "#f8f9fa",
+                          cursor: "not-allowed",
+                        }}
+                        placeholder="Auto-filled from above"
                       />
                     </td>
                   </tr>
@@ -1081,97 +1122,7 @@ export default function NutraTechForm() {
         </div>
       </div>
       <style jsx>{`
-        .date-needed-cell {
-          position: relative;
-          min-width: 140px;
-          width: 16% !important; /* Increased from 12% to 16% */
-        }
-
-        .date-input-container {
-          position: relative;
-          display: flex;
-          align-items: center;
-          border: 2px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 4px 8px;
-          transition: all 0.3s ease;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          width: 100%;
-          min-width: 130px;
-        }
-
-        .date-input-container:hover {
-          background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
-          border-color: #3b82f6;
-          box-shadow: 0 4px 8px rgba(59, 130, 246, 0.15);
-          transform: translateY(-1px);
-        }
-
-        .date-input-container:focus-within {
-          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .date-icon {
-          width: 14px;
-          height: 14px;
-          color: #3b82f6;
-          margin-right: 4px;
-          flex-shrink: 0;
-        }
-
-        .enhanced-date-input {
-          border: none;
-          background: transparent;
-          outline: none;
-          font-size: 11px;
-          font-weight: 500;
-          color: #1e293b;
-          flex: 1;
-          min-width: 0;
-          width: 100%;
-          text-align: center;
-        }
-
-        .enhanced-date-input::-webkit-calendar-picker-indicator {
-          opacity: 0;
-          position: absolute;
-          right: 0;
-          width: 100%;
-          height: 100%;
-          cursor: pointer;
-        }
-
-        .date-display {
-          position: absolute;
-          top: -8px;
-          right: 8px;
-          background: #3b82f6;
-          color: white;
-          font-size: 9px;
-          font-weight: 600;
-          padding: 2px 4px;
-          border-radius: 4px;
-          opacity: 0;
-          transition: opacity 0.2s ease;
-          pointer-events: none;
-          white-space: nowrap;
-          z-index: 10;
-        }
-
-        .date-input-container:hover .date-display {
-          opacity: 1;
-        }
-
-        .date-needed-cell input[readonly] {
-          background: rgba(248, 250, 252, 0.5);
-          cursor: not-allowed;
-        }
-
-        .date-needed-cell input[readonly] + .date-display {
-          background: #6b7280;
-        }
-
+      
         /* Adjust other column widths to accommodate larger date column */
         :global(th:nth-child(1), td:nth-child(1)) { width: 12% !important; }  /* STOCK CODE */
         :global(th:nth-child(2), td:nth-child(2)) { width: 8% !important; }   /* QUANTITY */
@@ -1189,88 +1140,6 @@ export default function NutraTechForm() {
           background-color: ${isPrfCancelled ? "rgba(255, 0, 0, 0.05)" : "inherit"};
         }
         
-        .uncancel-button {
-          background-color: #4caf50;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: 500;
-          transition: background-color 0.3s;
-          margin-left: 8px;
-        }
-        
-        .uncancel-button:hover {
-          background-color: #45a049;
-        }
-        
-        .uncancel-button:disabled {
-          background-color: #cccccc;
-          cursor: not-allowed;
-        }
-        
-        .action-buttons {
-          display: flex;
-          gap: 8px;
-          margin-left: px;
-        }
-
-        /* Print styles */
-        @media print {
-          .date-needed-cell {
-            width: 16% !important;
-            min-width: 120px !important;
-          }
-          
-          .date-input-container {
-            border: 1px solid #ccc !important;
-            border-radius: 4px !important;
-            padding: 2px 4px !important;
-            background: white !important;
-            box-shadow: none !important;
-          }
-          
-          .date-icon {
-            width: 12px !important;
-            height: 12px !important;
-            color: #666 !important;
-          }
-          
-          .enhanced-date-input {
-            font-size: 10px !important;
-          }
-          
-          .date-display {
-            display: none !important;
-          }
-          
-          :global(th:nth-child(5), td:nth-child(5)) { 
-            width: 16% !important; 
-            min-width: 120px !important;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .date-input-container {
-            padding: 4px 6px;
-            border-radius: 6px;
-          }
-          
-          .date-icon {
-            width: 12px;
-            height: 12px;
-          }
-          
-          .enhanced-date-input {
-            font-size: 11px;
-          }
-          
-          .date-display {
-            font-size: 8px;
-            padding: 1px 3px;
-          }
-        }
       `}</style>
     </>
   )
