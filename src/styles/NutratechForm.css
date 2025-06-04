@@ -455,7 +455,136 @@ h3 {
   width: 100% !important;
   min-width: 0 !important;
 }
-  
+
+.date-needed-cell {
+    position: relative;
+    min-width: 140px;
+    width: 16% !important; /* Increased from 12% to 16% */
+}
+
+.date-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 4px 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    min-width: 130px;
+}
+
+.date-input-container:hover {
+    background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+    border-color: #3b82f6;
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+}
+
+.date-input-container:focus-within {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.date-icon {
+    width: 14px;
+    height: 14px;
+    color: #3b82f6;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.enhanced-date-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 11px;
+    font-weight: 500;
+    color: #1e293b;
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.enhanced-date-input::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.date-display {
+    position: absolute;
+    top: -8px;
+    right: 8px;
+    background: #3b82f6;
+    color: white;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.date-input-container:hover .date-display {
+    opacity: 1;
+}
+
+.date-needed-cell input[readonly] {
+    background: rgba(248, 250, 252, 0.5);
+    cursor: not-allowed;
+}
+
+.date-needed-cell input[readonly] + .date-display {
+    background: #6b7280;
+}
+
+.purpose-item-input { 
+    width: 250px;
+    padding: 8px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    margin-right: 20px;
+}
+
+.uncancel-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    margin-left: 8px;
+}
+        
+.uncancel-button:hover {
+    background-color: #45a049;
+}
+        
+.uncancel-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+        
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: px;
+}
+
 @media print {
    /* Target ALL elements to remove scrollbars */
   html,
@@ -645,6 +774,62 @@ h3 {
     font-size: 10px !important;
     color: black !important;
   }
+}
+
+ @media (max-width: 768px) {
+    .date-input-container {
+        padding: 4px 6px;
+        border-radius: 6px;
+    }
+          
+    .date-icon {
+        width: 12px;
+        height: 12px;
+        }
+          
+    .enhanced-date-input {
+        font-size: 11px;
+    }
+          
+    .date-display {
+        font-size: 8px;
+        padding: 1px 3px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .date-needed-cell {
+        width: 16% !important;
+        min-width: 120px !important;
+    }
+          
+    .date-input-container {
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        padding: 2px 4px !important;
+        background: white !important;
+        box-shadow: none !important;
+    }
+          
+    .date-icon {
+        width: 12px !important;
+        height: 12px !important;
+        color: #666 !important;
+    }
+          
+    .enhanced-date-input {
+        font-size: 10px !important;
+    }
+          
+    .date-display {
+        display: none !important;
+    }
+          
+    :global(th:nth-child(5), td:nth-child(5)) { 
+        width: 16% !important; 
+        min-width: 120px !important;
+    }
 }
 
 
