@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useLocation } from "react-router-dom"
 import axios from "axios"
 import "../styles/DashboardAdmin.css"
+import AdminPurchaseList from "../components/AdminPurchaseList"
 
 const DashboardAdmin = () => {
   const location = useLocation()
@@ -12,12 +13,16 @@ const DashboardAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("") // Store search term
   const showDashboard = location.hash === "#dashboard"
 
-  // Get user fullname from localStorage
+  // Get user fullname and role from localStorage
   const fullname = localStorage.getItem("userFullname") || "User"
+  const userRole = localStorage.getItem("userRole") || "user"
+  const isAdmin = userRole === "admin"
 
   useEffect(() => {
-    fetchPrfList()
-  }, [])
+    if (!showDashboard) {
+      fetchPrfList()
+    }
+  }, [showDashboard])
 
   // Function to check if a date is the same as today
   const checkIsSameDay = (dateToCheck) => {
@@ -72,7 +77,15 @@ const DashboardAdmin = () => {
   // fetchPrfList function to handle potential issues with user data
   const fetchPrfList = async () => {
     try {
-      // Get the current user fullname from localStorage
+      if (isAdmin) {
+        // Admin sees all PRFs
+        const response = await axios.get("http://localhost:5000/api/prf-list")
+        setPrfList(response.data)
+        setFilteredPrfList(response.data)
+        return
+      }
+
+      // Regular user logic (existing code)
       const currentUser = localStorage.getItem("userFullname")
 
       if (!currentUser) {
@@ -171,91 +184,101 @@ const DashboardAdmin = () => {
     <>
       {showDashboard ? (
         <div className="welcome-container">
-          <h2>Welcome to NutraTech Biopharma Inc, {fullname} </h2>
+          <h2>Welcome to NutraTech Biopharma Inc, {fullname}</h2>
+          {isAdmin && <p>Admin Dashboard - Manage all purchase requests</p>}
         </div>
       ) : (
-        <div className="log-table-container">
-          <div className="search-container">
-            <div className="search-box-list">
-              <input
-                type="text"
-                placeholder="Search"
-                className="search-input-form"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              <button className="search-button" onClick={() => handleSearchChange({ target: { value: searchTerm } })}>
-                <svg
-                  className="searchPrfNo"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </button>
-              {searchTerm && (
-                <button className="clear-search" onClick={clearSearch}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+        <>
+          {isAdmin ? (
+            <AdminPurchaseList />
+          ) : (
+            <div className="log-table-container">
+              <div className="search-container">
+                <div className="search-box-list">
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    className="search-input-form"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                  />
+                  <button
+                    className="search-button"
+                    onClick={() => handleSearchChange({ target: { value: searchTerm } })}
                   >
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
+                    <svg
+                      className="searchPrfNo"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </button>
+                  {searchTerm && (
+                    <button className="clear-search" onClick={clearSearch}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
 
-          <table className="log-table">
-            <thead>
-              <tr>
-                <th>Prf No.</th>
-                <th>Prepared By</th>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPrfList.length > 0 ? (
-                filteredPrfList.map((prf, index) => {
-                  const isCancelled = isRowCanceled(prf)
-                  return (
-                    <tr key={index} className={isCancelled ? "canceled-row" : ""}>
-                      <td style={{ color: isCancelled ? "red" : "inherit" }}>No. {prf.prfNo}</td>
-                      <td>{prf.preparedBy}</td>
-                      <td>{formatDate(prf.dateNeeded)}</td>
-                      <td>{prf.StockName || "No stock name available"}</td>
-                      <td>{prf.quantity || "N/A"}</td>
-                      <td>{prf.unit || "N/A"}</td>
+              <table className="log-table">
+                <thead>
+                  <tr>
+                    <th>Prf No.</th>
+                    <th>Prepared By</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPrfList.length > 0 ? (
+                    filteredPrfList.map((prf, index) => {
+                      const isCancelled = isRowCanceled(prf)
+                      return (
+                        <tr key={index} className={isCancelled ? "canceled-row" : ""}>
+                          <td style={{ color: isCancelled ? "red" : "inherit" }}>No. {prf.prfNo}</td>
+                          <td>{prf.preparedBy}</td>
+                          <td>{formatDate(prf.dateNeeded)}</td>
+                          <td>{prf.StockName || "No stock name available"}</td>
+                          <td>{prf.quantity || "N/A"}</td>
+                          <td>{prf.unit || "N/A"}</td>
+                        </tr>
+                      )
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="6">No matching PRF records found.</td>
                     </tr>
-                  )
-                })
-              ) : (
-                <tr>
-                  <td colSpan="6">No matching PRF records found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
       <style jsx>{`
         .canceled-row {

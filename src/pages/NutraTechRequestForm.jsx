@@ -1040,7 +1040,7 @@ export default function NutraTechForm() {
         .action-buttons {
           display: flex;
           gap: 8px;
-          margin-left: 8px;
+          margin-left: px;
         }
       `}</style>
     </>

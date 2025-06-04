@@ -1,74 +1,93 @@
-import React, { useState } from "react";
-import "../styles/Login.css";
-import { useNavigate } from "react-router-dom";
-import regLogo from "../assets/fullLogo.jpg";
-import departmentIcon from "../assets/down.png";
-import userIcon from "../assets/user-icon.png";
-import eyeOpenIcon from "../assets/eye-open.png";
-import eyeClosedIcon from "../assets/eye-closed.png";
+"use client"
+
+import { useState } from "react"
+import "../styles/Login.css"
+import { useNavigate } from "react-router-dom"
+import regLogo from "../assets/fullLogo.jpg"
+import departmentIcon from "../assets/down.png"
+import userIcon from "../assets/user-icon.png"
+import eyeOpenIcon from "../assets/eye-open.png"
+import eyeClosedIcon from "../assets/eye-closed.png"
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false)
+  const [selectedCompany, setSelectedCompany] = useState("")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [errors, setErrors] = useState({})
+  const navigate = useNavigate()
 
   const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
+    setShowPassword((prev) => !prev)
+  }
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!username || !password) {
       setErrors({
         username: !username ? "Username is required" : "",
         password: !password ? "Password is required" : "",
-      });
-      return;
+      })
+      return
     }
 
     if (!selectedCompany) {
-      alert("Please select a company");
-      return;
+      alert("Please select a company")
+      return
     }
 
-    setErrors({}); // Clear previous errors
+    setErrors({}) // Clear previous errors
 
-    const loginData = { username, password };
+    const loginData = { username, password }
 
     try {
       const response = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
-        alert("✅ Login successful!");
+        alert("✅ Login successful!")
 
         // Save user details in localStorage
-        localStorage.setItem("userFullname", data.user.fullName);
-        localStorage.setItem("userDepartment", data.user.departmentType);
-        localStorage.setItem("userDepartmentId", data.user.departmentId); // Store department Id
+        localStorage.setItem("userFullname", data.user.fullName)
+        localStorage.setItem("userDepartment", data.user.departmentType)
+        localStorage.setItem("userDepartmentId", data.user.departmentId) // Store department Id
         localStorage.setItem("userCompany", selectedCompany) // Store selected Company
         localStorage.setItem("userId", data.user.userID) // Store the userID
 
-        navigate("/prf/list#dashboard", {
-          state: { company: selectedCompany },
-        });
+        // Check if user is admin - you can modify this logic based on your needs
+        // For now, checking if username contains "admin" or if there's a role field
+        const isAdmin =
+          username.toLowerCase().includes("admin") ||
+          (data.user.role && data.user.role === "admin") ||
+          (data.user.departmentType && data.user.departmentType.toLowerCase().includes("purchasing"))
+
+        // Store user role
+        localStorage.setItem("userRole", isAdmin ? "admin" : "user")
+
+        // Navigate based on role
+        if (isAdmin) {
+          navigate("/prf/list", {
+            state: { company: selectedCompany, isAdmin: true },
+          })
+        } else {
+          navigate("/prf/list#dashboard", {
+            state: { company: selectedCompany },
+          })
+        }
       } else {
-        alert("❌ " + data.message);
+        alert("❌ " + data.message)
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("❌ An error occurred while logging in.");
+      console.error("Error:", error)
+      alert("❌ An error occurred while logging in.")
     }
-  };
+  }
 
   return (
     <div className="login-form-container">
@@ -93,38 +112,21 @@ const Login = () => {
               onChange={(e) => setSelectedCompany(e.target.value)}
             >
               <option value="">Select Company</option>
-              <option value="NutraTech Biopharma, Inc">
-                Nutratech Biopharma, Inc
-              </option>
+              <option value="NutraTech Biopharma, Inc">Nutratech Biopharma, Inc</option>
               <option value="Avli Biocare, Inc">Avli BioCare, Inc</option>
               <option value="Apthealth, Inc">Apthealth, Inc</option>
             </select>
-            <img
-              src={departmentIcon || "/placeholder.svg"}
-              alt="Dept Icon"
-              className="company-dropdown-icon"
-            />
+            <img src={departmentIcon || "/placeholder.svg"} alt="Dept Icon" className="company-dropdown-icon" />
           </div>
         </div>
 
         <div className="login-field-box">
           <label htmlFor="username">Username</label>
           <div className="log-input-container">
-            <img
-              src={userIcon || "/placeholder.svg"}
-              alt="User Icon"
-              className="input-icon"
-            />
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+            <img src={userIcon || "/placeholder.svg"} alt="User Icon" className="input-icon" />
+            <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
           </div>
-          {errors.username && (
-            <p className="error-text-show">{errors.username}</p>
-          )}
+          {errors.username && <p className="error-text-show">{errors.username}</p>}
         </div>
 
         <div className="login-field-box-password">
@@ -143,9 +145,7 @@ const Login = () => {
               onClick={togglePasswordVisibility}
             />
           </div>
-          {errors.password && (
-            <p className="error-text-show">{errors.password}</p>
-          )}
+          {errors.password && <p className="error-text-show">{errors.password}</p>}
         </div>
 
         <button type="submit" className="login-button" onClick={handleLogin}>
@@ -162,7 +162,7 @@ const Login = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
