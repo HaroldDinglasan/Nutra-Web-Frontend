@@ -83,7 +83,7 @@ th:nth-child(1), td:nth-child(1) { width: 12%; }  /* STOCK CODE */
 th:nth-child(2), td:nth-child(2) { width: 9%; }   /* QUANTITY */
 th:nth-child(3), td:nth-child(3) { width: 12%; }   /* UNIT */
 th:nth-child(4), td:nth-child(4) { width: 40%; }  /* DESCRIPTION (Expanded) */
-th:nth-child(5), td:nth-child(5) { width: 12%; }  /* DATE NEEDED */
+th:nth-child(5), td:nth-child(5) { width: 15%; }  /* DATE NEEDED */
 th:nth-child(6), td:nth-child(6) { width: 22%; }  /* PURPOSE OF REQUISITION */
 
 th, td {
@@ -411,6 +411,50 @@ h3 {
     color: black;
     border: 1px solid black;
   }
+
+  * Override existing column widths to accommodate full date display */
+.table-container table th:nth-child(5),
+.table-container table td:nth-child(5) {
+  width: 15% !important;
+  min-width: 140px !important;
+}
+
+/* Adjust other columns to maintain table balance */
+.table-container table th:nth-child(1),
+.table-container table td:nth-child(1) {
+  width: 12% !important;
+} /* STOCK CODE */
+
+.table-container table th:nth-child(2),
+.table-container table td:nth-child(2) {
+  width: 8% !important;
+} /* QUANTITY */
+
+.table-container table th:nth-child(3),
+.table-container table td:nth-child(3) {
+  width: 10% !important;
+} /* UNIT */
+
+.table-container table th:nth-child(4),
+.table-container table td:nth-child(4) {
+  width: 36% !important;
+} /* DESCRIPTION */
+
+.table-container table th:nth-child(6),
+.table-container table td:nth-child(6) {
+  width: 18% !important;
+} /* PURPOSE */
+
+/* Ensure date input has proper width */
+.date-needed-cell .date-input-container {
+  width: 100% !important;
+  min-width: 90px !important;
+}
+
+.date-needed-cell .enhanced-date-input {
+  width: 100% !important;
+  min-width: 0 !important;
+}
   
 @media print {
    /* Target ALL elements to remove scrollbars */
@@ -581,4 +625,26 @@ h3 {
         display: none !important;
     }
 }
+
+/* Print-specific adjustments */
+@media print {
+  .table-container table th:nth-child(5),
+  .table-container table td:nth-child(5) {
+    width: 16% !important;
+    min-width: 120px !important;
+  }
+
+  .date-needed-cell .date-input-container {
+    border: 1px solid #ccc !important;
+    background: white !important;
+    padding: 2px 4px !important;
+    min-width: 120px !important;
+  }
+
+  .date-needed-cell .enhanced-date-input {
+    font-size: 10px !important;
+    color: black !important;
+  }
+}
+
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Calendar } from "lucide-react"
 import "../styles/NutratechForm.css"
 import { useLocation, useNavigate } from "react-router-dom"
 
@@ -30,11 +31,11 @@ export default function NutraTechForm() {
   const [prfId, setPrfId] = useState(null) // Store the PRF ID
   const [isUpdating, setIsUpdating] = useState(false) // Track if we're in update mode
   const [isPrfCancelled, setIsPrfCancelled] = useState(false) // Track if the PRF is cancelled
-  const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel") 
+  const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel")
   const [prfDate, setPrfDate] = useState(null) // Store the PRF date
   const [isSameDay, setIsSameDay] = useState(true) // Track if PRF date is the same as current date
 
-  const fullname = localStorage.getItem("userFullname") || ""  // Retrieve fullname
+  const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || "" // Retrieve department
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
@@ -48,6 +49,49 @@ export default function NutraTechForm() {
 
   // Track if we should fetch approval settings
   const [shouldFetchApprovals, setShouldFetchApprovals] = useState(false)
+
+  // Get current date in YYYY-MM-DD format
+  const getCurrentDate = () => {
+    return new Date().toISOString().split("T")[0]
+  }
+
+  // Format date for display (more user-friendly)
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return ""
+    const date = new Date(dateString)
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    }
+    return dateString
+  }
+
+  // Convert date from YYYY-MM-DD to MM/DD/YYYY for backward compatibility
+  const convertToMMDDYYYY = (dateString) => {
+    if (!dateString) return ""
+    const date = new Date(dateString)
+    if (!isNaN(date.getTime())) {
+      const month = String(date.getMonth() + 1).padStart(2, "0")
+      const day = String(date.getDate()).padStart(2, "0")
+      const year = date.getFullYear()
+      return `${month}/${day}/${year}`
+    }
+    return dateString
+  }
+
+  // Convert date from MM/DD/YYYY to YYYY-MM-DD
+  const convertFromMMDDYYYY = (dateString) => {
+    if (!dateString) return ""
+    const parts = dateString.split("/")
+    if (parts.length === 3) {
+      const [month, day, year] = parts
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`
+    }
+    return dateString
+  }
 
   //  Dispatch PRF ID updates to the layout
   useEffect(() => {
@@ -277,7 +321,7 @@ export default function NutraTechForm() {
           quantity: detail.quantity ? detail.quantity.toString() : "",
           unit: detail.unit,
           description: detail.StockName || detail.description,
-          dateNeeded: detail.dateNeeded,
+          dateNeeded: detail.dateNeeded ? convertFromMMDDYYYY(detail.dateNeeded) : getCurrentDate(),
           purpose: detail.purpose,
           stockId: detail.stockId || detail.StockCode || "",
         }))
@@ -288,7 +332,7 @@ export default function NutraTechForm() {
             quantity: "",
             unit: "",
             description: "",
-            dateNeeded: "",
+            dateNeeded: getCurrentDate(),
             purpose: "",
             stockId: "",
           })
@@ -331,14 +375,14 @@ export default function NutraTechForm() {
       // Generate a new purchase code
       generatePurchaseCode(company)
 
-      // Reset rows to empty state
+      // Reset rows to empty state with current date as default
       setRows(
         Array.from({ length: 5 }, () => ({
           stockCode: "",
           quantity: "",
           unit: "",
           description: "",
-          dateNeeded: "",
+          dateNeeded: getCurrentDate(),
           purpose: "",
           stockId: "",
         })),
@@ -390,7 +434,7 @@ export default function NutraTechForm() {
       quantity: "",
       unit: "",
       description: "",
-      dateNeeded: "",
+      dateNeeded: getCurrentDate(),
       purpose: "",
       stockId: "",
     })),
@@ -430,22 +474,15 @@ export default function NutraTechForm() {
     const newRows = [...rows]
 
     if (name === "quantity") {
-      // Validation for integers
-      if (/^\d*$/.test(value)) {
+      // Updated validation for integers AND decimals
+      if (/^\d*\.?\d*$/.test(value)) {
         newRows[index][name] = value
         setRows(newRows)
       } else {
-        alert("Please enter a valid integer for quantity.")
+        alert("Please enter a valid number for quantity.")
       }
     } else if (name === "dateNeeded") {
-      // Validation for MM/DD/YYYY format
-      if (value.length === 10) {
-        const datePattern = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/
-        if (!datePattern.test(value)) {
-          alert("Please enter a valid date in MM/DD/YYYY format.")
-          return
-        }
-      }
+      // Handle date input change
       newRows[index][name] = value
       setRows(newRows)
     } else {
@@ -565,7 +602,13 @@ export default function NutraTechForm() {
       headerPrfId = await handleSavePrfHeader()
     }
 
-    const success = await savePrfDetails(headerPrfId, rows)
+    // Convert dates back to MM/DD/YYYY format for backend compatibility
+    const rowsWithConvertedDates = rows.map((row) => ({
+      ...row,
+      dateNeeded: row.dateNeeded ? convertToMMDDYYYY(row.dateNeeded) : "",
+    }))
+
+    const success = await savePrfDetails(headerPrfId, rowsWithConvertedDates)
     if (success) {
       setPrfId(headerPrfId)
     }
@@ -573,7 +616,13 @@ export default function NutraTechForm() {
 
   // Function to handle updating PRF details
   const handleUpdate = async () => {
-    const success = await updatePrfDetails(prfId, rows)
+    // Convert dates back to MM/DD/YYYY format for backend compatibility
+    const rowsWithConvertedDates = rows.map((row) => ({
+      ...row,
+      dateNeeded: row.dateNeeded ? convertToMMDDYYYY(row.dateNeeded) : "",
+    }))
+
+    const success = await updatePrfDetails(prfId, rowsWithConvertedDates)
     if (success) {
       setIsUpdating(false)
     }
@@ -582,7 +631,15 @@ export default function NutraTechForm() {
   const handleAddRow = () => {
     setRows([
       ...rows,
-      { stockCode: "", quantity: "", unit: "", description: "", dateNeeded: "", purpose: "", stockId: "" },
+      {
+        stockCode: "",
+        quantity: "",
+        unit: "",
+        description: "",
+        dateNeeded: getCurrentDate(),
+        purpose: "",
+        stockId: "",
+      },
     ])
   }
 
@@ -727,7 +784,13 @@ export default function NutraTechForm() {
       }
 
       if (headerPrfId) {
-        const success = await savePrfDetails(headerPrfId, rows)
+        // Convert dates back to MM/DD/YYYY format for backend compatibility
+        const rowsWithConvertedDates = rows.map((row) => ({
+          ...row,
+          dateNeeded: row.dateNeeded ? convertToMMDDYYYY(row.dateNeeded) : "",
+        }))
+
+        const success = await savePrfDetails(headerPrfId, rowsWithConvertedDates)
         if (success) {
           setPrfId(headerPrfId)
         }
@@ -753,7 +816,13 @@ export default function NutraTechForm() {
         return
       }
 
-      const success = await updatePrfDetails(prfId, rows)
+      // Convert dates back to MM/DD/YYYY format for backend compatibility
+      const rowsWithConvertedDates = rows.map((row) => ({
+        ...row,
+        dateNeeded: row.dateNeeded ? convertToMMDDYYYY(row.dateNeeded) : "",
+      }))
+
+      const success = await updatePrfDetails(prfId, rowsWithConvertedDates)
       if (success) {
         setIsUpdating(false)
       }
@@ -929,15 +998,20 @@ export default function NutraTechForm() {
                         style={{ color: isPrfCancelled ? "red" : "inherit" }}
                       />
                     </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="dateNeeded"
-                        value={row.dateNeeded}
-                        onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled || !isSameDay}
-                        style={{ color: isPrfCancelled ? "red" : "inherit" }}
-                      />
+                    <td className="date-needed-cell">
+                      <div className="date-input-container">
+                        <Calendar className="date-icon" />
+                        <input
+                          type="date"
+                          name="dateNeeded"
+                          value={row.dateNeeded}
+                          onChange={(e) => handleInputChange(index, e)}
+                          readOnly={isPrfCancelled || !isSameDay}
+                          className="enhanced-date-input"
+                          style={{ color: isPrfCancelled ? "red" : "inherit" }}
+                        />
+                        {row.dateNeeded && <div className="date-display">{formatDateForDisplay(row.dateNeeded)}</div>}
+                      </div>
                     </td>
                     <td>
                       <input
@@ -1007,6 +1081,105 @@ export default function NutraTechForm() {
         </div>
       </div>
       <style jsx>{`
+        .date-needed-cell {
+          position: relative;
+          min-width: 140px;
+          width: 16% !important; /* Increased from 12% to 16% */
+        }
+
+        .date-input-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+          border: 2px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 4px 8px;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          width: 100%;
+          min-width: 130px;
+        }
+
+        .date-input-container:hover {
+          background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+          border-color: #3b82f6;
+          box-shadow: 0 4px 8px rgba(59, 130, 246, 0.15);
+          transform: translateY(-1px);
+        }
+
+        .date-input-container:focus-within {
+          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .date-icon {
+          width: 14px;
+          height: 14px;
+          color: #3b82f6;
+          margin-right: 4px;
+          flex-shrink: 0;
+        }
+
+        .enhanced-date-input {
+          border: none;
+          background: transparent;
+          outline: none;
+          font-size: 11px;
+          font-weight: 500;
+          color: #1e293b;
+          flex: 1;
+          min-width: 0;
+          width: 100%;
+          text-align: center;
+        }
+
+        .enhanced-date-input::-webkit-calendar-picker-indicator {
+          opacity: 0;
+          position: absolute;
+          right: 0;
+          width: 100%;
+          height: 100%;
+          cursor: pointer;
+        }
+
+        .date-display {
+          position: absolute;
+          top: -8px;
+          right: 8px;
+          background: #3b82f6;
+          color: white;
+          font-size: 9px;
+          font-weight: 600;
+          padding: 2px 4px;
+          border-radius: 4px;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          pointer-events: none;
+          white-space: nowrap;
+          z-index: 10;
+        }
+
+        .date-input-container:hover .date-display {
+          opacity: 1;
+        }
+
+        .date-needed-cell input[readonly] {
+          background: rgba(248, 250, 252, 0.5);
+          cursor: not-allowed;
+        }
+
+        .date-needed-cell input[readonly] + .date-display {
+          background: #6b7280;
+        }
+
+        /* Adjust other column widths to accommodate larger date column */
+        :global(th:nth-child(1), td:nth-child(1)) { width: 12% !important; }  /* STOCK CODE */
+        :global(th:nth-child(2), td:nth-child(2)) { width: 8% !important; }   /* QUANTITY */
+        :global(th:nth-child(3), td:nth-child(3)) { width: 10% !important; }  /* UNIT */
+        :global(th:nth-child(4), td:nth-child(4)) { width: 36% !important; }  /* DESCRIPTION */
+        :global(th:nth-child(5), td:nth-child(5)) { width: 16% !important; }  /* DATE NEEDED */
+        :global(th:nth-child(6), td:nth-child(6)) { width: 18% !important; }  /* PURPOSE */
+
         button:disabled {
           opacity: 0.5;
           cursor: not-allowed;
@@ -1041,6 +1214,62 @@ export default function NutraTechForm() {
           display: flex;
           gap: 8px;
           margin-left: px;
+        }
+
+        /* Print styles */
+        @media print {
+          .date-needed-cell {
+            width: 16% !important;
+            min-width: 120px !important;
+          }
+          
+          .date-input-container {
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+            padding: 2px 4px !important;
+            background: white !important;
+            box-shadow: none !important;
+          }
+          
+          .date-icon {
+            width: 12px !important;
+            height: 12px !important;
+            color: #666 !important;
+          }
+          
+          .enhanced-date-input {
+            font-size: 10px !important;
+          }
+          
+          .date-display {
+            display: none !important;
+          }
+          
+          :global(th:nth-child(5), td:nth-child(5)) { 
+            width: 16% !important; 
+            min-width: 120px !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .date-input-container {
+            padding: 4px 6px;
+            border-radius: 6px;
+          }
+          
+          .date-icon {
+            width: 12px;
+            height: 12px;
+          }
+          
+          .enhanced-date-input {
+            font-size: 11px;
+          }
+          
+          .date-display {
+            font-size: 8px;
+            padding: 1px 3px;
+          }
         }
       `}</style>
     </>
