@@ -198,7 +198,7 @@ const AdminPurchaseList = () => {
                     <tr key={index} className={isCancelled ? "canceled-row" : ""}>
                       <td style={{ color: isCancelled ? "red" : "inherit" }}>No. {prf.prfNo}</td>
                       <td>{prf.preparedBy}</td>
-                      <td>{formatDate(prf.dateNeeded)}</td>
+                      <td>{formatDate(prf.prfDate)}</td>
                       <td>{prf.StockName || "No stock name available"}</td>
                       <td>{prf.quantity || "N/A"}</td>
                       <td>{prf.unit || "N/A"}</td>
