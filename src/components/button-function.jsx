@@ -1,6 +1,6 @@
 import axios from "axios"
 
-// Function to save PRF header
+// Save PRF header
 export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) => {
   if (!purchaseCodeNumber || !currentDate || !fullname) {
     console.error("Missing required data for PRF header")
@@ -37,7 +37,7 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) =
   }
 }
 
-// Function to save PRF details
+// Save PRF details
 export const savePrfDetails = async (headerPrfId, rows) => {
   if (!headerPrfId) {
     alert("Failed to save PRF header. Please try again.")
@@ -108,7 +108,7 @@ export const savePrfDetails = async (headerPrfId, rows) => {
   }
 }
 
-// Function to update PRF details
+// Update PRF details
 export const updatePrfDetails = async (prfId, rows) => {
   if (!prfId) {
     alert("No PRF ID found. Please search for a PRF first.")
@@ -153,7 +153,7 @@ export const updatePrfDetails = async (prfId, rows) => {
   }
 }
 
-// CancelPrf function to ensure proper database update
+// Cancel Prf
 export const cancelPrf = async (prfId) => {
   if (!prfId) {
     alert("No PRF ID found. Please search for a PRF first.")
@@ -181,7 +181,7 @@ export const cancelPrf = async (prfId) => {
         alert(result.message)
         return result
       } else {
-        // The server returned 200 but didn't indicate success
+        
         alert(
           "Warning: The server response didn't confirm the cancellation was successful. Please verify the PRF status.",
         )
@@ -205,7 +205,7 @@ export const cancelPrf = async (prfId) => {
   }
 }
 
-// UncancelPrf function to handle the database update properly
+// Uncancel Prf
 export const uncancelPrf = async (prfId) => {
   if (!prfId) {
     alert("No PRF ID found. Please search for a PRF first.")
@@ -217,8 +217,7 @@ export const uncancelPrf = async (prfId) => {
   }
 
   try {
-    // console.log("Sending uncancel request for PRF ID:", prfId)
-
+    
     const response = await axios.post("http://localhost:5000/api/uncancel-prf", {
       prfId: prfId,
     })
@@ -250,10 +249,7 @@ export const uncancelPrf = async (prfId) => {
             console.log("Verification of uncancel status:", !isDbCancelled)
 
             if (isDbCancelled) {
-              // console.warn("Warning: Database still shows PRF as cancelled despite successful uncancel operation")
-              // alert(
-              //   "Warning: The PRF may not have been properly uncancelled in the database. Please refresh and try again."
-              // )
+             
               return { success: false, needsRefresh: true }
             }
           }

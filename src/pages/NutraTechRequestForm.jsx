@@ -19,7 +19,7 @@ import { CancelButton, AddRowButton, UncancelButton } from "../components/button
 import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
 
-export default function NutraTechForm() {
+const NutraTechForm = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [currentDate, setCurrentDate] = useState(() => {
@@ -56,7 +56,7 @@ export default function NutraTechForm() {
     return new Date().toISOString().split("T")[0]
   }
 
-  // Format date for display (more user-friendly)
+  // Format date for display 
   const formatDateForDisplay = (dateString) => {
     if (!dateString) return ""
     const date = new Date(dateString)
@@ -464,6 +464,10 @@ export default function NutraTechForm() {
       newRows[selectedRowIndex].unit = stock.BaseUOM
       newRows[selectedRowIndex].description = stock.StockName
       newRows[selectedRowIndex].stockId = stock.Id
+      // Set current date when stock is selected
+      newRows[selectedRowIndex].dateNeeded = getCurrentDate()
+      // Set purpose from global purpose when stock is selected
+      newRows[selectedRowIndex].purpose = globalPurpose
       setRows(newRows)
     }
   }
@@ -497,9 +501,11 @@ export default function NutraTechForm() {
         alert("Please enter a valid number for quantity.")
       }
     } else if (name === "dateNeeded") {
-      // Handle date input change
-      newRows[index][name] = value
-      setRows(newRows)
+      // Only handle date input change if there's a stockCode
+      if (newRows[index].stockCode) {
+        newRows[index][name] = value
+        setRows(newRows)
+      }
     } else {
       newRows[index][name] = value
       setRows(newRows)
@@ -510,7 +516,7 @@ export default function NutraTechForm() {
     setCurrentDate(event.target.value)
   }
 
-  // Function to generate a unique purchase code based on company name
+  // Generate a unique purchase code based on company name
   const generatePurchaseCode = (companyName) => {
     // Map company names to their specific code letters
     const companyCodeMap = {
@@ -530,7 +536,7 @@ export default function NutraTechForm() {
     setPurchaseCodeNumber(newCode)
   }
 
-  // Function after generate PurchaseCode function
+  // Save PRF Header
   const handleSavePrfHeader = async () => {
     if (!purchaseCodeNumber || !currentDate || !fullname) {
       console.error("Missing required data for PRF header")
@@ -623,7 +629,7 @@ export default function NutraTechForm() {
     }
   }
 
-  // Function to handle updating PRF details
+  // Function to Update PRF details
   const handleUpdate = async () => {
     // Convert dates back to MM/DD/YYYY format for backend compatibility
     const rowsWithConvertedDates = rows.map((row) => ({
@@ -652,6 +658,7 @@ export default function NutraTechForm() {
     ])
   }
 
+  // Cancel PRF
   const handleCancel = async () => {
     // Don't allow cancellation if not on the same day
     if (!isSameDay || isPrfCancelled) {
@@ -671,7 +678,6 @@ export default function NutraTechForm() {
         isSameDay,
       })
 
-      // Force a direct API call to verify the cancellation was successful
       try {
         const verifyResponse = await axios.get(
           `http://localhost:5000/api/search-prf?prfNo=${encodeURIComponent(purchaseCodeNumber)}`,
@@ -685,7 +691,6 @@ export default function NutraTechForm() {
           console.log("Verification of cancel status:", isDbCancelled)
 
           if (!isDbCancelled) {
-            console.warn("Warning: Database does not show PRF as cancelled despite successful cancel operation")
             alert(
               "Warning: The PRF may not have been properly cancelled in the database. Please try again or contact support.",
             )
@@ -697,6 +702,7 @@ export default function NutraTechForm() {
     }
   }
 
+  // Uncancel PRF
   const handleUncancel = async () => {
     // Don't allow uncancellation if not on the same day
     if (!isSameDay) {
@@ -1036,33 +1042,41 @@ export default function NutraTechForm() {
                       />
                     </td>
                     <td className="date-needed-cell">
-                      <div className="date-input-container">
-                        <Calendar className="date-icon" />
-                        <input
-                          type="date"
-                          name="dateNeeded"
-                          value={row.dateNeeded}
-                          onChange={(e) => handleInputChange(index, e)}
-                          readOnly={isPrfCancelled || !isSameDay}
-                          className="enhanced-date-input"
-                          style={{ color: isPrfCancelled ? "red" : "inherit" }}
-                        />
-                        {row.dateNeeded && <div className="date-display">{formatDateForDisplay(row.dateNeeded)}</div>}
-                      </div>
+                      {row.stockCode ? (
+                        <div className="date-input-container">
+                          <Calendar className="date-icon" />
+                          <input
+                            type="date"
+                            name="dateNeeded"
+                            value={row.dateNeeded}
+                            onChange={(e) => handleInputChange(index, e)}
+                            readOnly={isPrfCancelled || !isSameDay}
+                            className="enhanced-date-input"
+                            style={{ color: isPrfCancelled ? "red" : "inherit" }}
+                          />
+                          {row.dateNeeded && <div className="date-display">{formatDateForDisplay(row.dateNeeded)}</div>}
+                        </div>
+                      ) : (
+                        <div></div>
+                      )}
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        name="purpose"
-                        value={row.purpose}
-                        readOnly={true}
-                        style={{
-                          color: isPrfCancelled ? "red" : "inherit",
-                          backgroundColor: "#f8f9fa",
-                          cursor: "not-allowed",
-                        }}
-                        placeholder="Auto-filled from above"
-                      />
+                      {row.stockCode ? (
+                        <input
+                          type="text"
+                          name="purpose"
+                          value={row.purpose}
+                          readOnly={true}
+                          style={{
+                            color: isPrfCancelled ? "red" : "inherit",
+                            backgroundColor: "#f8f9fa",
+                            cursor: "not-allowed",
+                          }}
+                          placeholder="Auto-filled from above"
+                        />
+                      ) : (
+                        <div></div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -1144,3 +1158,5 @@ export default function NutraTechForm() {
     </>
   )
 }
+
+export default NutraTechForm
