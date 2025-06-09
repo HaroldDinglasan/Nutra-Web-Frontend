@@ -105,7 +105,7 @@ const AdminPurchaseList = () => {
           <div className="search-box-list">
             <input
               type="text"
-              placeholder="Search by PRF No, User, Description..."
+              placeholder="Search"
               className="search-input-form"
               value={searchTerm}
               onChange={handleSearchChange}

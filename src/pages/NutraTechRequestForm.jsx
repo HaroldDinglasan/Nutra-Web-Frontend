@@ -362,7 +362,6 @@ const NutraTechForm = () => {
 
     // Create new form
     const handleNewForm = () => {
-      // Reset all fields
       const today = new Date()
       setCurrentDate(today.toISOString().split("T")[0])
       setPrfId(null)
@@ -489,7 +488,7 @@ const NutraTechForm = () => {
 
     // Prevent manual editing of purpose field since it's controlled by globalPurpose
     if (name === "purpose") {
-      return // Don't allow manual changes to purpose
+      return 
     }
 
     if (name === "quantity") {
@@ -727,15 +726,12 @@ const NutraTechForm = () => {
         console.log("Verification of cancel status before uncancel:", isDbCancelled)
 
         if (!isDbCancelled) {
-          console.warn("Warning: Database does not show PRF as cancelled, cannot uncancel")
           alert("This PRF is not marked as cancelled in the database. Refreshing data...")
           refreshPrfData()
           return
         }
       }
     } catch (error) {
-      console.error("Error verifying cancellation status:", error)
-      // Continue with uncancel attempt even if verification fails
     }
 
     const result = await uncancelPrf(prfId)
@@ -753,18 +749,15 @@ const NutraTechForm = () => {
           isPrfCancelled: false,
           isSameDay,
         })
-        // Refresh data after a short delay to ensure the backend has updated
         setTimeout(() => {
           refreshPrfData()
         }, 1000)
       } else if (result.needsRefresh) {
-        console.log("Frontend/backend state mismatch, refreshing data...")
         refreshPrfData()
       }
     }
   }
 
-  // Style for cancelled items
   const cancelledStyle = {
     color: isPrfCancelled ? "red" : "inherit",
   }
@@ -784,7 +777,6 @@ const NutraTechForm = () => {
 
   useEffect(() => {
     const handleSaveClick = async () => {
-      console.log("Save clicked - Form data:", { purchaseCodeNumber, currentDate, fullname })
 
       const validRows = rows.filter((row) => row.stockCode && row.stockCode.trim())
       if (validRows.length === 0) {
@@ -852,7 +844,7 @@ const NutraTechForm = () => {
     }
   }, [rows, prfId, purchaseCodeNumber, currentDate, fullname])
 
-  // Determine if buttons should be shown based on same day check
+  // Check if buttons should be shown based on same day check
   const showActionButtons = isSameDay && isUpdating
 
   return (
@@ -915,6 +907,11 @@ const NutraTechForm = () => {
             </div>
           </div>
 
+          <div className="field-box">
+              <label className="project-label">Project Code:</label>
+              <input type="text" id="project-code" className="project-code" readOnly />
+          </div>
+
           <div className="following-label">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <label>I would like to request the following :</label>
@@ -929,7 +926,6 @@ const NutraTechForm = () => {
                   className="purpose-item-input"
                   onChange={(e) => {
                     setGlobalPurpose(e.target.value)
-                    // Update all rows with the new purpose
                     if (rows) {
                       const newRows = rows.map((row) => ({
                         ...row,

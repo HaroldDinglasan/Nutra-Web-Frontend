@@ -298,7 +298,7 @@ h3 {
 
 .nav-bar-container {
     width: 100%;
-    height: 5vh;
+    height: 9vh;
     background-color: #fff;
     display: flex;
     align-items: center;
@@ -353,6 +353,35 @@ h3 {
     -webkit-appearance: none;
     -moz-appearance: none;
     height: 35px;
+}
+
+.project-code {
+    width: 37%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 14px;   
+    appearance: none;
+    background-color: white;
+    height: 14px;
+    text-align: center;
+    line-height: 1.2; 
+    font-size: 14px; 
+    height: 20px; 
+    vertical-align: middle; 
+    appearance: none; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    height: 35px;
+    margin-right: 310px;
+}
+
+.project-label {
+    font-size: 17px;
+    font-weight: bold;
+    white-space: nowrap; 
+    margin-left: -1px;
 }
 
 .nutra-header-dept-label {
@@ -657,6 +686,7 @@ h3 {
         page-break-inside: avoid; 
     }
 
+
     /* ADJUST TABLE FOR PRINT */
     .table-container {
         width: 100%;
@@ -690,6 +720,19 @@ h3 {
         align-items: center;
         justify-content: flex-start;
         gap: 10px;
+    }
+
+    .project-label {
+        margin-left: -20px;
+    }
+
+    .project-code {
+        margin-left: 40px !important;
+    }
+
+    /* Input field of department type*/
+    .department-type { 
+        width: 290px;
     }
 
     .nutra-header-dept-label {
