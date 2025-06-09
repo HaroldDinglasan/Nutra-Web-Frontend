@@ -919,7 +919,7 @@ const NutraTechForm = () => {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <label>I would like to request the following :</label>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <label htmlFor="globalPurpose" style={{ fontSize: "14px", fontWeight: "500" }}>
+                <label htmlFor="globalPurpose" className="purpose-requi-label" style={{ fontSize: "14px", fontWeight: "500" }}>
                   Purpose of Requisition:
                 </label>
                 <input
