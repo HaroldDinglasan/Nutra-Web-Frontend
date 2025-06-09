@@ -96,7 +96,7 @@ const AdminPurchaseList = () => {
   return (
     <div className="admin-purchase-container">
       <div className="welcome-container">
-        <h2>Welcome to Purchasing Admin Dashboard, {fullname}</h2>
+        <h2>Welcome to Purchasing Admin Dashboard</h2>
         <p>View and manage all purchase requests from users</p>
       </div>
 

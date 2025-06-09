@@ -155,14 +155,12 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(76, 175, 80, 0.1);
   transition: all 0.3s ease;
-  position: relative; /* Add position relative */
+  position: relative; 
 }
 
 .approval-section:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .approval-section-modal {
