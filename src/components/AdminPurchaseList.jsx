@@ -18,13 +18,36 @@ const AdminPurchaseList = () => {
     fetchAllPrfList()
   }, [])
 
+  // Function to determine PRF status
+  const determinePrfStatus = (prf) => {
+    // Check if cancelled first
+    if (prf.prfIsCancel === 1 || prf.detailsIsCancel === 1) {
+      return "Cancelled"
+    }
+
+    // Check if approved
+    if (prf.approvedBy && prf.approvedBy.trim() !== "") {
+      return "Approved"
+    }
+
+    // Default to Pending for newly created requests
+    return "Pending"
+  }
+
   // Function to fetch all PRF requests for admin
   const fetchAllPrfList = async () => {
     try {
       setIsLoading(true)
       const response = await axios.get("http://localhost:5000/api/prf-list")
-      setPrfList(response.data)
-      setFilteredPrfList(response.data)
+
+      // Add status to each PRF record
+      const prfListWithStatus = response.data.map((prf) => ({
+        ...prf,
+        status: determinePrfStatus(prf),
+      }))
+
+      setPrfList(prfListWithStatus)
+      setFilteredPrfList(prfListWithStatus)
       setIsLoading(false)
     } catch (error) {
       console.error("❌ Error fetching PRF List:", error)
@@ -47,10 +70,11 @@ const AdminPurchaseList = () => {
     const filtered = prfList.filter((prf) => {
       const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
 
+      // Updated status filtering logic
       const statusMatch =
         statusFilter === "all" ||
         (statusFilter === "cancelled" && (prf.prfIsCancel === 1 || prf.detailsIsCancel === 1)) ||
-        (statusFilter === "active" && prf.prfIsCancel !== 1 && prf.detailsIsCancel !== 1)
+        (statusFilter === "pending" && prf.prfDate && !prf.prfIsCancel && !prf.detailsIsCancel)
 
       if (!statusMatch) return false
 
@@ -82,15 +106,18 @@ const AdminPurchaseList = () => {
     setSearchTerm("")
   }
 
-  const isRowCanceled = (prf) => {
-    return (
-      prf.prfIsCancel === true ||
-      prf.prfIsCancel === 1 ||
-      prf.detailsIsCancel === true ||
-      prf.detailsIsCancel === 1 ||
-      prf.isCancel === true ||
-      prf.isCancel === 1
-    )
+  // Function to get status badge class
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "Pending":
+        return "pending"
+      case "Approved":
+        return "approved"
+      case "Cancelled":
+        return "cancelled"
+      default:
+        return "pending"
+    }
   }
 
   return (
@@ -157,9 +184,8 @@ const AdminPurchaseList = () => {
             className="status-filter"
           >
             <option value="all">All</option>
-            <option value="">Approved</option>
-            <option value="">Pending</option>
-            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
@@ -193,7 +219,7 @@ const AdminPurchaseList = () => {
             <tbody>
               {filteredPrfList.length > 0 ? (
                 filteredPrfList.map((prf, index) => {
-                  const isCancelled = isRowCanceled(prf)
+                  const isCancelled = prf.status === "Cancelled"
                   return (
                     <tr key={index} className={isCancelled ? "canceled-row" : ""}>
                       <td style={{ color: isCancelled ? "red" : "inherit" }}>No. {prf.prfNo}</td>
@@ -203,8 +229,8 @@ const AdminPurchaseList = () => {
                       <td>{prf.quantity || "N/A"}</td>
                       <td>{prf.unit || "N/A"}</td>
                       <td>
-                        <span className={`status-badge ${isCancelled ? "cancelled" : "active"}`}>
-                          {isCancelled ? "Cancelled" : "Active"}
+                        <span className={`status-badge ${isCancelled ? "cancelled" : "pending"}`}>
+                          {isCancelled ? "Cancelled" : "Pending"}
                         </span>
                       </td>
                     </tr>
