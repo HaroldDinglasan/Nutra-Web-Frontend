@@ -249,6 +249,7 @@ const DashboardAdmin = () => {
                     <th>Description</th>
                     <th>Quantity</th>
                     <th>Unit</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -263,12 +264,13 @@ const DashboardAdmin = () => {
                           <td>{prf.StockName || "No stock name available"}</td>
                           <td>{prf.quantity || "N/A"}</td>
                           <td>{prf.unit || "N/A"}</td>
+                          <td></td>
                         </tr>
                       )
                     })
                   ) : (
                     <tr>
-                      <td colSpan="6">No matching PRF records found.</td>
+                      <td colSpan="7">No matching PRF records found.</td>
                     </tr>
                   )}
                 </tbody>
