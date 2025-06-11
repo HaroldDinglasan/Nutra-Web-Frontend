@@ -23,12 +23,31 @@ const DashboardAdmin = () => {
     if (!showDashboard) {
       fetchPrfList()
     }
+
+    // Add event listener for PRF status updates
+    const handlePrfStatusUpdate = () => {
+      console.log("PRF status updated, refreshing data...")
+      fetchPrfList()
+    }
+
+    window.addEventListener("prfStatusUpdated", handlePrfStatusUpdate)
+
+    return () => {
+      window.removeEventListener("prfStatusUpdated", handlePrfStatusUpdate)
+    }
   }, [showDashboard])
 
   // Function to determine PRF status
   const determinePrfStatus = (prf) => {
-    // Check if cancelled first
-    if (prf.prfIsCancel === 1 || prf.detailsIsCancel === 1 || prf.isCancel === 1) {
+    // Check if cancelled first - check all possible cancel flags
+    if (
+      prf.prfIsCancel === 1 ||
+      prf.prfIsCancel === true ||
+      prf.detailsIsCancel === 1 ||
+      prf.detailsIsCancel === true ||
+      prf.isCancel === 1 ||
+      prf.isCancel === true
+    ) {
       return "Cancelled"
     }
 
@@ -39,6 +58,11 @@ const DashboardAdmin = () => {
 
     // Default to pending for newly created requests
     return "Pending"
+  }
+
+  // Function to refresh PRF data
+  const refreshPrfData = async () => {
+    await fetchPrfList()
   }
 
   // Function to check if a date is the same as today
@@ -317,7 +341,9 @@ const DashboardAdmin = () => {
                           <td>{prf.StockName || "No stock name available"}</td>
                           <td>{prf.quantity || "N/A"}</td>
                           <td>{prf.unit || "N/A"}</td>
-                          <td>{prf.status || "Pending"}</td>
+                          <td>
+                            <span className={`status-badge ${prf.status.toLowerCase()}`}>{prf.status}</span>
+                          </td>
                         </tr>
                       )
                     })
