@@ -60,24 +60,29 @@ const Login = () => {
         localStorage.setItem("userCompany", selectedCompany) // Store selected Company
         localStorage.setItem("userId", data.user.userID) // Store the userID
 
-        // Check if user is admin - you can modify this logic based on your needs
-        // For now, checking if username contains "admin" or if there's a role field
-        const isAdmin =
+        // Check if user is purchasing admin
+        const isPurchasingAdmin =
           username.toLowerCase().includes("admin") ||
           (data.user.role && data.user.role === "admin") ||
           (data.user.departmentType && data.user.departmentType.toLowerCase().includes("purchasing"))
 
         // Store user role
-        localStorage.setItem("userRole", isAdmin ? "admin" : "user")
+        localStorage.setItem("userRole", isPurchasingAdmin ? "admin" : "user")
 
-        // Navigate based on role
-        if (isAdmin) {
+        // All USERS go to DASHBOARD first
+        if (isPurchasingAdmin) {
+          // Purchasing admin goes to admin dashboard
           navigate("/prf/list", {
-            state: { company: selectedCompany, isAdmin: true },
+            state: { company: selectedCompany, isAdmin: true, showDashboard: true },
           })
+          // Set the hash after navigation to ensure proper dashboard display
+          setTimeout(() => {
+            window.location.hash = "#dashboard"
+          }, 100)
         } else {
+          // Regular users (IT, HR, Finance, etc.) go to user dashboard
           navigate("/prf/list#dashboard", {
-            state: { company: selectedCompany },
+            state: { company: selectedCompany, isAdmin: false },
           })
         }
       } else {

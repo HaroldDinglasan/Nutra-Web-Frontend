@@ -451,7 +451,7 @@ const AppLayout = ({ children }) => {
                   <rect x="3" y="14" width="7" height="7"></rect>
                 </svg>
               </div>
-              <span className="dashboard-label">Dashboard</span>
+              <span className="dashboard-label">{isAdmin ? "Admin Dashboard" : "Dashboard"}</span>
             </div>
 
             <div
@@ -479,7 +479,7 @@ const AppLayout = ({ children }) => {
                   <line x1="3" y1="18" x2="3.01" y2="18"></line>
                 </svg>
               </div>
-              <span className="dashboard-label">Purchase List</span>
+              <span className="dashboard-label">{isAdmin ? "Purchase Requests" : "Purchase List"}</span>
             </div>
 
             {/* Only show PRF Request for regular users, not admins */}

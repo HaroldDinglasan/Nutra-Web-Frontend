@@ -16,6 +16,7 @@ const DashboardAdmin = () => {
   // Get user fullname and role from localStorage
   const fullname = localStorage.getItem("userFullname") || "User"
   const userRole = localStorage.getItem("userRole") || "user"
+  const userDepartment = localStorage.getItem("userDepartment") || "Department"
   const isAdmin = userRole === "admin"
 
   useEffect(() => {
@@ -331,11 +332,6 @@ const DashboardAdmin = () => {
           )}
         </>
       )}
-      <style jsx>{`
-        .canceled-row {
-          background-color: rgba(255, 0, 0, 0.05);
-        }
-      `}</style>
     </>
   )
 }
