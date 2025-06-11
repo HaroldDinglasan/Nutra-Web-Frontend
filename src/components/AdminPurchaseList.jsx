@@ -16,12 +16,31 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
   useEffect(() => {
     fetchAllPrfList()
+
+    // Add event listener for PRF status updates
+    const handlePrfStatusUpdate = () => {
+      console.log("PRF status updated, refreshing admin data...")
+      fetchAllPrfList()
+    }
+
+    window.addEventListener("prfStatusUpdated", handlePrfStatusUpdate)
+
+    return () => {
+      window.removeEventListener("prfStatusUpdated", handlePrfStatusUpdate)
+    }
   }, [])
 
   // Function to determine PRF status
   const determinePrfStatus = (prf) => {
-    // Check if cancelled first
-    if (prf.prfIsCancel === 1 || prf.detailsIsCancel === 1) {
+    // Check if cancelled first - check all possible cancel flags
+    if (
+      prf.prfIsCancel === 1 ||
+      prf.prfIsCancel === true ||
+      prf.detailsIsCancel === 1 ||
+      prf.detailsIsCancel === true ||
+      prf.isCancel === 1 ||
+      prf.isCancel === true
+    ) {
       return "Cancelled"
     }
 
@@ -75,11 +94,12 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     const filtered = prfList.filter((prf) => {
       const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
 
-      // Updated status filtering logic
+      // Updated status filtering logic using the status property
       const statusMatch =
         statusFilter === "all" ||
-        (statusFilter === "cancelled" && (prf.prfIsCancel === 1 || prf.detailsIsCancel === 1)) ||
-        (statusFilter === "pending" && prf.prfDate && !prf.prfIsCancel && !prf.detailsIsCancel)
+        (statusFilter === "cancelled" && prf.status === "Cancelled") ||
+        (statusFilter === "pending" && prf.status === "Pending") ||
+        (statusFilter === "approved" && prf.status === "Approved")
 
       if (!statusMatch) return false
 
@@ -322,9 +342,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                       <td>{prf.quantity || "N/A"}</td>
                       <td>{prf.unit || "N/A"}</td>
                       <td>
-                        <span className={`status-badge ${isCancelled ? "cancelled" : "pending"}`}>
-                          {isCancelled ? "Cancelled" : "Pending"}
-                        </span>
+                        <span className={`status-badge ${prf.status.toLowerCase()}`}>{prf.status}</span>
                       </td>
                     </tr>
                   )

@@ -78,7 +78,7 @@ export const savePrfDetails = async (headerPrfId, rows) => {
       stockCode: row.stockCode,
       stockName: row.description,
       uom: row.unit,
-      qty: Number.parseFloat(row.quantity) || 0, 
+      qty: Number.parseFloat(row.quantity) || 0,
       dateNeeded: row.dateNeeded,
       purpose: row.purpose,
       description: row.description,
@@ -123,7 +123,7 @@ export const updatePrfDetails = async (prfId, rows) => {
       stockCode: row.stockCode,
       stockName: row.description,
       uom: row.unit,
-      qty: Number.parseFloat(row.quantity) || 0, 
+      qty: Number.parseFloat(row.quantity) || 0,
       dateNeeded: row.dateNeeded,
       purpose: row.purpose,
       description: row.description,
@@ -165,13 +165,11 @@ export const cancelPrf = async (prfId) => {
   }
 
   try {
-    
     const response = await axios.post("http://localhost:5000/api/cancel-prf", {
       prfId: prfId,
     })
 
     if (response.status === 200) {
-      
       if (response.data && response.data.success) {
         const result = {
           success: true,
@@ -179,9 +177,16 @@ export const cancelPrf = async (prfId) => {
           message: response.data.message || "PRF cancelled successfully",
         }
         alert(result.message)
+
+        // Dispatch event to update status in other components
+        window.dispatchEvent(
+          new CustomEvent("prfStatusUpdated", {
+            detail: { prfId, status: "Cancelled" },
+          }),
+        )
+
         return result
       } else {
-        
         alert(
           "Warning: The server response didn't confirm the cancellation was successful. Please verify the PRF status.",
         )
@@ -217,7 +222,6 @@ export const uncancelPrf = async (prfId) => {
   }
 
   try {
-    
     const response = await axios.post("http://localhost:5000/api/uncancel-prf", {
       prfId: prfId,
     })
@@ -232,6 +236,13 @@ export const uncancelPrf = async (prfId) => {
       }
 
       alert(result.message)
+
+      // Dispatch event to update status in other components
+      window.dispatchEvent(
+        new CustomEvent("prfStatusUpdated", {
+          detail: { prfId, status: "Pending" },
+        }),
+      )
 
       // Verify the update was successful by making a direct API call
       try {
@@ -249,7 +260,6 @@ export const uncancelPrf = async (prfId) => {
             console.log("Verification of uncancel status:", !isDbCancelled)
 
             if (isDbCancelled) {
-             
               return { success: false, needsRefresh: true }
             }
           }
