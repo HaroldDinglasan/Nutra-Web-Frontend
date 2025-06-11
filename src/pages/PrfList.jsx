@@ -24,6 +24,22 @@ const DashboardAdmin = () => {
     }
   }, [showDashboard])
 
+  // Function to determine PRF status
+  const determinePrfStatus = (prf) => {
+    // Check if cancelled first
+    if (prf.prfIsCancel === 1 || prf.detailsIsCancel === 1 || prf.isCancel === 1) {
+      return "Cancelled"
+    }
+
+    // Check if approved
+    if (prf.approvedBy && prf.approvedBy.trim() !== "") {
+      return "Approved"
+    }
+
+    // Default to pending for newly created requests
+    return "Pending"
+  }
+
   // Function to check if a date is the same as today
   const checkIsSameDay = (dateToCheck) => {
     if (!dateToCheck) return false
@@ -80,8 +96,15 @@ const DashboardAdmin = () => {
       if (isAdmin) {
         // Admin sees all PRFs
         const response = await axios.get("http://localhost:5000/api/prf-list")
-        setPrfList(response.data)
-        setFilteredPrfList(response.data)
+
+        // add status to each PRF record
+        const prfListWithStatus = response.data.map((prf) => ({
+          ...prf,
+          status: determinePrfStatus(prf),
+        }))
+
+        setPrfList(prfListWithStatus)
+        setFilteredPrfList(prfListWithStatus)
         return
       }
 
@@ -92,8 +115,15 @@ const DashboardAdmin = () => {
         console.error("❌ User not found in localStorage")
 
         const response = await axios.get("http://localhost:5000/api/prf-list")
-        setPrfList(response.data)
-        setFilteredPrfList(response.data)
+
+        // Add status to each PRF record
+        const prfListWithStatus = response.data.map((prf) => ({
+          ...prf,
+          status: determinePrfStatus(prf),
+        }))
+
+        setPrfList(prfListWithStatus)
+        setFilteredPrfList(prfListWithStatus)
         return
       }
 
@@ -115,13 +145,23 @@ const DashboardAdmin = () => {
           (prf) => prf.preparedBy && prf.preparedBy.toLowerCase() === currentUser.toLowerCase(),
         )
 
-        console.log(`Found ${userPrfs.length} PRFs after case-insensitive filtering`)
+        // Add status to each PRF record
+        const prfListWithStatus = userPrfs.map((prf) => ({
+          ...prf,
+          status: determinePrfStatus(prf),
+        }))
 
-        setPrfList(userPrfs)
-        setFilteredPrfList(userPrfs)
+        setPrfList(prfListWithStatus)
+        setFilteredPrfList(prfListWithStatus)
       } else {
-        setPrfList(response.data)
-        setFilteredPrfList(response.data)
+        // Add status to each PRF record
+        const prfListWithStatus = response.data.map((prf) => ({
+          ...prf,
+          status: determinePrfStatus(prf),
+        }))
+
+        setPrfList(prfListWithStatus)
+        setFilteredPrfList(prfListWithStatus)
       }
     } catch (error) {
       console.error("❌ Error fetching PRF List:", error)
@@ -129,8 +169,15 @@ const DashboardAdmin = () => {
       // Fallback to fetching all PRFs if there's an error
       try {
         const response = await axios.get("http://localhost:5000/api/prf-list")
-        setPrfList(response.data)
-        setFilteredPrfList(response.data)
+
+        // status to each PRF record
+        const prfListWithStatus = response.data.map((prf) => ({
+          ...prf,
+          status: determinePrfStatus(prf),
+        }))
+
+        setPrfList(prfListWithStatus)
+        setFilteredPrfList(prfListWithStatus)
       } catch (fallbackError) {
         console.error("❌ Error fetching fallback PRF List:", fallbackError)
       }
@@ -180,14 +227,19 @@ const DashboardAdmin = () => {
   return (
     <>
       {showDashboard ? (
-        <div className="welcome-container">
-          <h2>Welcome to NutraTech Biopharma Inc, {fullname}</h2>
-          {isAdmin && <p>Admin Dashboard - Manage all purchase requests</p>}
-        </div>
+        <>
+          {isAdmin ? (
+            <AdminPurchaseList showDashboard={true} />
+          ) : (
+            <div className="welcome-container">
+              <h2>Welcome to NutraTech Biopharma Inc, {fullname}</h2>
+            </div>
+          )}
+        </>
       ) : (
         <>
           {isAdmin ? (
-            <AdminPurchaseList />
+            <AdminPurchaseList showDashboard={false} />
           ) : (
             <div className="log-table-container">
               <div className="search-container">
@@ -264,7 +316,7 @@ const DashboardAdmin = () => {
                           <td>{prf.StockName || "No stock name available"}</td>
                           <td>{prf.quantity || "N/A"}</td>
                           <td>{prf.unit || "N/A"}</td>
-                          <td></td>
+                          <td>{prf.status || "Pending"}</td>
                         </tr>
                       )
                     })

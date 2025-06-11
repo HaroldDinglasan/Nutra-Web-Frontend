@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import "../styles/AdminPurchaseList.css"
 
-const AdminPurchaseList = () => {
+const AdminPurchaseList = ({ showDashboard = false }) => {
   const [prfList, setPrfList] = useState([])
   const [filteredPrfList, setFilteredPrfList] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -54,6 +54,11 @@ const AdminPurchaseList = () => {
       setIsLoading(false)
     }
   }
+
+  // Calculate pending count
+  const pendingCount = prfList.filter((prf) => prf.status === "Pending").length
+  const approvedCount = prfList.filter((prf) => prf.status === "Approved").length
+  const cancelledCount = prfList.filter((prf) => prf.status === "Cancelled").length
 
   // Effect to filter the PRF list based on search term and status
   useEffect(() => {
@@ -118,6 +123,102 @@ const AdminPurchaseList = () => {
       default:
         return "pending"
     }
+  }
+
+  if (showDashboard) {
+    return (
+      <div className="admin-purchase-container">
+        <div className="welcome-container">
+          <h2>Welcome to Purchasing Admin Dashboard</h2>
+          <p>Overview of all purchase requests</p>
+        </div>
+
+        <div className="dashboard-stats-container">
+          <div className="stats-card pending-card">
+            <div className="stats-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div className="stats-content">
+              <div className="stats-number">{isLoading ? "..." : pendingCount}</div>
+              <div className="stats-label">Pending Requests</div>
+              <div className="stats-description">Awaiting approval</div>
+            </div>
+          </div>
+
+          <div className="stats-card approved-card">
+            <div className="stats-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div className="stats-content">
+              <div className="stats-number">{isLoading ? "..." : approvedCount}</div>
+              <div className="stats-label">Approved Requests</div>
+              <div className="stats-description">Successfully processed</div>
+            </div>
+          </div>
+
+          {/* <div className="stats-card cancelled-card">
+            <div className="stats-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            </div>
+            <div className="stats-content">
+              <div className="stats-number">{isLoading ? "..." : cancelledCount}</div>
+              <div className="stats-label">Cancelled Requests</div>
+              <div className="stats-description">Rejected or cancelled</div>
+            </div>
+          </div> */}
+        </div>
+
+        {/* <div className="dashboard-summary">
+          <h3>Quick Summary</h3>
+          <p>
+            Total PRF Requests: <strong>{prfList.length}</strong>
+          </p>
+          <p>
+            Last Updated: <strong>{new Date().toLocaleDateString()}</strong>
+          </p>
+        </div> */}
+      </div>
+    )
   }
 
   return (
@@ -189,12 +290,6 @@ const AdminPurchaseList = () => {
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
-      </div>
-
-      <div className="results-summary">
-        <p>
-          Showing {filteredPrfList.length} of {prfList.length} requests
-        </p>
       </div>
 
       {isLoading ? (
