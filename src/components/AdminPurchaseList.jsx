@@ -130,7 +130,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       <div className="admin-purchase-container">
         <div className="welcome-container">
           <h2>Welcome to Purchasing Admin Dashboard</h2>
-          <p>Overview of all purchase requests</p>
         </div>
 
         <div className="dashboard-stats-container">
@@ -225,7 +224,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     <div className="admin-purchase-container">
       <div className="welcome-container">
         <h2>Welcome to Purchasing Admin Dashboard</h2>
-        <p>View and manage all purchase requests from users</p>
       </div>
 
       <div className="admin-controls">
