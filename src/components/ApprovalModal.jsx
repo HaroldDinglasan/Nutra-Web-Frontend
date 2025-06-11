@@ -106,8 +106,6 @@ const ApprovalModal = ({ onClose }) => {
     fetchEmployees()
   }, [])
 
-  // REMOVED: Load existing approval settings - modal will always start empty
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -267,111 +265,134 @@ const ApprovalModal = ({ onClose }) => {
     }
   }
 
-  // Custom dropdown component
-  const CustomDropdown = ({ field, label, className }) => (
-    <>
-      <label htmlFor={field} className={field.includes("approved") ? "approvedby-form-label" : "form-label"}>
-        {label}
-      </label>
-      <div ref={dropdownRefs[field]} className="custom-dropdown-container" style={{ position: "relative" }}>
+  const CustomDropdown = ({ field, label, className }) => {
+    // Calculate z-index based on dropdown position and open state
+    const getZIndex = () => {
+      if (openDropdown === field) {
+        return 10000 // Highest z-index for active dropdown
+      }
+      return 1000 // Base z-index for inactive dropdowns
+    }
+
+    return (
+      <>
+        <label htmlFor={field} className={field.includes("approved") ? "approvedby-form-label" : "form-label"}>
+          {label}
+        </label>
         <div
-          className={className}
-          onClick={() => toggleDropdown(field)}
+          ref={dropdownRefs[field]}
+          className={`custom-dropdown-container ${openDropdown === field ? "dropdown-open" : ""}`}
           style={{
-            cursor: loading ? "not-allowed" : "pointer",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "8px 12px",
-            backgroundColor: loading ? "#f5f5f5" : "white",
+            position: "relative",
+            zIndex: getZIndex(),
           }}
         >
-          <span>{formData[field] || "Select user"}</span>
-          <span>▼</span>
-        </div>
-
-        {openDropdown === field && !loading && (
           <div
-            className="dropdown-menu"
+            className={className}
+            onClick={() => toggleDropdown(field)}
             style={{
-              position: "absolute",
-              width: "100%",
-              maxHeight: "250px",
-              overflowY: "auto",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              marginTop: "2px",
-              backgroundColor: "white",
-              zIndex: 100,
-              boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+              cursor: loading ? "not-allowed" : "pointer",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "8px 12px",
+              backgroundColor: loading ? "#f5f5f5" : "white",
             }}
           >
-            <input
-              ref={searchInputRefs[field]}
-              type="text"
-              value={searchTerms[field]}
-              onChange={(e) => handleSearchChange(e, field)}
-              onKeyDown={(e) => {
-                // Set typing flag to prevent dropdown from closing
-                isTypingRef.current = true
-              }}
-              onClick={(e) => {
-                // Prevent event propagation to avoid closing dropdown
-                e.stopPropagation()
-                isTypingRef.current = true
-              }}
-              placeholder="Search users..."
+            <span>{formData[field] || "Select user"}</span>
+            <span
               style={{
-                width: "100%",
-                padding: "8px 12px",
-                border: "none",
-                borderBottom: "1px solid #eee",
+                transform: openDropdown === field ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease",
               }}
-            />
-
-            {getFilteredEmployees(field).length > 0 ? (
-              <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
-                {getFilteredEmployees(field).map((employee, index) => (
-                  <li
-                    key={employee.Oid}
-                    onClick={() => handleSelectUser(field, employee.FullName, employee.Oid)}
-                    style={{
-                      padding: "8px 12px",
-                      cursor: "pointer",
-                      borderBottom: index < getFilteredEmployees(field).length - 1 ? "1px solid #eee" : "none",
-                      backgroundColor: formData[field] === employee.FullName ? "#f0f0f0" : "white",
-                    }}
-                    onMouseOver={(e) => (e.target.style.backgroundColor = "#f5f5f5")}
-                    onMouseOut={(e) =>
-                      (e.target.style.backgroundColor = formData[field] === employee.FullName ? "#f0f0f0" : "white")
-                    }
-                  >
-                    {employee.FullName}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div style={{ padding: "8px 12px", color: "#999" }}>No users found</div>
-            )}
-
-            {!searchTerms[field] && employees.length > 5 && (
-              <div
-                style={{
-                  padding: "8px 12px",
-                  borderTop: "1px solid #eee",
-                  color: "#666",
-                  fontSize: "0.9em",
-                  textAlign: "center",
-                }}
-              >
-                {employees.length - 5} more users available. Type to search.
-              </div>
-            )}
+            >
+              ▼
+            </span>
           </div>
-        )}
-      </div>
-    </>
-  )
+
+          {openDropdown === field && !loading && (
+            <div
+              className="dropdown-menu"
+              style={{
+                position: "absolute",
+                width: "100%",
+                maxHeight: "250px",
+                overflowY: "auto",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                marginTop: "2px",
+                backgroundColor: "white",
+                zIndex: 10001, // Higher than container z-index
+                boxShadow: "0 8px 24px rgba(76, 175, 80, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <input
+                ref={searchInputRefs[field]}
+                type="text"
+                value={searchTerms[field]}
+                onChange={(e) => handleSearchChange(e, field)}
+                onKeyDown={(e) => {
+                  // Set typing flag to prevent dropdown from closing
+                  isTypingRef.current = true
+                }}
+                onClick={(e) => {
+                  // Prevent event propagation to avoid closing dropdown
+                  e.stopPropagation()
+                  isTypingRef.current = true
+                }}
+                placeholder="Search users..."
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  border: "none",
+                  borderBottom: "1px solid #eee",
+                }}
+              />
+
+              {getFilteredEmployees(field).length > 0 ? (
+                <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                  {getFilteredEmployees(field).map((employee, index) => (
+                    <li
+                      key={employee.Oid}
+                      onClick={() => handleSelectUser(field, employee.FullName, employee.Oid)}
+                      style={{
+                        padding: "8px 12px",
+                        cursor: "pointer",
+                        borderBottom: index < getFilteredEmployees(field).length - 1 ? "1px solid #eee" : "none",
+                        backgroundColor: formData[field] === employee.FullName ? "#f0f0f0" : "white",
+                      }}
+                      onMouseOver={(e) => (e.target.style.backgroundColor = "#f5f5f5")}
+                      onMouseOut={(e) =>
+                        (e.target.style.backgroundColor = formData[field] === employee.FullName ? "#f0f0f0" : "white")
+                      }
+                    >
+                      {employee.FullName}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div style={{ padding: "8px 12px", color: "#999" }}>No users found</div>
+              )}
+
+              {!searchTerms[field] && employees.length > 5 && (
+                <div
+                  style={{
+                    padding: "8px 12px",
+                    borderTop: "1px solid #eee",
+                    color: "#666",
+                    fontSize: "0.9em",
+                    textAlign: "center",
+                  }}
+                >
+                  {employees.length - 5} more users available. Type to search.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </>
+    )
+  }
 
   return (
     <div className="approval-modal-overlay">
@@ -416,7 +437,7 @@ const ApprovalModal = ({ onClose }) => {
             </div>
           </div>
 
-          <div className="approval-section">
+          <div className="approval-sects">
             <div className="section-title">ApprovedBy:</div>
             <div className="form-grid">
               <CustomDropdown field="approvedByUser" className="approvedby-form-input" />
@@ -436,7 +457,7 @@ const ApprovalModal = ({ onClose }) => {
             </div>
           </div>
 
-          <div className="approval-section">
+          <div className="approval-sects">
             <div className="section-title">ReceivedBy:</div>
             <div className="form-grid">
               <CustomDropdown field="receivedByUser" className="receivedby-form-input" />
