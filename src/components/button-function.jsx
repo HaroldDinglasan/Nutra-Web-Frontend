@@ -37,7 +37,58 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) =
   }
 }
 
-// Save PRF details
+// Send email notifications after successful PRF save
+const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
+  try {
+    // Get email addresses from localStorage (set by ApprovalModal)
+    const checkedByEmail = localStorage.getItem("checkedByEmail")
+    const approvedByEmail = localStorage.getItem("approvedByEmail")
+    const receivedByEmail = localStorage.getItem("receivedByEmail")
+
+    // Only send notifications if we have at least one email address
+    if (!checkedByEmail && !approvedByEmail && !receivedByEmail) {
+      console.log("No email addresses configured for notifications")
+      return { success: true, message: "No emails configured" }
+    }
+
+    const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc"
+    const userId = localStorage.getItem("userId")
+
+    console.log("Sending PRF notifications:", {
+      prfId,
+      prfNo,
+      preparedBy,
+      company,
+      checkedByEmail,
+      approvedByEmail,
+      receivedByEmail,
+    })
+
+    const response = await axios.post("http://localhost:5000/api/notifications/send-direct", {
+      prfId,
+      prfNo,
+      preparedBy,
+      company,
+      userId: userId ? Number(userId) : undefined,
+      checkedByEmail,
+      approvedByEmail,
+      receivedByEmail,
+    })
+
+    if (response.data.success) {
+      console.log("PRF notifications sent successfully!")
+      return { success: true, message: "Notifications sent successfully" }
+    } else {
+      console.error("Failed to send PRF notifications:", response.data)
+      return { success: false, message: "Failed to send notifications" }
+    }
+  } catch (error) {
+    console.error("Error sending PRF notifications:", error)
+    return { success: false, message: error.response?.data?.message || "Failed to send notifications" }
+  }
+}
+
+// Save PRF details with immediate feedback and background notifications
 export const savePrfDetails = async (headerPrfId, rows) => {
   if (!headerPrfId) {
     alert("Failed to save PRF header. Please try again.")
@@ -65,7 +116,6 @@ export const savePrfDetails = async (headerPrfId, rows) => {
   })
 
   if (hasEmptyFields) {
-    // Return false to prevent saving
     return false
   }
 
@@ -95,7 +145,92 @@ export const savePrfDetails = async (headerPrfId, rows) => {
 
     const data = await response.json()
     if (response.ok) {
-      alert("Data saved successfully!")
+      // Show immediate success message
+      alert("PRF saved successfully!")
+
+      // Send notifications in the background (don't wait for completion)
+      const prfNo =
+        localStorage.getItem("currentPrfNo") ||
+        document.querySelector('input[id="purchaseCodeNumber"]')?.value ||
+        "New PRF"
+      const preparedBy = localStorage.getItem("userFullname") || localStorage.getItem("userName") || "System User"
+
+      console.log("PRF saved successfully, sending notifications in background...")
+
+      // Send notifications asynchronously without blocking the UI
+      sendPrfNotifications(headerPrfId, prfNo, preparedBy)
+        .then((notificationResult) => {
+          if (notificationResult.success) {
+            console.log("Email notifications sent successfully!")
+            // Optionally show a subtle notification that emails were sent
+            setTimeout(() => {
+              const emailCount = [
+                localStorage.getItem("checkedByEmail"),
+                localStorage.getItem("approvedByEmail"),
+                localStorage.getItem("receivedByEmail"),
+              ].filter(Boolean).length
+
+              if (emailCount > 0) {
+                // Show a non-blocking notification
+                const notification = document.createElement("div")
+                notification.style.cssText = `
+                  position: fixed;
+                  top: 20px;
+                  right: 20px;
+                  background: #4CAF50;
+                  color: white;
+                  padding: 12px 20px;
+                  border-radius: 4px;
+                  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                  z-index: 10000;
+                  font-family: Arial, sans-serif;
+                  font-size: 14px;
+                `
+                notification.textContent = `✓ Email notifications sent to ${emailCount} recipient${emailCount > 1 ? "s" : ""}`
+                document.body.appendChild(notification)
+
+                // Remove notification after 3 seconds
+                setTimeout(() => {
+                  if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification)
+                  }
+                }, 3000)
+              }
+            }, 1000) // Show after 1 second to let the main alert clear
+          } else {
+            console.error("Email notifications failed:", notificationResult.message)
+            // Optionally show a subtle error notification
+            setTimeout(() => {
+              const notification = document.createElement("div")
+              notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #f44336;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 4px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+              `
+              notification.textContent = `⚠ Email notifications failed: ${notificationResult.message}`
+              document.body.appendChild(notification)
+
+              // Remove notification after 5 seconds
+              setTimeout(() => {
+                if (notification.parentNode) {
+                  notification.parentNode.removeChild(notification)
+                }
+              }, 5000)
+            }, 1000)
+          }
+        })
+        .catch((error) => {
+          console.error("Error sending notifications:", error)
+        })
+
       return true
     } else {
       alert("Error saving data: " + data.message)

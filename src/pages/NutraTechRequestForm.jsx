@@ -41,7 +41,7 @@ const NutraTechForm = () => {
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
 
-  // State for approval names - Initialize as empty
+  // Initialize as empty
   const [approvalNames, setApprovalNames] = useState({
     checkedByUser: "",
     approvedByUser: "",
@@ -56,7 +56,7 @@ const NutraTechForm = () => {
     return new Date().toISOString().split("T")[0]
   }
 
-  // Format date for display 
+  // Format date for display
   const formatDateForDisplay = (dateString) => {
     if (!dateString) return ""
     const date = new Date(dateString)
@@ -486,11 +486,6 @@ const NutraTechForm = () => {
     const { name, value } = event.target
     const newRows = [...rows]
 
-    // Prevent manual editing of purpose field since it's controlled by globalPurpose
-    if (name === "purpose") {
-      return 
-    }
-
     if (name === "quantity") {
       // Updated validation for integers AND decimals
       if (/^\d*\.?\d*$/.test(value)) {
@@ -506,6 +501,7 @@ const NutraTechForm = () => {
         setRows(newRows)
       }
     } else {
+      // Handle all other fields including purpose
       newRows[index][name] = value
       setRows(newRows)
     }
@@ -731,8 +727,7 @@ const NutraTechForm = () => {
           return
         }
       }
-    } catch (error) {
-    }
+    } catch (error) {}
 
     const result = await uncancelPrf(prfId)
     console.log("Uncancel result:", result)
@@ -777,7 +772,6 @@ const NutraTechForm = () => {
 
   useEffect(() => {
     const handleSaveClick = async () => {
-
       const validRows = rows.filter((row) => row.stockCode && row.stockCode.trim())
       if (validRows.length === 0) {
         alert("Please fill out PRF details first before saving")
@@ -908,15 +902,19 @@ const NutraTechForm = () => {
           </div>
 
           <div className="field-box">
-              <label className="project-label">Project Code:</label>
-              <input type="text" id="project-code" className="project-code" readOnly />
+            <label className="project-label">Project Code:</label>
+            <input type="text" id="project-code" className="project-code" readOnly />
           </div>
 
           <div className="following-label">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <label>I would like to request the following :</label>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <label htmlFor="globalPurpose" className="purpose-requi-label" style={{ fontSize: "14px", fontWeight: "500" }}>
+                <label
+                  htmlFor="globalPurpose"
+                  className="purpose-requi-label"
+                  style={{ fontSize: "14px", fontWeight: "500" }}
+                >
                   Purpose of Requisition:
                 </label>
                 <input
@@ -1062,13 +1060,14 @@ const NutraTechForm = () => {
                           type="text"
                           name="purpose"
                           value={row.purpose}
-                          readOnly={true}
+                          onChange={(e) => handleInputChange(index, e)}
+                          readOnly={isPrfCancelled || !isSameDay}
                           style={{
                             color: isPrfCancelled ? "red" : "inherit",
-                            backgroundColor: "#f8f9fa",
-                            cursor: "not-allowed",
+                            backgroundColor: isPrfCancelled || !isSameDay ? "#f8f9fa" : "white",
+                            cursor: isPrfCancelled || !isSameDay ? "not-allowed" : "text",
                           }}
-                          placeholder="Auto-filled from above"
+                          placeholder="Enter purpose"
                         />
                       ) : (
                         <div></div>
