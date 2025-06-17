@@ -8,7 +8,7 @@ const ApprovalModal = ({ onClose }) => {
   const [employees, setEmployees] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // Initial form state - extracted to a constant for reusability
+  // Initial form state 
   const initialFormData = {
     checkedByUser: "",
     checkedByEmail: "",
@@ -56,6 +56,10 @@ const ApprovalModal = ({ onClose }) => {
   // prevent focus loss during typing
   const isTypingRef = useRef(false)
 
+  // Add these state variables
+  const [currentPrfId, setCurrentPrfId] = useState(null)
+  const [currentPrfNo, setCurrentPrfNo] = useState("")
+
   // Function to reset all form fields
   const resetFormFields = () => {
     setFormData(initialFormData)
@@ -82,6 +86,13 @@ const ApprovalModal = ({ onClose }) => {
     if (userId) {
       setCurrentUserId(Number(userId))
     }
+
+    // Get PRF information from localStorage or other source
+    const prfId = localStorage.getItem("currentPrfId")
+    const prfNo = localStorage.getItem("currentPrfNo")
+
+    if (prfId) setCurrentPrfId(prfId)
+    if (prfNo) setCurrentPrfNo(prfNo)
   }, [])
 
   // Fetch employees from the AVLI SecuritySystemUser table
@@ -187,7 +198,7 @@ const ApprovalModal = ({ onClose }) => {
   const getFilteredEmployees = (field) => {
     const searchTerm = searchTerms[field].toLowerCase()
     if (!searchTerm) {
-      return employees.slice(0, 5) // Show only 5 employees initially
+      return employees.slice(0, 5) // Show only 5 employees
     }
     return employees.filter((emp) => emp && emp.FullName && emp.FullName.toLowerCase().includes(searchTerm))
   }
@@ -222,25 +233,35 @@ const ApprovalModal = ({ onClose }) => {
         ApprovedByEmail: formData.approvedByEmail || null,
         ReceivedById: formData.receivedByUserOid,
         ReceivedByEmail: formData.receivedByEmail || null,
+        skipNotifications: true, // flag to indicate this is from ApprovalModal (no notifications should be sent)
       }
 
       let response
+      let approvalId
+
+      console.log("Saving approval settings WITHOUT sending notifications...")
 
       // If approval record exists, update it
       if (checkResponse.data.data && checkResponse.data.data.length > 0) {
-        const approvalId = checkResponse.data.data[0].ApproverAssignID
+        approvalId = checkResponse.data.data[0].ApproverAssignID
         response = await axios.put(`http://localhost:5000/api/approvals/${approvalId}`, approvalData)
         console.log("Approval settings updated:", response.data)
       } else {
         // Otherwise create a new record
         response = await axios.post("http://localhost:5000/api/approvals", approvalData)
         console.log("Approval settings created:", response.data)
+        approvalId = response.data.data.id
       }
 
       // Save approval names to localStorage for use in the form
       localStorage.setItem("checkedByUser", formData.checkedByUser)
       localStorage.setItem("approvedByUser", formData.approvedByUser)
       localStorage.setItem("receivedByUser", formData.receivedByUser)
+
+      // Save email addresses to localStorage for later use when saving PRF
+      localStorage.setItem("checkedByEmail", formData.checkedByEmail || "")
+      localStorage.setItem("approvedByEmail", formData.approvedByEmail || "")
+      localStorage.setItem("receivedByEmail", formData.receivedByEmail || "")
 
       window.dispatchEvent(
         new CustomEvent("approvalSettingsUpdated", {
@@ -252,11 +273,14 @@ const ApprovalModal = ({ onClose }) => {
         }),
       )
 
-      alert("Approval settings saved successfully!")
+      // Show success message without mentioning email notifications
+      alert("Approval settings saved successfully! Email notifications will be sent when you save the PRF form.")
 
       // Reset form fields after successful save and close modal
-      resetFormFields()
-      onClose()
+      setTimeout(() => {
+        resetFormFields()
+        onClose()
+      }, 1000)
     } catch (error) {
       console.error("Error saving approval settings:", error)
       setError(error.response?.data?.message || "Failed to save approval settings. Please try again.")
@@ -404,7 +428,10 @@ const ApprovalModal = ({ onClose }) => {
           </button>
         </div>
 
-        <div className="approval-subtitle">Design the approvals this template will need to follow.</div>
+        <div className="approval-subtitle">
+          Design the approvals this template will need to follow. Email notifications will be sent when you save the PRF
+          form.
+        </div>
 
         {error && (
           <div
@@ -423,7 +450,7 @@ const ApprovalModal = ({ onClose }) => {
               <CustomDropdown field="checkedByUser" className="checkby-form-input" />
 
               <label htmlFor="checkedByEmail" className="checkby-form-label">
-                {/* email */}
+                {/*Email*/}
               </label>
               <input
                 type="email"
@@ -443,7 +470,7 @@ const ApprovalModal = ({ onClose }) => {
               <CustomDropdown field="approvedByUser" className="approvedby-form-input" />
 
               <label htmlFor="approvedByEmail" className="approvedby-form-label">
-                {/* email */}
+                {/*Email*/}
               </label>
               <input
                 type="email"
@@ -463,7 +490,7 @@ const ApprovalModal = ({ onClose }) => {
               <CustomDropdown field="receivedByUser" className="receivedby-form-input" />
 
               <label htmlFor="receivedByEmail" className="receivedBy-form-label">
-                {/* email */}
+                {/* Email */}
               </label>
               <input
                 type="email"
@@ -482,7 +509,7 @@ const ApprovalModal = ({ onClose }) => {
               Cancel
             </button>
             <button type="submit" className="approval-save-button" disabled={submitting}>
-              {submitting ? "Saving..." : "Save"}
+              {submitting ? "Saving..." : "Save Settings"}
             </button>
           </div>
         </form>

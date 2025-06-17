@@ -23,6 +23,7 @@ const AppLayout = ({ children }) => {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isPrfCancelled, setIsPrfCancelled] = useState(false)
   const [cancelLimitReached, setCancelLimitReached] = useState(false)
+  // 'prfNo' or 'purpose'
 
   // Get user role from localStorage
   const userRole = localStorage.getItem("userRole") || "user"
