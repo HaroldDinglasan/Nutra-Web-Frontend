@@ -41,7 +41,7 @@ const NutraTechForm = () => {
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
 
-  // Initialize as empty
+  // State for approval names - Initialize as empty
   const [approvalNames, setApprovalNames] = useState({
     checkedByUser: "",
     approvedByUser: "",
@@ -583,6 +583,12 @@ const NutraTechForm = () => {
   }
 
   const handleSave = async () => {
+    // First check if approval settings are configured
+    if (!approvalNames.checkedByUser || !approvalNames.approvedByUser || !approvalNames.receivedByUser) {
+      alert("Please fill out approval box first. Click on the approval setting to set up the required approvers.")
+      return
+    }
+
     // Check if there are any rows with stock codes
     const validRows = rows.filter((row) => row.stockCode && row.stockCode.trim())
     if (validRows.length === 0) {
@@ -772,6 +778,14 @@ const NutraTechForm = () => {
 
   useEffect(() => {
     const handleSaveClick = async () => {
+      // First check if approval settings are configured
+      if (!approvalNames.checkedByUser || !approvalNames.approvedByUser || !approvalNames.receivedByUser) {
+        alert(
+          "Please fill out approval box first. Click on the approval setting to set up the required approvers.",
+        )
+        return
+      }
+
       const validRows = rows.filter((row) => row.stockCode && row.stockCode.trim())
       if (validRows.length === 0) {
         alert("Please fill out PRF details first before saving")
@@ -836,7 +850,7 @@ const NutraTechForm = () => {
       window.removeEventListener("prfSaveClicked", handleSaveClick)
       window.removeEventListener("prfUpdateClicked", handleUpdateClick)
     }
-  }, [rows, prfId, purchaseCodeNumber, currentDate, fullname])
+  }, [rows, prfId, purchaseCodeNumber, currentDate, fullname, approvalNames])
 
   // Check if buttons should be shown based on same day check
   const showActionButtons = isSameDay && isUpdating
@@ -1103,7 +1117,18 @@ const NutraTechForm = () => {
             />
           )}
 
-          <div className="approval-section">
+          <div
+            className="approval-section"
+            onClick={() => {
+              if (!approvalNames.checkedByUser || !approvalNames.approvedByUser || !approvalNames.receivedByUser) {
+                // Open approval modal - you'll need to add this state and modal
+                // For now, show an alert directing them to set up approvals
+                alert(
+                  "Click here to set up approval settings. You need to configure CheckedBy, ApprovedBy, and ReceivedBy users before saving the PRF.",
+                )
+              }
+            }}
+          >
             <div className="approval-box">
               <h3>Prepared By:</h3>
               <div className="signature-box">{fullname}</div>
