@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import axios from "axios"
+import Modal from "../components/PrfStatusAdminModal"
 import "../styles/AdminPurchaseList.css"
+import "../styles/PrfStatusAdminModal.css"
 
 const AdminPurchaseList = ({ showDashboard = false }) => {
   const [prfList, setPrfList] = useState([])
@@ -10,14 +12,94 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedPrf, setSelectedPrf] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // State for modal form fields
+  const [modalStatus, setModalStatus] = useState("")
+  const [remarks, setRemarks] = useState("")
+  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("")
 
   // Get user fullname from localStorage
   const fullname = localStorage.getItem("userFullname") || "Admin"
 
+  // Function to get received items from localStorage
+  const getReceivedItems = () => {
+    const receivedItems = localStorage.getItem("receivedPrfItems")
+    return receivedItems ? JSON.parse(receivedItems) : {}
+  }
+
+  // Function to get unreceived items from localStorage
+  const getUnreceivedItems = () => {
+    const unreceivedItems = localStorage.getItem("unreceivedPrfItems")
+    return unreceivedItems ? JSON.parse(unreceivedItems) : {}
+  }
+
+  // Save received items to localStorage
+  const saveReceivedItems = (receivedItems) => {
+    localStorage.setItem("receivedPrfItems", JSON.stringify(receivedItems))
+  }
+
+  // Save unreceived items to localStorage
+  const saveUnreceivedItems = (unreceivedItems) => {
+    localStorage.setItem("unreceivedPrfItems", JSON.stringify(unreceivedItems))
+  }
+
+  // Mark item as received in localStorage
+  const markItemAsReceived = (prfNo) => {
+    const receivedItems = getReceivedItems()
+    const unreceivedItems = getUnreceivedItems()
+
+    // Add to received items
+    receivedItems[prfNo] = {
+      isReceived: true,
+      receivedBy: fullname,
+      receivedDate: new Date().toISOString(),
+    }
+
+    // Remove from unreceived items if it exists
+    delete unreceivedItems[prfNo]
+
+    saveReceivedItems(receivedItems)
+    saveUnreceivedItems(unreceivedItems)
+  }
+
+  // Mark item as unreceived in localStorage
+  const markItemAsUnreceived = (prfNo) => {
+    const receivedItems = getReceivedItems()
+    const unreceivedItems = getUnreceivedItems()
+
+    // Add to unreceived items
+    unreceivedItems[prfNo] = {
+      isUnreceived: true,
+      unreceivedBy: fullname,
+      unreceivedDate: new Date().toISOString(),
+      reason: "Item impossible to obtain - out of stock or supplier unavailable",
+    }
+
+    // Remove from received items if it exists
+    delete receivedItems[prfNo]
+
+    saveReceivedItems(receivedItems)
+    saveUnreceivedItems(unreceivedItems)
+  }
+
+  // Check if item is received
+  const isItemReceived = (prfNo) => {
+    const receivedItems = getReceivedItems()
+    return receivedItems[prfNo]?.isReceived === true
+  }
+
+  // Check if item is unreceived
+  const isItemUnreceived = (prfNo) => {
+    const unreceivedItems = getUnreceivedItems()
+    return unreceivedItems[prfNo]?.isUnreceived === true
+  }
+
   useEffect(() => {
     fetchAllPrfList()
 
-    // Add event listener for PRF status updates
+    // Event listener for PRF status updates
     const handlePrfStatusUpdate = () => {
       console.log("PRF status updated, refreshing admin data...")
       fetchAllPrfList()
@@ -30,8 +112,18 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     }
   }, [])
 
-  // Function to determine PRF status
+  // Determine PRF status
   const determinePrfStatus = (prf) => {
+    // Check if received in localStorage first
+    if (isItemReceived(prf.prfNo)) {
+      return "Received"
+    }
+
+    // Check if unreceived in localStorage
+    if (isItemUnreceived(prf.prfNo)) {
+      return "Unreceived"
+    }
+
     // Check if cancelled first - check all possible cancel flags
     if (
       prf.prfIsCancel === 1 ||
@@ -53,7 +145,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     return "Pending"
   }
 
-  // Function to fetch all PRF requests for admin
+  // Fetch all PRF requests for admin
   const fetchAllPrfList = async () => {
     try {
       setIsLoading(true)
@@ -74,9 +166,151 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     }
   }
 
-  // Calculate pending count
+  // Handle row click and open modal
+  const handleRowClick = (prf) => {
+    setSelectedPrf(prf)
+    setModalStatus(prf.status)
+    setRemarks("")
+    setExpectedDeliveryDate("")
+    setIsModalOpen(true)
+  }
+
+  // Handle status update
+  const handleStatusUpdate = () => {
+    if (!selectedPrf) return
+
+    try {
+      // Update the local state with new status
+      const updatedPrfList = prfList.map((prf) =>
+        prf.prfNo === selectedPrf.prfNo
+          ? {
+              ...prf,
+              status: modalStatus,
+              remarks: remarks,
+              expectedDeliveryDate: expectedDeliveryDate,
+            }
+          : prf,
+      )
+
+      setPrfList(updatedPrfList)
+      updateFilteredList(updatedPrfList)
+
+      // Save to localStorage if needed
+      if (modalStatus === "Delivered") {
+        markItemAsReceived(selectedPrf.prfNo)
+      }
+
+      // Close modal
+      setIsModalOpen(false)
+      setSelectedPrf(null)
+
+      // Dispatch event for other components
+      window.dispatchEvent(new Event("prfStatusUpdated"))
+
+      alert(`Status updated to ${modalStatus} successfully!`)
+    } catch (error) {
+      console.error("❌ Error updating status:", error)
+      alert("Failed to update status. Please try again.")
+    }
+  }
+
+  // Mark item as received using localStorage
+  const handleMarkAsReceived = () => {
+    if (!selectedPrf) return
+
+    try {
+      // Mark as received in localStorage
+      markItemAsReceived(selectedPrf.prfNo)
+
+      // Update the local state
+      const updatedPrfList = prfList.map((prf) =>
+        prf.prfNo === selectedPrf.prfNo ? { ...prf, status: "Received" } : prf,
+      )
+
+      setPrfList(updatedPrfList)
+      updateFilteredList(updatedPrfList)
+
+      // Close modal
+      setIsModalOpen(false)
+      setSelectedPrf(null)
+
+      // Dispatch event for other components
+      window.dispatchEvent(new Event("prfStatusUpdated"))
+
+      alert("Item marked as received successfully!")
+    } catch (error) {
+      console.error("❌ Error marking PRF as received:", error)
+      alert("Failed to mark item as received. Please try again.")
+    }
+  }
+
+  // Mark item as unreceived using localStorage
+  const handleMarkAsUnreceived = () => {
+    if (!selectedPrf) return
+
+    try {
+      // Mark as unreceived in localStorage
+      markItemAsUnreceived(selectedPrf.prfNo)
+
+      // Update the local state
+      const updatedPrfList = prfList.map((prf) =>
+        prf.prfNo === selectedPrf.prfNo ? { ...prf, status: "Unreceived" } : prf,
+      )
+
+      setPrfList(updatedPrfList)
+      updateFilteredList(updatedPrfList)
+
+      // Close modal
+      setIsModalOpen(false)
+      setSelectedPrf(null)
+
+      // Dispatch event for other components
+      window.dispatchEvent(new Event("prfStatusUpdated"))
+
+      alert("Item marked as unreceived - impossible to obtain!")
+    } catch (error) {
+      console.error("❌ Error marking PRF as unreceived:", error)
+      alert("Failed to mark item as unreceived. Please try again.")
+    }
+  }
+
+  // Helper function to update filtered list
+  const updateFilteredList = (updatedPrfList) => {
+    const updatedFilteredList = updatedPrfList.filter((prf) => {
+      // Apply search filter
+      let term = searchTerm.toLowerCase()
+      if (term.startsWith("no. ")) {
+        term = term.substring(4)
+      }
+
+      const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
+      const searchMatch =
+        !searchTerm.trim() ||
+        prfNoStr.includes(term) ||
+        (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+        (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
+        (prf.StockName && prf.StockName.toLowerCase().includes(term))
+
+      // Apply status filter
+      const statusMatch =
+        statusFilter === "all" ||
+        (statusFilter === "cancelled" && prf.status === "Cancelled") ||
+        (statusFilter === "pending" && prf.status === "Pending") ||
+        (statusFilter === "approved" && prf.status === "Approved") ||
+        (statusFilter === "received" && prf.status === "Received") ||
+        (statusFilter === "unreceived" && prf.status === "Unreceived")
+
+      return searchMatch && statusMatch
+    })
+
+    setFilteredPrfList(updatedFilteredList)
+  }
+
+  // Calculate counts
   const pendingCount = prfList.filter((prf) => prf.status === "Pending").length
   const approvedCount = prfList.filter((prf) => prf.status === "Approved").length
+  const receivedCount = prfList.filter((prf) => prf.status === "Received").length
+  const unreceivedCount = prfList.filter((prf) => prf.status === "Unreceived").length
   const cancelledCount = prfList.filter((prf) => prf.status === "Cancelled").length
 
   // Effect to filter the PRF list based on search term and status
@@ -99,7 +333,9 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         statusFilter === "all" ||
         (statusFilter === "cancelled" && prf.status === "Cancelled") ||
         (statusFilter === "pending" && prf.status === "Pending") ||
-        (statusFilter === "approved" && prf.status === "Approved")
+        (statusFilter === "approved" && prf.status === "Approved") ||
+        (statusFilter === "received" && prf.status === "Received") ||
+        (statusFilter === "unreceived" && prf.status === "Unreceived")
 
       if (!statusMatch) return false
 
@@ -131,15 +367,23 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     setSearchTerm("")
   }
 
-  // Function to get status badge class
+  // Get status badge class
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case "Pending":
         return "pending"
       case "Approved":
         return "approved"
+      case "Received":
+        return "received"
+      case "Unreceived":
+        return "unreceived"
       case "Cancelled":
         return "cancelled"
+      case "For Delivery":
+        return "for-delivery"
+      case "Delivered":
+        return "delivered"
       default:
         return "pending"
     }
@@ -172,7 +416,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
             <div className="stats-content">
               <div className="stats-number">{isLoading ? "..." : pendingCount}</div>
-              <div className="stats-label">Pending Requests</div>
+              <div className="stats-label">Purchase Request</div>
               <div className="stats-description">Awaiting approval</div>
             </div>
           </div>
@@ -196,12 +440,12 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
             <div className="stats-content">
               <div className="stats-number">{isLoading ? "..." : approvedCount}</div>
-              <div className="stats-label">Approved Requests</div>
+              <div className="stats-label">Long Outstanding Request</div>
               <div className="stats-description">Successfully processed</div>
             </div>
           </div>
 
-          {/* <div className="stats-card cancelled-card">
+          <div className="stats-card received-card">
             <div className="stats-icon">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -214,28 +458,18 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
+                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                <path d="m3.3 7 8.7 5 8.7-5"></path>
+                <path d="M12 22V12"></path>
               </svg>
             </div>
             <div className="stats-content">
-              <div className="stats-number">{isLoading ? "..." : cancelledCount}</div>
-              <div className="stats-label">Cancelled Requests</div>
-              <div className="stats-description">Rejected or cancelled</div>
+              <div className="stats-number">{isLoading ? "..." : receivedCount}</div>
+              <div className="stats-label">For Delivery</div>
+              <div className="stats-description">Successfully received</div>
             </div>
-          </div> */}
+          </div>
         </div>
-
-        {/* <div className="dashboard-summary">
-          <h3>Quick Summary</h3>
-          <p>
-            Total PRF Requests: <strong>{prfList.length}</strong>
-          </p>
-          <p>
-            Last Updated: <strong>{new Date().toLocaleDateString()}</strong>
-          </p>
-        </div> */}
       </div>
     )
   }
@@ -244,6 +478,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     <div className="admin-purchase-container">
       <div className="welcome-container">
         <h2>Welcome to Purchasing Admin Dashboard</h2>
+        <p style={{ color: "#6b7280", marginTop: "8px" }}>Click on any request to view details and update status</p>
       </div>
 
       <div className="admin-controls">
@@ -305,6 +540,8 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <option value="all">All</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
+            <option value="received">Received</option>
+            <option value="unreceived">Unreceived</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
@@ -333,16 +570,24 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
               {filteredPrfList.length > 0 ? (
                 filteredPrfList.map((prf, index) => {
                   const isCancelled = prf.status === "Cancelled"
+                  const isUnreceived = prf.status === "Unreceived"
                   return (
-                    <tr key={index} className={isCancelled ? "canceled-row" : ""}>
-                      <td style={{ color: isCancelled ? "red" : "inherit" }}>No. {prf.prfNo}</td>
+                    <tr
+                      key={index}
+                      className={`${isCancelled ? "canceled-row" : ""} ${isUnreceived ? "unreceived-row" : ""} clickable-row`}
+                      onClick={() => handleRowClick(prf)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <td style={{ color: isCancelled ? "red" : isUnreceived ? "#dc2626" : "inherit" }}>
+                        No. {prf.prfNo}
+                      </td>
                       <td>{prf.preparedBy}</td>
                       <td>{formatDate(prf.prfDate)}</td>
                       <td>{prf.StockName || "No stock name available"}</td>
                       <td>{prf.quantity || "N/A"}</td>
                       <td>{prf.unit || "N/A"}</td>
                       <td>
-                        <span className={`status-badge ${prf.status.toLowerCase()}`}>{prf.status}</span>
+                        <span className={`status-badge ${getStatusBadgeClass(prf.status)}`}>{prf.status}</span>
                       </td>
                     </tr>
                   )
@@ -358,6 +603,199 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
           </table>
         </div>
       )}
+
+      {/* Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <div className="modal-header">
+          <svg className="modal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+            />
+          </svg>
+          <h2 className="modal-title">Purchase Request Details</h2>
+        </div>
+
+        {selectedPrf && (
+          <div>
+            <div className="detail-grid">
+              <div className="detail-card">
+                <svg className="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
+                  />
+                </svg>
+                <div className="detail-content">
+                  <h4>PRF Number</h4>
+                  <p>No. {selectedPrf.prfNo}</p>
+                </div>
+              </div>
+
+              <div className="detail-card">
+                <svg className="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                <div className="detail-content">
+                  <h4>Prepared By</h4>
+                  <p>{selectedPrf.preparedBy}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="detail-card" style={{ marginBottom: "16px" }}>
+              <svg className="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 13a2 2 0 002 2h8a2 2 0 002-2L16 7"
+                />
+              </svg>
+              <div className="detail-content">
+                <h4>Date</h4>
+                <p>{formatDate(selectedPrf.prfDate)}</p>
+              </div>
+            </div>
+
+            <div className="description-section">
+              <h4>Item Description</h4>
+              <p>{selectedPrf.StockName || "No description available"}</p>
+            </div>
+
+            <div className="quantity-grid">
+              <div className="quantity-card">
+                <h4>Quantity</h4>
+                <p>{selectedPrf.quantity || "N/A"}</p>
+              </div>
+
+              <div className="quantity-card">
+                <h4>Unit</h4>
+                <p>{selectedPrf.unit || "N/A"}</p>
+              </div>
+            </div>
+
+            <div className="status-section">
+              <h4>Current Status</h4>
+              <select
+                value={modalStatus}
+                onChange={(e) => setModalStatus(e.target.value)}
+                className="status-dropdown"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #d1d5db",
+                  fontSize: "14px",
+                  marginTop: "8px",
+                  width: "100%",
+                  maxWidth: "200px",
+                }}
+              >
+                <option value="Pending">Pending</option>
+                <option value="For Delivery">For Delivery</option>
+                <option value="Delivered">Delivered</option>
+              </select>
+            </div>
+
+            <div className="remarks-section" style={{ marginTop: "16px" }}>
+              <h4>Remarks:</h4>
+              <textarea
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                placeholder="Enter remarks..."
+                className="remarks-input"
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #d1d5db",
+                  fontSize: "14px",
+                  marginTop: "8px",
+                  minHeight: "80px",
+                  resize: "vertical",
+                }}
+              />
+            </div>
+
+            <div className="delivery-date-section" style={{ marginTop: "16px" }}>
+              <h4>Expected Delivery Date:</h4>
+              <input
+                type="date"
+                value={expectedDeliveryDate}
+                onChange={(e) => setExpectedDeliveryDate(e.target.value)}
+                className="delivery-date-input"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #d1d5db",
+                  fontSize: "14px",
+                  marginTop: "8px",
+                  width: "100%",
+                  maxWidth: "200px",
+                }}
+              />
+            </div>
+
+            <div className="button-container" style={{ marginTop: "24px" }}>
+              <button
+                onClick={handleStatusUpdate}
+                className="update-button"
+                style={{
+                  backgroundColor: "#3b82f6",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "6px",
+                  border: "none",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  marginRight: "12px",
+                }}
+              >
+                Update Status
+              </button>
+
+              {selectedPrf.status !== "Received" &&
+                selectedPrf.status !== "Unreceived" &&
+                selectedPrf.status !== "Cancelled" && (
+                  <>
+                    <button onClick={handleMarkAsReceived} className="received-button">
+                      <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                        />
+                      </svg>
+                      Mark as Received
+                    </button>
+
+                    <button onClick={handleMarkAsUnreceived} className="unreceived-button">
+                      <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+                        />
+                      </svg>
+                      Mark as Unreceived
+                    </button>
+                  </>
+                )}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }
