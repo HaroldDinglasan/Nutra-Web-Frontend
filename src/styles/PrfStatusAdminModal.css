@@ -1,0 +1,275 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 2px solid #10b981;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.modal-icon {
+  width: 20px;
+  height: 20px;
+  color: #10b981;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.detail-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #f0fdf4;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+}
+
+.detail-icon {
+  width: 16px;
+  height: 16px;
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.detail-content h4 {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-content p {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.description-section {
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.description-section h4 {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  font-size: 0.875rem;
+}
+
+.description-section p {
+  color: #4b5563;
+  margin: 0;
+  line-height: 1.5;
+  font-size: 0.875rem;
+}
+
+.quantity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.quantity-card {
+  padding: 12px;
+  background: white;
+  border: 1px solid #10b981;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.quantity-card h4 {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quantity-card p {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #10b981;
+  margin: 0;
+}
+
+.status-section {
+  padding: 12px;
+  background: white;
+  border: 1px solid #10b981;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.status-section h4 {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.approved {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.received {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.unreceived {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.button-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.received-button,
+.unreceived-button {
+  flex: 1;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.received-button {
+  background-color: #10b981;
+  color: white;
+}
+
+.received-button:hover {
+  background-color: #059669;
+}
+
+.unreceived-button {
+  background-color: #dc2626;
+  color: white;
+}
+
+.unreceived-button:hover {
+  background-color: #b91c1c;
+}
+
+.received-button:disabled,
+.unreceived-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.button-icon {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 640px) {
+  .modal-content {
+    margin: 10px;
+    padding: 20px;
+  }
+
+  .detail-grid,
+  .quantity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .button-container {
+    flex-direction: column;
+  }
+}

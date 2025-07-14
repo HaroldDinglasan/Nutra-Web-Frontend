@@ -188,6 +188,77 @@
   border-color: rgba(76, 175, 80, 0.4);
 }
 
+/* Add these styles to your existing AdminPurchaseList.css file */
+
+.clickable-row:hover {
+  background-color: #f0fdf4 !important;
+  transition: background-color 0.2s ease;
+}
+
+.status-badge.received {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge.unreceived {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.received-card {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.received-card .stats-icon svg {
+  color: white;
+}
+
+.received-card .stats-number,
+.received-card .stats-label,
+.received-card .stats-description {
+  color: white;
+}
+
+.unreceived-card {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+}
+
+.unreceived-card .stats-icon svg {
+  color: white;
+}
+
+.unreceived-card .stats-number,
+.unreceived-card .stats-label,
+.unreceived-card .stats-description {
+  color: white;
+}
+
+.unreceived-row {
+  background-color: #fef2f2 !important;
+}
+
+/* Ensure existing styles work with new received status */
+.stats-card.received-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.stats-card.unreceived-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+}
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
