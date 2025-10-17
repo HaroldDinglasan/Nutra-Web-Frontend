@@ -858,8 +858,10 @@ const NutraTechForm = () => {
   return (
     <>
       <div className="form-container">
+
         <div className="form-box-container">
           {isPrfCancelled && (
+            
             <div
               className="cancelled-banner"
               style={{
@@ -917,7 +919,7 @@ const NutraTechForm = () => {
 
           <div className="field-box">
             <label className="project-label">Project Code:</label>
-            <input type="text" id="project-code" className="project-code" readOnly />
+            <input type="text" className="project-code-input" readOnly />
           </div>
 
           <div className="following-label">

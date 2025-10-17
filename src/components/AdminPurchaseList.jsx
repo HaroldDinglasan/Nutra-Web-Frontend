@@ -29,26 +29,14 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     return receivedItems ? JSON.parse(receivedItems) : {}
   }
 
-  // Function to get unreceived items from localStorage
-  const getUnreceivedItems = () => {
-    const unreceivedItems = localStorage.getItem("unreceivedPrfItems")
-    return unreceivedItems ? JSON.parse(unreceivedItems) : {}
-  }
-
   // Save received items to localStorage
   const saveReceivedItems = (receivedItems) => {
     localStorage.setItem("receivedPrfItems", JSON.stringify(receivedItems))
   }
 
-  // Save unreceived items to localStorage
-  const saveUnreceivedItems = (unreceivedItems) => {
-    localStorage.setItem("unreceivedPrfItems", JSON.stringify(unreceivedItems))
-  }
-
   // Mark item as received in localStorage
   const markItemAsReceived = (prfNo) => {
     const receivedItems = getReceivedItems()
-    const unreceivedItems = getUnreceivedItems()
 
     // Add to received items
     receivedItems[prfNo] = {
@@ -56,44 +44,13 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       receivedBy: fullname,
       receivedDate: new Date().toISOString(),
     }
-
-    // Remove from unreceived items if it exists
-    delete unreceivedItems[prfNo]
-
     saveReceivedItems(receivedItems)
-    saveUnreceivedItems(unreceivedItems)
-  }
-
-  // Mark item as unreceived in localStorage
-  const markItemAsUnreceived = (prfNo) => {
-    const receivedItems = getReceivedItems()
-    const unreceivedItems = getUnreceivedItems()
-
-    // Add to unreceived items
-    unreceivedItems[prfNo] = {
-      isUnreceived: true,
-      unreceivedBy: fullname,
-      unreceivedDate: new Date().toISOString(),
-      reason: "Item impossible to obtain - out of stock or supplier unavailable",
-    }
-
-    // Remove from received items if it exists
-    delete receivedItems[prfNo]
-
-    saveReceivedItems(receivedItems)
-    saveUnreceivedItems(unreceivedItems)
   }
 
   // Check if item is received
   const isItemReceived = (prfNo) => {
     const receivedItems = getReceivedItems()
     return receivedItems[prfNo]?.isReceived === true
-  }
-
-  // Check if item is unreceived
-  const isItemUnreceived = (prfNo) => {
-    const unreceivedItems = getUnreceivedItems()
-    return unreceivedItems[prfNo]?.isUnreceived === true
   }
 
   useEffect(() => {
@@ -117,11 +74,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     // Check if received in localStorage first
     if (isItemReceived(prf.prfNo)) {
       return "Received"
-    }
-
-    // Check if unreceived in localStorage
-    if (isItemUnreceived(prf.prfNo)) {
-      return "Unreceived"
     }
 
     // Check if cancelled first - check all possible cancel flags
@@ -244,36 +196,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     }
   }
 
-  // Mark item as unreceived using localStorage
-  const handleMarkAsUnreceived = () => {
-    if (!selectedPrf) return
-
-    try {
-      // Mark as unreceived in localStorage
-      markItemAsUnreceived(selectedPrf.prfNo)
-
-      // Update the local state
-      const updatedPrfList = prfList.map((prf) =>
-        prf.prfNo === selectedPrf.prfNo ? { ...prf, status: "Unreceived" } : prf,
-      )
-
-      setPrfList(updatedPrfList)
-      updateFilteredList(updatedPrfList)
-
-      // Close modal
-      setIsModalOpen(false)
-      setSelectedPrf(null)
-
-      // Dispatch event for other components
-      window.dispatchEvent(new Event("prfStatusUpdated"))
-
-      alert("Item marked as unreceived - impossible to obtain!")
-    } catch (error) {
-      console.error("❌ Error marking PRF as unreceived:", error)
-      alert("Failed to mark item as unreceived. Please try again.")
-    }
-  }
-
   // Helper function to update filtered list
   const updateFilteredList = (updatedPrfList) => {
     const updatedFilteredList = updatedPrfList.filter((prf) => {
@@ -297,9 +219,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         (statusFilter === "cancelled" && prf.status === "Cancelled") ||
         (statusFilter === "pending" && prf.status === "Pending") ||
         (statusFilter === "approved" && prf.status === "Approved") ||
-        (statusFilter === "received" && prf.status === "Received") ||
-        (statusFilter === "unreceived" && prf.status === "Unreceived")
-
+        (statusFilter === "received" && prf.status === "Received") 
       return searchMatch && statusMatch
     })
 
@@ -310,7 +230,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   const pendingCount = prfList.filter((prf) => prf.status === "Pending").length
   const approvedCount = prfList.filter((prf) => prf.status === "Approved").length
   const receivedCount = prfList.filter((prf) => prf.status === "Received").length
-  const unreceivedCount = prfList.filter((prf) => prf.status === "Unreceived").length
   const cancelledCount = prfList.filter((prf) => prf.status === "Cancelled").length
 
   // Effect to filter the PRF list based on search term and status
@@ -334,9 +253,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         (statusFilter === "cancelled" && prf.status === "Cancelled") ||
         (statusFilter === "pending" && prf.status === "Pending") ||
         (statusFilter === "approved" && prf.status === "Approved") ||
-        (statusFilter === "received" && prf.status === "Received") ||
-        (statusFilter === "unreceived" && prf.status === "Unreceived")
-
+        (statusFilter === "received" && prf.status === "Received")
       if (!statusMatch) return false
 
       return (
@@ -376,8 +293,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         return "approved"
       case "Received":
         return "received"
-      case "Unreceived":
-        return "unreceived"
       case "Cancelled":
         return "cancelled"
       case "For Delivery":
@@ -535,16 +450,16 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             id="status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="status-filter"
+            className="status-admin-filter"
           >
             <option value="all">All</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="received">Received</option>
-            <option value="unreceived">Unreceived</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
+        
       </div>
 
       {isLoading ? (
@@ -675,35 +590,13 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <div className="quantity-grid">
               <div className="quantity-card">
                 <h4>Quantity</h4>
-                <p>{selectedPrf.quantity || "N/A"}</p>
+                <p>{selectedPrf.qty || "N/A"}</p>
               </div>
 
               <div className="quantity-card">
                 <h4>Unit</h4>
                 <p>{selectedPrf.unit || "N/A"}</p>
               </div>
-            </div>
-
-            <div className="status-section">
-              <h4>Current Status</h4>
-              <select
-                value={modalStatus}
-                onChange={(e) => setModalStatus(e.target.value)}
-                className="status-dropdown"
-                style={{
-                  padding: "8px 12px",
-                  borderRadius: "6px",
-                  border: "1px solid #d1d5db",
-                  fontSize: "14px",
-                  marginTop: "8px",
-                  width: "100%",
-                  maxWidth: "200px",
-                }}
-              >
-                <option value="Pending">Pending</option>
-                <option value="For Delivery">For Delivery</option>
-                <option value="Delivered">Delivered</option>
-              </select>
             </div>
 
             <div className="remarks-section" style={{ marginTop: "16px" }}>
@@ -748,26 +641,15 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <div className="button-container" style={{ marginTop: "24px" }}>
               <button
                 onClick={handleStatusUpdate}
-                className="update-button"
-                style={{
-                  backgroundColor: "#3b82f6",
-                  color: "white",
-                  padding: "10px 20px",
-                  borderRadius: "6px",
-                  border: "none",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  marginRight: "12px",
-                }}
+                className="update-admin-button"
               >
-                Update Status
+                SAVE
               </button>
 
               {selectedPrf.status !== "Received" &&
-                selectedPrf.status !== "Unreceived" &&
                 selectedPrf.status !== "Cancelled" && (
                   <>
-                    <button onClick={handleMarkAsReceived} className="received-button">
+                    <button onClick={handleMarkAsReceived} className="received-admin-button">
                       <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
@@ -776,22 +658,13 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                           d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                         />
                       </svg>
-                      Mark as Received
+                      Received
                     </button>
 
-                    <button onClick={handleMarkAsUnreceived} className="unreceived-button">
-                      <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z"
-                        />
-                      </svg>
-                      Mark as Unreceived
-                    </button>
                   </>
                 )}
+
+                
             </div>
           </div>
         )}

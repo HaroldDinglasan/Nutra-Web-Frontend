@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import "../styles/Register.css"
@@ -94,12 +93,6 @@ const Register = () => {
     }
   }, [])
 
-  // Handle selection from dropdown
-  const handleSelectName = (name) => {
-    setFullname(name)
-    setShowDropdown(false) // Hide dropdown after selection
-  }
-
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev)
   }
@@ -112,7 +105,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/register", {
+      await axios.post("http://localhost:5000/api/register", {
         departmentType: department,
         departmentId: departmentId,
         fullName: fullname,
