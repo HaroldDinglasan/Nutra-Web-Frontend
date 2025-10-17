@@ -16,7 +16,7 @@ const ApprovalModal = ({ onClose }) => {
     approvedByUser: "",
     approvedByEmail: "",
     approvedByUserOid: null,
-    receivedByUser: "",
+    receivedByUser: "Benjie L. Salvador",
     receivedByEmail: "",
     receivedByUserOid: null,
   }
@@ -300,9 +300,11 @@ const ApprovalModal = ({ onClose }) => {
 
     return (
       <>
+
         <label htmlFor={field} className={field.includes("approved") ? "approvedby-form-label" : "form-label"}>
           {label}
         </label>
+
         <div
           ref={dropdownRefs[field]}
           className={`custom-dropdown-container ${openDropdown === field ? "dropdown-open" : ""}`}
@@ -346,7 +348,7 @@ const ApprovalModal = ({ onClose }) => {
                 borderRadius: "4px",
                 marginTop: "2px",
                 backgroundColor: "white",
-                zIndex: 10001, // Higher than container z-index
+                zIndex: 10001, 
                 boxShadow: "0 8px 24px rgba(76, 175, 80, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)",
               }}
             >
@@ -428,11 +430,6 @@ const ApprovalModal = ({ onClose }) => {
           </button>
         </div>
 
-        <div className="approval-subtitle">
-          Design the approvals this template will need to follow. Email notifications will be sent when you save the PRF
-          form.
-        </div>
-
         {error && (
           <div
             className="error-message"
@@ -443,7 +440,7 @@ const ApprovalModal = ({ onClose }) => {
         )}
 
         <form onSubmit={handleSubmit} className="approval-form">
-          <div className="approval-section-modal">
+          <div className="approval-sects">
             <div className="section-title">CheckedBy:</div>
 
             <div className="form-grid">
@@ -462,6 +459,7 @@ const ApprovalModal = ({ onClose }) => {
                 className="checkby-email-input"
               />
             </div>
+
           </div>
 
           <div className="approval-sects">
@@ -509,7 +507,7 @@ const ApprovalModal = ({ onClose }) => {
               Cancel
             </button>
             <button type="submit" className="approval-save-button" disabled={submitting}>
-              {submitting ? "Saving..." : "Save Settings"}
+              {submitting ? "Saving..." : "Save"}
             </button>
           </div>
         </form>
