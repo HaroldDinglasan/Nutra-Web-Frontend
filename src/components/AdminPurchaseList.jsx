@@ -20,39 +20,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   const [remarks, setRemarks] = useState("")
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("")
 
-  // Get user fullname from localStorage
-  const fullname = localStorage.getItem("userFullname") || "Admin"
-
-  // Function to get received items from localStorage
-  const getReceivedItems = () => {
-    const receivedItems = localStorage.getItem("receivedPrfItems")
-    return receivedItems ? JSON.parse(receivedItems) : {}
-  }
-
-  // Save received items to localStorage
-  const saveReceivedItems = (receivedItems) => {
-    localStorage.setItem("receivedPrfItems", JSON.stringify(receivedItems))
-  }
-
-  // Mark item as received in localStorage
-  const markItemAsReceived = (prfNo) => {
-    const receivedItems = getReceivedItems()
-
-    // Add to received items
-    receivedItems[prfNo] = {
-      isReceived: true,
-      receivedBy: fullname,
-      receivedDate: new Date().toISOString(),
-    }
-    saveReceivedItems(receivedItems)
-  }
-
-  // Check if item is received
-  const isItemReceived = (prfNo) => {
-    const receivedItems = getReceivedItems()
-    return receivedItems[prfNo]?.isReceived === true
-  }
-
   useEffect(() => {
     fetchAllPrfList()
 
@@ -69,10 +36,9 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     }
   }, [])
 
-  // Determine PRF status
   const determinePrfStatus = (prf) => {
-    // Check if received in localStorage first
-    if (isItemReceived(prf.prfNo)) {
+    // Check if delivered (from database)
+    if (prf.isDelivered === 1 || prf.isDelivered === true) {
       return "Received"
     }
 
@@ -134,7 +100,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     try {
       // Update the local state with new status
       const updatedPrfList = prfList.map((prf) =>
-        prf.prfNo === selectedPrf.prfNo
+        prf.prfNo === selectedPrf.Id
           ? {
               ...prf,
               status: modalStatus,
@@ -146,11 +112,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
       setPrfList(updatedPrfList)
       updateFilteredList(updatedPrfList)
-
-      // Save to localStorage if needed
-      if (modalStatus === "Delivered") {
-        markItemAsReceived(selectedPrf.prfNo)
-      }
 
       // Close modal
       setIsModalOpen(false)
@@ -166,17 +127,16 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     }
   }
 
-  // Mark item as received using localStorage
-  const handleMarkAsReceived = () => {
+  const handleMarkAsReceived = async () => {
     if (!selectedPrf) return
 
     try {
-      // Mark as received in localStorage
-      markItemAsReceived(selectedPrf.prfNo)
+      await axios.put(`http://localhost:5000/api/markAsReceived/${selectedPrf.Id}`)
+      console.log("Marking as received ID:", selectedPrf.Id)
 
       // Update the local state
       const updatedPrfList = prfList.map((prf) =>
-        prf.prfNo === selectedPrf.prfNo ? { ...prf, status: "Received" } : prf,
+        prf.Id === selectedPrf.Id ? { ...prf, status: "Received", isDelivered: 1 } : prf,
       )
 
       setPrfList(updatedPrfList)
@@ -219,7 +179,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         (statusFilter === "cancelled" && prf.status === "Cancelled") ||
         (statusFilter === "pending" && prf.status === "Pending") ||
         (statusFilter === "approved" && prf.status === "Approved") ||
-        (statusFilter === "received" && prf.status === "Received") 
+        (statusFilter === "received" && prf.status === "Received")
       return searchMatch && statusMatch
     })
 
@@ -234,37 +194,66 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
   // Effect to filter the PRF list based on search term and status
   useEffect(() => {
-    if (!searchTerm.trim() && statusFilter === "all") {
-      setFilteredPrfList(prfList)
-      return
+    const fetchFilteredList = async () => {
+      try {
+        if (statusFilter === "received") {
+          // Filter locally: only PRFs with isDelivered = 1 or true
+          const deliveredList = prfList.filter(
+            (prf) => prf.isDelivered === 1 || prf.isDelivered === true
+          )
+
+          const searchedList = deliveredList.filter((prf) => {
+            let term = searchTerm.toLowerCase()
+            if (term.startsWith("no. ")) {
+              term = term.substring(4)
+            }
+
+            const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
+            return (
+              !searchTerm.trim() ||
+              prfNoStr.includes(term) ||
+              (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+              (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
+              (prf.StockName && prf.StockName.toLowerCase().includes(term))
+            )
+          })
+
+          setFilteredPrfList(searchedList)
+          return
+        }
+
+        // Default: Apply local filtering for other statuses
+        let term = searchTerm.toLowerCase()
+        if (term.startsWith("no. ")) {
+          term = term.substring(4)
+        }
+
+        const filtered = prfList.filter((prf) => {
+          const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
+
+          const statusMatch =
+            statusFilter === "all" ||
+            (statusFilter === "cancelled" && prf.status === "Cancelled") ||
+            (statusFilter === "pending" && prf.status === "Pending") ||
+            (statusFilter === "approved" && prf.status === "Approved")
+
+          if (!statusMatch) return false
+
+          return (
+            prfNoStr.includes(term) ||
+            (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+            (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
+            (prf.StockName && prf.StockName.toLowerCase().includes(term))
+          )
+        })
+
+        setFilteredPrfList(filtered)
+      } catch (error) {
+        console.error("❌ Error fetching delivered list:", error)
+      }
     }
 
-    let term = searchTerm.toLowerCase()
-    if (term.startsWith("no. ")) {
-      term = term.substring(4)
-    }
-
-    const filtered = prfList.filter((prf) => {
-      const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
-
-      // Updated status filtering logic using the status property
-      const statusMatch =
-        statusFilter === "all" ||
-        (statusFilter === "cancelled" && prf.status === "Cancelled") ||
-        (statusFilter === "pending" && prf.status === "Pending") ||
-        (statusFilter === "approved" && prf.status === "Approved") ||
-        (statusFilter === "received" && prf.status === "Received")
-      if (!statusMatch) return false
-
-      return (
-        prfNoStr.includes(term) ||
-        (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
-        (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
-        (prf.StockName && prf.StockName.toLowerCase().includes(term))
-      )
-    })
-
-    setFilteredPrfList(filtered)
+    fetchFilteredList()
   }, [searchTerm, statusFilter, prfList])
 
   const formatDate = (dateString) => {
@@ -356,7 +345,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <div className="stats-content">
               <div className="stats-number">{isLoading ? "..." : approvedCount}</div>
               <div className="stats-label">Long Outstanding Request</div>
-              <div className="stats-description">Successfully processed</div>
+              <div className="stats-description">Pending Request</div>
             </div>
           </div>
 
@@ -380,7 +369,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
             <div className="stats-content">
               <div className="stats-number">{isLoading ? "..." : receivedCount}</div>
-              <div className="stats-label">For Delivery</div>
+              <div className="stats-label">Delivered</div>
               <div className="stats-description">Successfully received</div>
             </div>
           </div>
@@ -446,10 +435,18 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
         <div className="filter-container">
           <label htmlFor="status-filter">Status:</label>
-          <select
+         <select
             id="status-filter"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              const selectedStatus = e.target.value
+              setStatusFilter(selectedStatus)
+              console.log(`🟢 Status filter changed to: ${selectedStatus}`)
+
+              if (selectedStatus === "received") {
+                console.log("✅ Received filter clicked — fetching delivered list from API...")
+              }
+            }}
             className="status-admin-filter"
           >
             <option value="all">All</option>
@@ -459,7 +456,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
-        
       </div>
 
       {isLoading ? (
@@ -639,32 +635,25 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
 
             <div className="button-container" style={{ marginTop: "24px" }}>
-              <button
-                onClick={handleStatusUpdate}
-                className="update-admin-button"
-              >
+              <button onClick={handleStatusUpdate} className="update-admin-button">
                 SAVE
               </button>
 
-              {selectedPrf.status !== "Received" &&
-                selectedPrf.status !== "Cancelled" && (
-                  <>
-                    <button onClick={handleMarkAsReceived} className="received-admin-button">
-                      <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                        />
-                      </svg>
-                      Received
-                    </button>
-
-                  </>
-                )}
-
-                
+              {selectedPrf.status !== "Received" && selectedPrf.status !== "Cancelled" && (
+                <>
+                  <button onClick={handleMarkAsReceived} className="received-admin-button">
+                    <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                      />
+                    </svg>
+                    Received
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
