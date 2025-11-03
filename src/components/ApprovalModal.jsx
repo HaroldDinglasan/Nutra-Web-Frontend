@@ -1,12 +1,9 @@
 "use client"
-
 import { useState, useEffect, useRef } from "react"
 import "../styles/ApprovalModal.css"
 import axios from "axios"
 
 const ApprovalModal = ({ onClose }) => {
-  const [employees, setEmployees] = useState([])
-  const [loading, setLoading] = useState(true)
 
   // Initial form state 
   const initialFormData = {
@@ -21,6 +18,10 @@ const ApprovalModal = ({ onClose }) => {
     receivedByUserOid: null,
   }
 
+  const [employees, setEmployees] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [currentPrfId, setCurrentPrfId] = useState(null)
+  const [currentPrfNo, setCurrentPrfNo] = useState("")
   const [formData, setFormData] = useState(initialFormData)
 
   // Get userId from localStorage
@@ -56,10 +57,6 @@ const ApprovalModal = ({ onClose }) => {
   // prevent focus loss during typing
   const isTypingRef = useRef(false)
 
-  // Add these state variables
-  const [currentPrfId, setCurrentPrfId] = useState(null)
-  const [currentPrfNo, setCurrentPrfNo] = useState("")
-
   // Function to reset all form fields
   const resetFormFields = () => {
     setFormData(initialFormData)
@@ -69,7 +66,7 @@ const ApprovalModal = ({ onClose }) => {
     setSubmitting(false)
   }
 
-  // Enhanced onClose function that resets fields
+  // kapag nag close mag rereset yung fields
   const handleClose = () => {
     resetFormFields()
     onClose()
@@ -104,7 +101,6 @@ const ApprovalModal = ({ onClose }) => {
           throw new Error("Failed to fetch employees")
         }
         const data = await response.json()
-        console.log("Fetched employees:", data)
         setEmployees(data)
         setLoading(false)
       } catch (error) {
@@ -116,6 +112,107 @@ const ApprovalModal = ({ onClose }) => {
 
     fetchEmployees()
   }, [])
+
+  // ✅ Get logged-in user data (stored at login)
+  const loggedUser = JSON.parse(localStorage.getItem("user") || "{}")
+  const departmentType = loggedUser?.departmentType
+
+  // ✅ Pre-assign Checked By & Approved By based on department
+  useEffect(() => {
+    if (departmentType) {
+      let defaultCheckedBy = ""
+      let defaultApprovedBy = ""
+
+      switch (departmentType) {
+        case "Information Technology":
+          defaultCheckedBy = "Arman A. Creencia"
+          defaultApprovedBy = "Andrea Kathleen D. Castillo"
+        break
+
+        case "Production":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Michelle Anne C. Perez" // head
+        break
+
+        case "CGS":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Jocelyn D. Ferma" // head
+        break
+
+        case "CMD":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Glenn Villanueva" // head
+        break
+
+        case "Audit":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Carmilyn Berenguel" // head
+        break
+
+        case "Legal":
+          defaultCheckedBy = ""
+          defaultApprovedBy = " Jovie Hona" // head
+        break
+
+        case "Finance":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Jennifer June Cambongga" // head
+        break
+
+        case "Human Resource":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Jennifer June Cambongga" // head
+        break
+
+        case "Marketing":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Dave Rinson De Villa" // head
+        break
+
+        case "Regulatory":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Myra Bautista" // head
+        break
+
+        case "Purchasing":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Benjie Salvador" // head
+        break
+
+        case "WLO":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Kristina Remitar" // head
+        break
+
+        case "Engineering":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Henry Escoses" // head
+        break
+
+        case "Sales":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Referenda Lopez" // head
+        break
+
+        case "Corplan":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Dave Rinson De Villa" // head
+        break
+
+        // Add more departments as needed
+        default:
+          defaultCheckedBy = ""
+          defaultApprovedBy = ""
+      }
+
+      // ✅ Set initial dropdown values
+      setFormData((prev) => ({
+        ...prev,
+        checkedByUser: defaultCheckedBy,
+        approvedByUser: defaultApprovedBy,
+      }))
+    }
+  }, [departmentType])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -300,7 +397,6 @@ const ApprovalModal = ({ onClose }) => {
 
     return (
       <>
-
         <label htmlFor={field} className={field.includes("approved") ? "approvedby-form-label" : "form-label"}>
           {label}
         </label>

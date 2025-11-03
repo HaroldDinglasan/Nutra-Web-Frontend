@@ -1,18 +1,14 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import { Calendar } from "lucide-react"
 import "../styles/NutratechForm.css"
-import { useLocation, useNavigate } from "react-router-dom"
-
+import { useParams, useLocation, useNavigate} from "react-router-dom"
 import NutraTechlogo from "../assets/NTBI.png"
 import avliLogo from "../assets/AVLI.png"
 import apthealthLogo from "../assets/apthealth inc full logo.png"
-
 import nutraheaderlogo from "../assets/nutratechlogo.jpg"
 import apthealtheaderLogo from "../assets/apthealth logo.png"
 import avliheaderLogo from "../assets/avli biocare.logo.png"
-
 import StockcodeModal from "./StockcodeModal"
 import UomModal from "../components/UomModal"
 import { CancelButton, AddRowButton, UncancelButton } from "../components/button"
@@ -20,7 +16,7 @@ import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../com
 import axios from "axios"
 
 const NutraTechForm = () => {
-  const location = useLocation()
+  // State variables 
   const navigate = useNavigate()
   const [currentDate, setCurrentDate] = useState(() => {
     const today = new Date()
@@ -35,11 +31,109 @@ const NutraTechForm = () => {
   const [prfDate, setPrfDate] = useState(null) // Store the PRF date
   const [isSameDay, setIsSameDay] = useState(true) // Track if PRF date is the same as current date
   const [globalPurpose, setGlobalPurpose] = useState("")
-
   const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || "" // Retrieve department
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
+
+  const location = useLocation() // binabasa nito yung data (prfId) na galing sa Proceed button router
+  const [preparedBy, setPreparedBy] = useState("") // sino nag preapre ng prf
+  const [isCancel, setIsCancel] = useState(false) // kapag ang prf ay cancelled
+  const [prfDetails, setPrfDetails] = useState([]) // list ng prf items from PRFTABLE_DETAILS
+  const [loading, setLoading] = useState(false) 
+
+  // nag rurun kapag nag load ng ang page
+  useEffect(() => {
+    // chinecheck kung ang prfId ay exisiting na sa memory 
+    let activePrfId = prfId
+
+    // chinecheck yung route galing sa Proceed button
+    if (location.state && location.state.prfId) {
+      // console.log("📦 PRF ID from email link (via Router state):", location.state.prfId) // pinapasa ang prfId papunta sa location.state galing sa Proceed button
+      activePrfId = location.state.prfId
+      setPrfId(location.state.prfId)
+    }
+
+    
+    if (!activePrfId) {
+      const pending = localStorage.getItem("pendingPRF") // chinecheck yung local storage na binato ng Login kapag wala sa state data
+      if (pending) {
+        const parsed = JSON.parse(pending)
+        if (parsed.prfId) {
+          // console.log("📦 PRF ID from localStorage:", parsed.prfId)
+          activePrfId = parsed.prfId
+          setPrfId(parsed.prfId)
+        }
+      }
+    }
+
+    // kapag nakita na ang prfId tinatawag yung backend
+    // pinefetch yung PRF header at details galing sa back end
+    if (activePrfId) {
+      // console.log("📦 Loading PRF using ID:", activePrfId)
+      fetchPrfData(activePrfId)
+    }
+  }, [location.state])
+
+
+  const fetchPrfData = async (prfId) => {
+    try {
+      setLoading(true)
+      // console.log("Loading PRF using ID:", prfId)
+      const response = await fetch(`http://localhost:5000/api/prf/${prfId}`)
+      const data = await response.json()
+
+      if (response.ok) {
+        console.log("PRF Data received:", data)
+        console.log("Header data:", data.header)
+        console.log("Details data:", data.details)
+
+        // Dito nag sstore yung data at nag didisplay ng prf header
+        setPurchaseCodeNumber(data.header.prfNo)
+        setCurrentDate(data.header.prfDate)
+        setPreparedBy(data.header.preparedBy)
+        setIsCancel(data.header.isCancel)
+
+        if (data.details && Array.isArray(data.details)) {
+          const newRows = data.details.map((detail) => ({
+            stockCode: detail.StockCode || "",
+            quantity: detail.quantity ? detail.quantity.toString() : "",
+            unit: detail.unit || "",
+            description: detail.StockName || detail.Description || "",
+            dateNeeded: detail.DateNeeded ? convertFromMMDDYYYY(detail.DateNeeded) : getCurrentDate(),
+            purpose: detail.Purpose || "",
+            stockId: detail.Id || detail.StockCode || "",
+          }))
+
+          // Ensure we have at least 5 rows
+          while (newRows.length < 5) {
+            newRows.push({
+              stockCode: "",
+              quantity: "",
+              unit: "",
+              description: "",
+              dateNeeded: getCurrentDate(),
+              purpose: "",
+              stockId: "",
+            })
+          }
+
+          setRows(newRows)
+        }
+
+        // naguupdate para lumabas yung prf details sa table
+        setPrfDetails(data.details)
+
+        setIsUpdating(true)
+      } else {
+        console.error("Failed to fetch PRF data:", data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching PRF data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // State for approval names - Initialize as empty
   const [approvalNames, setApprovalNames] = useState({
@@ -213,15 +307,12 @@ const NutraTechForm = () => {
     if (!prfId || !purchaseCodeNumber) return
 
     try {
-      console.log("Refreshing PRF data for:", { prfId, purchaseCodeNumber })
-
+      // console.log("Refreshing PRF data for:", { prfId, purchaseCodeNumber })
       const response = await fetch(
         `http://localhost:5000/api/search-prf?prfNo=${encodeURIComponent(purchaseCodeNumber)}`,
       )
-
       if (response.ok) {
         const data = await response.json()
-
         if (data.found) {
           // Get PRF date
           const prfDateObj = new Date(data.header.prfDate)
@@ -234,7 +325,6 @@ const NutraTechForm = () => {
             (data.header && data.header.prfIsCancel === 1) ||
             (data.header && data.header.isCancel === 1) ||
             data.isCancel === 1
-
           console.log("Database cancel status:", isDbCancelled)
 
           // A PRF is considered cancelled ONLY if it's marked as cancelled in the database

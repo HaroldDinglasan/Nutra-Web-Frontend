@@ -17,6 +17,9 @@ const App = () => {
         <Route path="/nutraTech/form" element={<AppLayout><NutraTechForm/></AppLayout>}/>
         <Route path="/stock/modal/form" element={<StockcodeModal />}/>
         <Route path="/prf/list" element={<AppLayout><PrfList /></AppLayout>}/>
+
+        <Route path="/prf/:prfId" element={<AppLayout><NutraTechForm /></AppLayout>} />
+        
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

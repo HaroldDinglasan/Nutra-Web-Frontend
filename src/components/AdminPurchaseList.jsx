@@ -25,64 +25,72 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
     // Event listener for PRF status updates
     const handlePrfStatusUpdate = () => {
-      console.log("PRF status updated, refreshing admin data...")
-      fetchAllPrfList()
-    }
+        console.log("PRF status updated, refreshing admin data...")
+        fetchAllPrfList()
+      }
 
-    window.addEventListener("prfStatusUpdated", handlePrfStatusUpdate)
+      window.addEventListener("prfStatusUpdated", handlePrfStatusUpdate)
 
-    return () => {
-      window.removeEventListener("prfStatusUpdated", handlePrfStatusUpdate)
-    }
-  }, [])
+      return () => {
+        window.removeEventListener("prfStatusUpdated", handlePrfStatusUpdate)
+      }
+    }, [])
 
-  const determinePrfStatus = (prf) => {
-    // Check if delivered (from database)
-    if (prf.isDelivered === 1 || prf.isDelivered === true) {
-      return "Received"
-    }
+    const determinePrfStatus =  (prf) => {
+    // Normalize isDelivered to handle "1", 1, true
+    const delivered = prf.isDelivered === 1 || prf.isDelivered === true || prf.isDelivered === "1";
 
-    // Check if cancelled first - check all possible cancel flags
+    if (delivered) return "Received";
+
+    // Check if cancelled first
     if (
       prf.prfIsCancel === 1 ||
       prf.prfIsCancel === true ||
       prf.detailsIsCancel === 1 ||
       prf.detailsIsCancel === true ||
       prf.isCancel === 1 ||
-      prf.isCancel === true
+      prf.isCancel === true ||
+      prf.isCancel === "1"
     ) {
-      return "Cancelled"
+      return "Cancelled";
     }
 
-    // Check if approved
+    // Approved
     if (prf.approvedBy && prf.approvedBy.trim() !== "") {
-      return "Approved"
+      return "Approved";
     }
 
-    // Default to Pending for newly created requests
-    return "Pending"
-  }
+    return "Pending";
+  };
 
   // Fetch all PRF requests for admin
   const fetchAllPrfList = async () => {
     try {
-      setIsLoading(true)
-      const response = await axios.get("http://localhost:5000/api/prf-list")
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:5000/api/prf-list");
 
-      // Add status to each PRF record
-      const prfListWithStatus = response.data.map((prf) => ({
-        ...prf,
-        status: determinePrfStatus(prf),
-      }))
+      // ✅ Apply delivered + calculated status mapping
+      const prfListWithStatus = response.data.map((prf) => {
+        const delivered =
+          prf.isDelivered === 1 ||
+          prf.isDelivered === true ||
+          prf.isDelivered === "1";
+        const calculatedStatus = determinePrfStatus(prf);
 
-      setPrfList(prfListWithStatus)
-      setFilteredPrfList(prfListWithStatus)
-      setIsLoading(false)
+        return {
+          ...prf,
+          status: delivered ? "Received" : calculatedStatus,
+        };
+      });
+
+      setPrfList(prfListWithStatus);
+      setFilteredPrfList(prfListWithStatus);
+      setIsLoading(false);
     } catch (error) {
-      console.error("❌ Error fetching PRF List:", error)
-      setIsLoading(false)
+      console.error("❌ Error fetching PRF List:", error);
+      setIsLoading(false);
     }
-  }
+  };
 
   // Handle row click and open modal
   const handleRowClick = (prf) => {
@@ -133,6 +141,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     try {
       await axios.put(`http://localhost:5000/api/markAsReceived/${selectedPrf.Id}`)
       console.log("Marking as received ID:", selectedPrf.Id)
+      await fetchAllPrfList() // refresh data
 
       // Update the local state
       const updatedPrfList = prfList.map((prf) =>
@@ -196,31 +205,40 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   useEffect(() => {
     const fetchFilteredList = async () => {
       try {
-        if (statusFilter === "received") {
-          // Filter locally: only PRFs with isDelivered = 1 or true
-          const deliveredList = prfList.filter(
-            (prf) => prf.isDelivered === 1 || prf.isDelivered === true
+       if (statusFilter === "received") {
+        console.log("✅ Fetching received items from backend...")
+
+        const response = await axios.get("http://localhost:5000/api/getDeliveredList")
+
+        console.log("📦 Delivered API response:", response.data)
+
+        const deliveredData = Array.isArray(response.data)
+          ? response.data
+          : response.data.data || []
+
+        const deliveredList = deliveredData.map((prf) => ({
+          ...prf,
+          status: "Received",
+        }))
+
+        const searchedList = deliveredList.filter((prf) => {
+          let term = searchTerm.toLowerCase()
+          if (term.startsWith("no. ")) term = term.substring(4)
+
+          const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
+          return (
+            !searchTerm.trim() ||
+            prfNoStr.includes(term) ||
+            (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+            (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
+            (prf.StockName && prf.StockName.toLowerCase().includes(term))
           )
-
-          const searchedList = deliveredList.filter((prf) => {
-            let term = searchTerm.toLowerCase()
-            if (term.startsWith("no. ")) {
-              term = term.substring(4)
-            }
-
-            const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
-            return (
-              !searchTerm.trim() ||
-              prfNoStr.includes(term) ||
-              (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
-              (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
-              (prf.StockName && prf.StockName.toLowerCase().includes(term))
-            )
-          })
+        })
 
           setFilteredPrfList(searchedList)
           return
         }
+
 
         // Default: Apply local filtering for other statuses
         let term = searchTerm.toLowerCase()
@@ -586,7 +604,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <div className="quantity-grid">
               <div className="quantity-card">
                 <h4>Quantity</h4>
-                <p>{selectedPrf.qty || "N/A"}</p>
+                <p>{selectedPrf.quantity|| "N/A"}</p>
               </div>
 
               <div className="quantity-card">
