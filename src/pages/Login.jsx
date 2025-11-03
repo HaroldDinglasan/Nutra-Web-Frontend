@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import "../styles/Login.css"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import regLogo from "../assets/fullLogo.jpg"
 import departmentIcon from "../assets/down.png"
 import userIcon from "../assets/user-icon.png"
 import eyeOpenIcon from "../assets/eye-open.png"
 import eyeClosedIcon from "../assets/eye-closed.png"
+import { useEffect } from "react"
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -15,7 +16,35 @@ const Login = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState({})
+
+  const location = useLocation()
   const navigate = useNavigate()
+  const [prfId, setPrfId] = useState(null)
+  const [pendingPrfData, setPendingPrfData] = useState(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const idFromUrl = params.get("prfId")
+    const noFromUrl = params.get("prfNo")
+
+    // decode any URL encoding (like N%2087502 → N 87502)
+    const decodedPrfNo = noFromUrl ? decodeURIComponent(noFromUrl) : null
+
+    if (idFromUrl) {
+      // console.log("🔗 PRF ID received from email:", idFromUrl)
+      setPrfId(idFromUrl)
+    }
+
+    if (decodedPrfNo) {
+      // console.log("🧾 PRF No received from email:", decodedPrfNo)
+    }
+
+    if (idFromUrl && decodedPrfNo) {
+      setPendingPrfData({ prfId: idFromUrl, prfNo: decodedPrfNo })
+      // Also keep localStorage as backup
+      localStorage.setItem("pendingPRF", JSON.stringify({ prfId: idFromUrl, prfNo: decodedPrfNo }))
+    }
+  }, [location])
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev)
@@ -42,7 +71,7 @@ const Login = () => {
     const loginData = { username, password }
 
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch("http://localhost:5000/api/save-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
@@ -52,6 +81,19 @@ const Login = () => {
 
       if (response.ok) {
         alert("✅ Login successful!")
+
+        // user details na sa isang object para sa pagbato ng Approval Modal
+        const userData = {
+          userId: data.user.userID,
+          username: data.user.username,
+          fullName: data.user.fullName,
+          departmentType: data.user.departmentType,
+          departmentId: data.user.departmentId,
+          company: selectedCompany,
+        }
+
+        // Store unified user data for all components
+        localStorage.setItem("user", JSON.stringify(userData))
 
         // Save user details in localStorage
         localStorage.setItem("userFullname", data.user.fullName)
@@ -68,6 +110,19 @@ const Login = () => {
 
         // Store user role
         localStorage.setItem("userRole", isPurchasingAdmin ? "admin" : "user")
+
+        if (pendingPrfData && pendingPrfData.prfId) {
+          navigate(`/prf/${pendingPrfData.prfId}`, {
+            state: {
+              company: selectedCompany,
+              fromEmailLink: true,
+              prfNo: pendingPrfData.prfNo,
+              prfId: pendingPrfData.prfId,
+            },
+          })
+          localStorage.removeItem("pendingPRF")
+          return
+        }
 
         // All USERS go to DASHBOARD first
         if (isPurchasingAdmin) {
