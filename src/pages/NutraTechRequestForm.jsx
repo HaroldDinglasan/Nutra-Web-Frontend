@@ -630,11 +630,15 @@ const NutraTechForm = () => {
 
     const departmentId = localStorage.getItem("userDepartmentId")
 
+    // saving prf header data details
     const prfHeaderData = {
       departmentId: departmentId,
       prfNo: purchaseCodeNumber,
       prfDate: currentDate,
       preparedBy: fullname,
+      checkedBy: approvalNames.checkedByUser,
+      approvedByUser: approvalNames.approvedByUser,
+      receivedByUser: approvalNames.receivedByUser,
     }
 
     try {

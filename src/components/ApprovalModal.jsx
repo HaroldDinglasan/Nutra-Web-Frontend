@@ -4,7 +4,6 @@ import "../styles/ApprovalModal.css"
 import axios from "axios"
 
 const ApprovalModal = ({ onClose }) => {
-
   // Initial form state 
   const initialFormData = {
     checkedByUser: "",
@@ -113,11 +112,11 @@ const ApprovalModal = ({ onClose }) => {
     fetchEmployees()
   }, [])
 
-  // ✅ Get logged-in user data (stored at login)
+  // Get logged-in user data (stored at login)
   const loggedUser = JSON.parse(localStorage.getItem("user") || "{}")
   const departmentType = loggedUser?.departmentType
 
-  // ✅ Pre-assign Checked By & Approved By based on department
+  // Assign Check and Approved by Department
   useEffect(() => {
     if (departmentType) {
       let defaultCheckedBy = ""
@@ -305,7 +304,6 @@ const ApprovalModal = ({ onClose }) => {
     setSubmitting(true)
     setError(null)
 
-    // Ensure we have the current user ID
     if (!currentUserId) {
       const userId = localStorage.getItem("userId")
       if (!userId) {
@@ -317,10 +315,10 @@ const ApprovalModal = ({ onClose }) => {
     }
 
     try {
-      // Check if an approval record already exists for this user
+      // Step 1: Check if record exists in AssignedApprovals
       const checkResponse = await axios.get(`http://localhost:5000/api/approvals/user/${currentUserId}`)
+      const existingApproval = checkResponse.data.data?.[0]
 
-      // Use the selected employees' Oids for approval IDs
       const approvalData = {
         UserID: currentUserId,
         ApplicType: "PRF",
@@ -336,21 +334,39 @@ const ApprovalModal = ({ onClose }) => {
       let response
       let approvalId
 
-      console.log("Saving approval settings WITHOUT sending notifications...")
-
-      // If approval record exists, update it
-      if (checkResponse.data.data && checkResponse.data.data.length > 0) {
-        approvalId = checkResponse.data.data[0].ApproverAssignID
-        response = await axios.put(`http://localhost:5000/api/approvals/${approvalId}`, approvalData)
-        console.log("Approval settings updated:", response.data)
+      // Step 2: Create or update AssignedApprovals
+      if (existingApproval) {
+        approvalId = existingApproval.ApproverAssignID
+        await axios.put(`http://localhost:5000/api/approvals/${approvalId}`, approvalData)
+        console.log("✅ Approval record updated.")
       } else {
-        // Otherwise create a new record
-        response = await axios.post("http://localhost:5000/api/approvals", approvalData)
-        console.log("Approval settings created:", response.data)
-        approvalId = response.data.data.id
+        const res = await axios.post("http://localhost:5000/api/approvals", approvalData)
+        approvalId = res.data.data?.id
+        console.log("✅ New approval record created.")
       }
 
-      // Save approval names to localStorage for use in the form
+      // Step 3: Populate correct OIDs in AssignedApprovals (NEW PART)
+      await axios.post("http://localhost:5000/api/populate-approvals", {
+        userId: currentUserId,
+        checkedBy: formData.checkedByUser,
+        approvedBy: formData.approvedByUser,
+        receivedBy: formData.receivedByUser,
+      })
+      console.log("✅ AssignedApprovals OIDs populated successfully.")
+
+      // Step 4: Update PRFTABLE with the selected names
+      const currentPrfId = localStorage.getItem("currentPrfId")
+      if (currentPrfId) {
+        await axios.put("http://localhost:5000/api/prf/update-approvers", {
+          prfId: currentPrfId,
+          checkedBy: formData.checkedByUser,
+          approvedBy: formData.approvedByUser,
+          receivedBy: formData.receivedByUser,
+        })
+        console.log("✅ PRFTABLE updated with approver names.")
+      }
+
+      // Step 5: Save to localStorage for frontend use
       localStorage.setItem("checkedByUser", formData.checkedByUser)
       localStorage.setItem("approvedByUser", formData.approvedByUser)
       localStorage.setItem("receivedByUser", formData.receivedByUser)
@@ -367,20 +383,17 @@ const ApprovalModal = ({ onClose }) => {
             approvedByUser: formData.approvedByUser,
             receivedByUser: formData.receivedByUser,
           },
-        }),
+        })
       )
 
-      // Show success message without mentioning email notifications
-      alert("Approval settings saved successfully! Email notifications will be sent when you save the PRF form.")
-
-      // Reset form fields after successful save and close modal
+      alert("✅ Approval details saved successfully!")
       setTimeout(() => {
         resetFormFields()
         onClose()
       }, 1000)
     } catch (error) {
-      console.error("Error saving approval settings:", error)
-      setError(error.response?.data?.message || "Failed to save approval settings. Please try again.")
+      console.error("❌ Error saving approval settings:", error)
+      setError(error.response?.data?.message || "Failed to save approval settings.")
     } finally {
       setSubmitting(false)
     }
