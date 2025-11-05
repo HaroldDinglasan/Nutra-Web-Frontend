@@ -90,7 +90,7 @@ const NutraTechForm = () => {
 
         // Dito nag sstore yung data at nag didisplay ng prf header
         setPurchaseCodeNumber(data.header.prfNo)
-        setCurrentDate(data.header.prfDate)
+        setPrfDate(data.header.prfDate)
         setPreparedBy(data.header.preparedBy)
         setIsCancel(data.header.isCancel)
 
