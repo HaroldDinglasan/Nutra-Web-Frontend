@@ -634,7 +634,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
 
             <div className="delivery-date-section" style={{ marginTop: "16px" }}>
-              <h4>Expected Delivery Date:</h4>
+              <h4>Delivered Date:</h4>
               <input
                 type="date"
                 value={expectedDeliveryDate}
