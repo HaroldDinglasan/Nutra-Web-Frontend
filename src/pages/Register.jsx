@@ -40,51 +40,27 @@ const Register = () => {
   useEffect(() => {
     let id = null
     switch (department) {
-      case "Human Resource": 
+
+      case "CGS":
         id = 1
-        break
-      case "Information Technology": 
+      break
+
+      case "QC":
         id = 2
-        break
-      case "Finance": 
+      break
+
+      case "MMD":
         id = 3
-        break
-      case "Marketing": 
-        id = 4
-        break
-      case "Purchasing": 
-        id = 5
-        break
-      case "Production": 
-        id = 6
-        break
-      case "Corplan": 
-        id = 7
-        break
-      case "CGS": 
-        id = 8
-        break
-      case "CMD": 
-        id = 9
-        break
-      case "Audit": 
-        id = 10
-        break
-      case "Legal": 
-        id = 11
-        break
-      case "Regulatory": 
-        id = 12
-        break
-      case "Engineering": 
-        id = 13
-        break
+      break
+
       case "WLO": 
-        id = 14
-        break
-      case "Sales": 
-        id = 15
-        break
+        id = 4
+      break
+
+      case "Purchasing":
+        id = 5
+      break
+    
       default:
         id = null
     }
@@ -179,21 +155,11 @@ const Register = () => {
               onChange={(e) => setDepartment(e.target.value)}
             >
               <option value="">Select Department</option>
-              <option value="Human Resource">Human Resources</option>
-              <option value="Information Technology">Information Technology</option>
-              <option value="Finance">Finance</option> 
-              <option value="Marketing">Marketing</option> 
-              <option value="Purchasing">Purchasing</option> 
-              <option value="Production">Production</option> 
-              <option value="Corplan">Corplan</option> 
               <option value="CGS">CGS</option> 
-              <option value="CMD">CMD</option> 
-              <option value="Audit">Audit</option> 
-              <option value="Legal">Legal</option> 
-              <option value="Regulatory">Regulatory</option> 
-              <option value="Engineering">Engineering</option> 
+              <option value="QC">QC</option> 
+              <option value="MMD">MMD</option> 
               <option value="WLO">WLO</option> 
-              <option value="Sales">Sales</option> 
+              <option value="Purchasing">Purchasing</option> 
             </select>
             <img src={departmentIcon || "/placeholder.svg"} alt="Dept Icon" className="dropdown-icon" />
           </div>

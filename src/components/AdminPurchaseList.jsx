@@ -15,10 +15,12 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   const [selectedPrf, setSelectedPrf] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // State for modal form fields
+  //       getter          setter
   const [modalStatus, setModalStatus] = useState("")
-  const [remarks, setRemarks] = useState("")
-  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("")
+  const [selectedId, setSelectedId] = useState(null);
+  const [selectedRemarks, setSelectedRemarks] = useState("");
+  const [dateDelivered, setDateDelivered] = useState("");
+
 
   useEffect(() => {
     fetchAllPrfList()
@@ -93,13 +95,33 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   };
 
   // Handle row click and open modal
-  const handleRowClick = (prf) => {
-    setSelectedPrf(prf)
-    setModalStatus(prf.status)
-    setRemarks("")
-    setExpectedDeliveryDate("")
-    setIsModalOpen(true)
-  }
+  const handleRowClick = async (prf) => {
+    try {
+      // Set initial state
+      setSelectedPrf(prf);
+      setSelectedId(prf.Id);
+      setSelectedRemarks(prf.remarks || ""); // load existing remarks if available
+      setDateDelivered(prf.dateDelivered || ""); // load exisisting date delivered
+      setModalStatus(prf.status);
+      setIsModalOpen(true);
+
+      // ✅ Fetch latest remarks from backend
+      const response = await axios.get(`http://localhost:5000/api/getRemarks/${prf.Id}`);
+
+      if (response.data && response.data.remarks !== undefined) {
+        setSelectedRemarks(response.data.remarks);
+        setDateDelivered(response.data.DateDelivered || "");
+      } else {
+        setSelectedRemarks("");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching remarks:", error);
+      setSelectedRemarks("");
+    } finally {
+      // ✅ Always open modal even if API fails
+      setIsModalOpen(true);
+    }
+  };
 
   // Handle status update
   const handleStatusUpdate = () => {
@@ -112,8 +134,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
           ? {
               ...prf,
               status: modalStatus,
-              remarks: remarks,
-              expectedDeliveryDate: expectedDeliveryDate,
+              remarks: selectedRemarks,
             }
           : prf,
       )
@@ -164,6 +185,36 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       alert("Failed to mark item as received. Please try again.")
     }
   }
+
+  const handleSaveRemarks = async () => {
+    if (!selectedId) {
+      alert("⚠️ Please select a PRF first!");
+      return;
+    }
+
+    try {
+      await axios.put(`http://localhost:5000/api/updateRemarks/${selectedId}`, {
+        remarks: selectedRemarks,
+        dateDelivered: dateDelivered || null,
+      });
+
+      alert("✅ Remarks saved successfully!");
+
+      // ✅ Refresh list to show updated remarks
+      await fetchAllPrfList();
+
+      // ✅ Close modal
+      setIsModalOpen(false);
+      setSelectedRemarks("");
+      setSelectedPrf(null);
+
+      // ✅ Notify other components
+      window.dispatchEvent(new Event("prfStatusUpdated"));
+    } catch (error) {
+      console.error("❌ Error saving remarks:", error);
+      alert("Failed to save remarks. Please try again.");
+    }
+  };
 
   // Helper function to update filtered list
   const updateFilteredList = (updatedPrfList) => {
@@ -616,8 +667,8 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <div className="remarks-section" style={{ marginTop: "16px" }}>
               <h4>Remarks:</h4>
               <textarea
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
+                value={selectedRemarks || ""}
+                onChange={(e) => setSelectedRemarks(e.target.value)}
                 placeholder="Enter remarks..."
                 className="remarks-input"
                 style={{
@@ -637,8 +688,8 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
               <h4>Delivered Date:</h4>
               <input
                 type="date"
-                value={expectedDeliveryDate}
-                onChange={(e) => setExpectedDeliveryDate(e.target.value)}
+                value={dateDelivered ? dateDelivered.split("T")[0] : ""}
+                onChange={(e) => setDateDelivered(e.target.value)}
                 className="delivery-date-input"
                 style={{
                   padding: "8px 12px",
@@ -653,7 +704,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
 
             <div className="button-container" style={{ marginTop: "24px" }}>
-              <button onClick={handleStatusUpdate} className="update-admin-button">
+              <button onClick={handleSaveRemarks} className="update-admin-button">
                 SAVE
               </button>
 
