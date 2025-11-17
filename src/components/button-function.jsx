@@ -40,10 +40,15 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) =
 // Send email notifications after successful PRF save
 const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
   try {
-    // Get email addresses from localStorage (set by ApprovalModal)
+    // Kinukuha yung email address galing sa localStorage sa Approval Modal
     const checkedByEmail = localStorage.getItem("checkedByEmail")
     const approvedByEmail = localStorage.getItem("approvedByEmail")
     const receivedByEmail = localStorage.getItem("receivedByEmail")
+
+    // Kinukuha yung FullName galing sa localStorage sa Approval Modal
+    const checkedByName = localStorage.getItem("checkedByUser")
+    const approvedByName = localStorage.getItem("approvedByUser")
+    const receivedByName = localStorage.getItem("receivedByUser")
 
     // Only send notifications if we have at least one email address
     if (!checkedByEmail && !approvedByEmail && !receivedByEmail) {
@@ -60,8 +65,11 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
       preparedBy,
       company,
       checkedByEmail,
+      checkedByName, // dinagdag
       approvedByEmail,
+      approvedByName, // dinagdag
       receivedByEmail,
+      receivedByName, // dinagdag
     })
 
     const response = await axios.post("http://localhost:5000/api/notifications/send-direct", {
@@ -71,8 +79,11 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
       company,
       userId: userId ? Number(userId) : undefined,
       checkedByEmail,
+      checkedByName, // dinagdag
       approvedByEmail,
+      approvedByName, // dinagdag
       receivedByEmail,
+      receivedByName, // dinagdag
     })
 
     if (response.data.success) {

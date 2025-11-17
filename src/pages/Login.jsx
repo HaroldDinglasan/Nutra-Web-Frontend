@@ -27,6 +27,11 @@ const Login = () => {
     const idFromUrl = params.get("prfId")
     const noFromUrl = params.get("prfNo")
 
+    // Step 1: Kunin ang full names ng mga approvers galing sa email link
+    const checkedBy = params.get("checkedBy")
+    const approvedBy = params.get("approvedBy")
+    const receivedBy = params.get("receivedBy")
+
     // decode any URL encoding (like N%2087502 → N 87502)
     const decodedPrfNo = noFromUrl ? decodeURIComponent(noFromUrl) : null
 
@@ -39,10 +44,18 @@ const Login = () => {
       // console.log("🧾 PRF No received from email:", decodedPrfNo)
     }
 
+    // Step 2: Mag store yung PRF at approver information
     if (idFromUrl && decodedPrfNo) {
-      setPendingPrfData({ prfId: idFromUrl, prfNo: decodedPrfNo })
+      const prfInfo = {
+        prfId: idFromUrl,
+        prfNo: decodedPrfNo,
+        checkedBy: checkedBy ? decodeURIComponent(checkedBy) : "",
+        approvedBy: approvedBy ? decodeURIComponent(approvedBy) : "",
+        receivedBy: receivedBy ? decodeURIComponent(receivedBy) : "",
+      }
+      setPendingPrfData(prfInfo)
       // Also keep localStorage as backup
-      localStorage.setItem("pendingPRF", JSON.stringify({ prfId: idFromUrl, prfNo: decodedPrfNo }))
+      localStorage.setItem("pendingPRF", JSON.stringify(prfInfo))
     }
   }, [location])
 
@@ -112,15 +125,21 @@ const Login = () => {
         localStorage.setItem("userRole", isPurchasingAdmin ? "admin" : "user")
 
         if (pendingPrfData && pendingPrfData.prfId) {
+          localStorage.setItem("checkedByUser", pendingPrfData.checkedBy || "")
+          localStorage.setItem("approvedByUser", pendingPrfData.approvedBy || "")
+          localStorage.setItem("receivedByUser", pendingPrfData.receivedBy || "")
+
           navigate(`/prf/${pendingPrfData.prfId}`, {
             state: {
               company: selectedCompany,
               fromEmailLink: true,
               prfNo: pendingPrfData.prfNo,
               prfId: pendingPrfData.prfId,
+              checkedBy: pendingPrfData.checkedBy,
+              approvedBy: pendingPrfData.approvedBy,
+              receivedBy: pendingPrfData.receivedBy,
             },
           })
-          localStorage.removeItem("pendingPRF")
           return
         }
 
