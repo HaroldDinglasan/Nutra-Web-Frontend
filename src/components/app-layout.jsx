@@ -25,7 +25,7 @@ const AppLayout = ({ children }) => {
   const [cancelLimitReached, setCancelLimitReached] = useState(false)
   // 'prfNo' or 'purpose'
 
-  // Get user role from localStorage
+  // Kinukuha yung user role sa local storage
   const userRole = localStorage.getItem("userRole") || "user"
   const isAdmin = userRole === "admin"
 
@@ -41,29 +41,31 @@ const AppLayout = ({ children }) => {
     }
   }, [location])
 
-  // clear search input when changing side bar label
+  // binubura ang laman ng search input kapag nagbabago ng side bar label
   useEffect(() => {
     setSearchInput("")
   }, [activeSection])
 
-  // Clear approval names when navigating away from PRF Request
+  // Binubura ang approval names kapag nag babago ng page
   useEffect(() => {
     if (activeSection !== "prfRequest") {
-      // Clear approval names from localStorage when not in PRF Request section
-      localStorage.removeItem("checkedByUser")
-      localStorage.removeItem("approvedByUser")
-      localStorage.removeItem("receivedByUser")
+      if (!window.__shouldPreserveEmailApprovals) {
+        localStorage.removeItem("checkedByUser")
+        localStorage.removeItem("approvedByUser")
+        localStorage.removeItem("receivedByUser")
 
-      // Dispatch event to clear approval names in the form component
-      window.dispatchEvent(
-        new CustomEvent("approvalSettingsUpdated", {
-          detail: {
-            checkedByUser: "",
-            approvedByUser: "",
-            receivedByUser: "",
-          },
-        }),
-      )
+        window.dispatchEvent(
+          new CustomEvent("approvalSettingsUpdated", {
+            detail: {
+              checkedByUser: "",
+              approvedByUser: "",
+              receivedByUser: "",
+            },
+          }),
+        )
+      } else {
+        window.__shouldPreserveEmailApprovals = false
+      }
     }
   }, [activeSection])
 
@@ -73,6 +75,9 @@ const AppLayout = ({ children }) => {
         setIsUpdating(event.detail.isUpdating)
         setIsPrfCancelled(event.detail.isPrfCancelled)
         setCancelLimitReached(event.detail.cancelLimitReached)
+
+        const shouldPreserve = event.detail.hasEmailLinkApprovals || event.detail.shouldPreserveEmailApprovals
+        window.__shouldPreserveEmailApprovals = shouldPreserve
       }
     }
 
@@ -116,11 +121,25 @@ const AppLayout = ({ children }) => {
     setApprovalModalOpen(false)
   }
 
+  // Sign out button sa NutraTechForm
   const handleSignOut = () => {
+    setDropdownOpen(false)
+    setSettingsDropdownOpen(false)
+
+    window.dispatchEvent(new CustomEvent("userLoggingOut"))
+
     sessionStorage.clear()
     localStorage.clear()
-    navigate("/login")
+
+    window.__shouldPreserveEmailApprovals = false
+
+    // Sinisigurado na ang React app ay mareset at madisplay ang Login page ng maayos 
+    setTimeout(() => {
+      window.location.replace("/login")
+    }, 100)
   }
+
+
 
   // Navigation functions with approval clearing
   const navigateToDashboard = () => {

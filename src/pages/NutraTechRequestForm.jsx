@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { Calendar } from "lucide-react"
 import "../styles/NutratechForm.css"
-import { useParams, useLocation, useNavigate} from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import NutraTechlogo from "../assets/NTBI.png"
 import avliLogo from "../assets/AVLI.png"
 import apthealthLogo from "../assets/apthealth inc full logo.png"
@@ -16,7 +16,7 @@ import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../com
 import axios from "axios"
 
 const NutraTechForm = () => {
-  // State variables 
+  // State variables
   const navigate = useNavigate()
   const [currentDate, setCurrentDate] = useState(() => {
     const today = new Date()
@@ -40,117 +40,60 @@ const NutraTechForm = () => {
   const [preparedBy, setPreparedBy] = useState("") // sino nag preapre ng prf
   const [isCancel, setIsCancel] = useState(false) // kapag ang prf ay cancelled
   const [prfDetails, setPrfDetails] = useState([]) // list ng prf items from PRFTABLE_DETAILS
-  const [loading, setLoading] = useState(false) 
+  const [loading, setLoading] = useState(false)
 
-  // nag rurun kapag nag load ng ang page
-  useEffect(() => {
-    // chinecheck kung ang prfId ay exisiting na sa memory 
-    let activePrfId = prfId
-
-    // chinecheck yung route galing sa Proceed button
-    if (location.state && location.state.prfId) {
-      // console.log("📦 PRF ID from email link (via Router state):", location.state.prfId) // pinapasa ang prfId papunta sa location.state galing sa Proceed button
-      activePrfId = location.state.prfId
-      setPrfId(location.state.prfId)
+  const [hasEmailLinkApprovals, setHasEmailLinkApprovals] = useState(false);
+  const [shouldFetchApprovals, setShouldFetchApprovals] = useState(false)   // Track if we should fetch approval settings
+  
+  const [approvalNames, setApprovalNames] = useState(() => {
+    // First, check if location.state has approval data from Outlook email link
+    if (location.state && (location.state.checkedBy || location.state.approvedBy || location.state.receivedBy)) {
+      const approvalData = {
+        checkedByUser: location.state.checkedBy || "",
+        approvedByUser: location.state.approvedBy || "",
+        receivedByUser: location.state.receivedBy || "",
+      };
+      console.log("[v0] Using approval data from location.state:", approvalData);
+      return approvalData;
     }
 
+    // check localStorage - after mag login ni user dito nag store 
+    const storedCheckedBy = localStorage.getItem("checkedByUser") || "";
+    const storedApprovedBy = localStorage.getItem("approvedByUser") || "";
+    const storedReceivedBy = localStorage.getItem("receivedByUser") || "";
     
-    if (!activePrfId) {
-      const pending = localStorage.getItem("pendingPRF") // chinecheck yung local storage na binato ng Login kapag wala sa state data
-      if (pending) {
-        const parsed = JSON.parse(pending)
-        if (parsed.prfId) {
-          // console.log("📦 PRF ID from localStorage:", parsed.prfId)
-          activePrfId = parsed.prfId
-          setPrfId(parsed.prfId)
-        }
-      }
-    }
+    const approvalData = {
+      checkedByUser: storedCheckedBy,
+      approvedByUser: storedApprovedBy,
+      receivedByUser: storedReceivedBy,
+    };
+    return approvalData;
+  });
 
-    // kapag nakita na ang prfId tinatawag yung backend
-    // pinefetch yung PRF header at details galing sa back end
-    if (activePrfId) {
-      // console.log("📦 Loading PRF using ID:", activePrfId)
-      fetchPrfData(activePrfId)
-    }
-  }, [location.state])
+  const [isOutlookView, setIsOutlookView] = useState(
+    location.state && (location.state.checkedBy || location.state.approvedBy || location.state.receivedBy) ? true : false
+  );
 
-
-  const fetchPrfData = async (prfId) => {
-    try {
-      setLoading(true)
-      // console.log("Loading PRF using ID:", prfId)
-      const response = await fetch(`http://localhost:5000/api/prf/${prfId}`)
-      const data = await response.json()
-
-      if (response.ok) {
-        console.log("PRF Data received:", data)
-        console.log("Header data:", data.header)
-        console.log("Details data:", data.details)
-
-        // Dito nag sstore yung data at nag didisplay ng prf header
-        setPurchaseCodeNumber(data.header.prfNo)
-        setPrfDate(data.header.prfDate)
-        setPreparedBy(data.header.preparedBy)
-        setIsCancel(data.header.isCancel)
-
-        if (data.details && Array.isArray(data.details)) {
-          const newRows = data.details.map((detail) => ({
-            stockCode: detail.StockCode || "",
-            quantity: detail.quantity ? detail.quantity.toString() : "",
-            unit: detail.unit || "",
-            description: detail.StockName || detail.Description || "",
-            dateNeeded: detail.DateNeeded ? convertFromMMDDYYYY(detail.DateNeeded) : getCurrentDate(),
-            purpose: detail.Purpose || "",
-            stockId: detail.Id || detail.StockCode || "",
-          }))
-
-          // Ensure we have at least 5 rows
-          while (newRows.length < 5) {
-            newRows.push({
-              stockCode: "",
-              quantity: "",
-              unit: "",
-              description: "",
-              dateNeeded: getCurrentDate(),
-              purpose: "",
-              stockId: "",
-            })
-          }
-
-          setRows(newRows)
-        }
-
-        // naguupdate para lumabas yung prf details sa table
-        setPrfDetails(data.details)
-
-        setIsUpdating(true)
-      } else {
-        console.error("Failed to fetch PRF data:", data.message)
-      }
-    } catch (error) {
-      console.error("Error fetching PRF data:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // State for approval names - Initialize as empty
-  const [approvalNames, setApprovalNames] = useState({
-    checkedByUser: "",
-    approvedByUser: "",
-    receivedByUser: "",
-  })
-
-  // Track if we should fetch approval settings
-  const [shouldFetchApprovals, setShouldFetchApprovals] = useState(false)
+  const [shouldPreserveEmailApprovals, setShouldPreserveEmailApprovals] = useState(false);
 
   // Get current date in YYYY-MM-DD format
   const getCurrentDate = () => {
     return new Date().toISOString().split("T")[0]
   }
 
-  // Format date for display
+  const [rows, setRows] = useState(
+    Array.from({ length: 5 }, () => ({
+      stockCode: "",
+      quantity: "",
+      unit: "",
+      description: "",
+      dateNeeded: getCurrentDate(),
+      purpose: "",
+      stockId: "",
+    })),
+  )
+
+  // Format ng Date pag nag display
   const formatDateForDisplay = (dateString) => {
     if (!dateString) return ""
     const date = new Date(dateString)
@@ -188,80 +131,193 @@ const NutraTechForm = () => {
     return dateString
   }
 
-  //  Dispatch PRF ID updates to the layout
-  useEffect(() => {
-    if (prfId) {
-      window.dispatchEvent(
-        new CustomEvent("prfIdUpdated", {
-          detail: { prfId },
-        }),
-      )
-    }
-  }, [prfId])
+  const fetchPrfData = async (prfId) => {
+    try {
+      setLoading(true)
+      const response = await fetch(`http://localhost:5000/api/prf/${prfId}`)
+      const data = await response.json()
 
-  // Listen for approval settings updates
-  useEffect(() => {
-    const handleApprovalSettingsUpdated = (event) => {
-      if (event.detail) {
-        setApprovalNames({
-          checkedByUser: event.detail.checkedByUser || "",
-          approvedByUser: event.detail.approvedByUser || "",
-          receivedByUser: event.detail.receivedByUser || "",
-        })
+      if (response.ok) {
+        // Dito nag sstore yung data at nag didisplay ng prf header
+        setPurchaseCodeNumber(data.header.prfNo)
+        setPrfDate(data.header.prfDate)
+        setPreparedBy(data.header.preparedBy)
+        setIsCancel(data.header.isCancel)
 
-        // If we're setting approval names from the modal, enable fetching for future loads
-        if (event.detail.checkedByUser || event.detail.approvedByUser || event.detail.receivedByUser) {
-          setShouldFetchApprovals(true)
+        if (data.details && Array.isArray(data.details)) {
+          const newRows = data.details.map((detail) => ({
+            stockCode: detail.StockCode || "",
+            quantity: detail.quantity ? detail.quantity.toString() : "",
+            unit: detail.unit || "",
+            description: detail.StockName || detail.Description || "",
+            dateNeeded: detail.DateNeeded ? convertFromMMDDYYYY(detail.DateNeeded) : getCurrentDate(),
+            purpose: detail.Purpose || "",
+            stockId: detail.Id || detail.StockCode || "",
+          }))
+
+          // Ensure we have at least 5 rows
+          while (newRows.length < 5) {
+            newRows.push({
+              stockCode: "",
+              quantity: "",
+              unit: "",
+              description: "",
+              dateNeeded: getCurrentDate(),
+              purpose: "",
+              stockId: "",
+            })
+          }
+
+          setRows(newRows)
         }
+
+        // naguupdate para lumabas yung prf details sa table
+        setPrfDetails(data.details)
+
+        if (data.approvalNames && !hasEmailLinkApprovals) {
+          setApprovalNames({
+            checkedByUser: data.approvalNames.checkedByUser || "",
+            approvedByUser: data.approvalNames.approvedByUser || "",
+            receivedByUser: data.approvalNames.receivedByUser || "",
+          });
+          
+          // Also store to localStorage for persistence
+          localStorage.setItem("checkedByUser", data.approvalNames.checkedByUser || "");
+          localStorage.setItem("approvedByUser", data.approvalNames.approvedByUser || "");
+          localStorage.setItem("receivedByUser", data.approvalNames.receivedByUser || "");
+        }
+
+        setIsUpdating(true)
+      } else {
+        console.error("Failed to fetch PRF data:", data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching PRF data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // nag rurun kapag nag load ng ang page
+  // dito nagcause ng loop sa console
+  useEffect(() => {
+    // chinecheck yung route galing sa Proceed button
+    if (location.state && location.state.prfId && fetchPrfData) {
+      const wrappedFetch = async (id) => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/prf/${id}`);
+          const data = await response.json();
+          
+          if (response.ok && data.approvalNames && !hasEmailLinkApprovals) {
+            // Set approval names from API
+            setApprovalNames({
+              checkedByUser: data.approvalNames.checkedByUser || "",
+              approvedByUser: data.approvalNames.approvedByUser || "",
+              receivedByUser: data.approvalNames.receivedByUser || "",
+            });
+            // Store to localStorage
+            localStorage.setItem("checkedByUser", data.approvalNames.checkedByUser || "");
+            localStorage.setItem("approvedByUser", data.approvalNames.approvedByUser || "");
+            localStorage.setItem("receivedByUser", data.approvalNames.receivedByUser || "");
+          }
+        } catch (error) {
+          console.error("Error fetching approval names:", error);
+        }
+        
+        // Still call the original fetchPrfData
+        if (fetchPrfData) {
+          fetchPrfData(id);
+        }
+      };
+      
+      wrappedFetch(location.state.prfId);
+    }
+
+    if (location.state && (location.state.checkedBy || location.state.approvedBy || location.state.receivedBy)) {
+      const approvalData = {
+        checkedByUser: location.state.checkedBy || "",
+        approvedByUser: location.state.approvedBy || "",
+        receivedByUser: location.state.receivedBy || "",
+      };
+
+      // Update state to ensure re-render
+      setApprovalNames(approvalData);
+      setHasEmailLinkApprovals(true);
+      setShouldPreserveEmailApprovals(true);
+
+      // Store to localStorage for persistence
+      localStorage.setItem("checkedByUser", approvalData.checkedByUser);
+      localStorage.setItem("approvedByUser", approvalData.approvedByUser);
+      localStorage.setItem("receivedByUser", approvalData.receivedByUser);
+    } else if (!hasEmailLinkApprovals) {
+      const storedCheckedBy = localStorage.getItem("checkedByUser") || "";
+      const storedApprovedBy = localStorage.getItem("approvedByUser") || "";
+      const storedReceivedBy = localStorage.getItem("receivedByUser") || "";
+      
+      if (storedCheckedBy || storedApprovedBy || storedReceivedBy) {
+        setApprovalNames({
+          checkedByUser: storedCheckedBy,
+          approvedByUser: storedApprovedBy,
+          receivedByUser: storedReceivedBy,
+        });
       }
     }
 
-    window.addEventListener("approvalSettingsUpdated", handleApprovalSettingsUpdated)
-
-    return () => {
-      window.removeEventListener("approvalSettingsUpdated", handleApprovalSettingsUpdated)
+    if (!prfId) {
+      const pending = localStorage.getItem("pendingPRF");
+      if (pending && fetchPrfData) {
+        const parsed = JSON.parse(pending);
+        if (parsed.prfId) {
+          fetchPrfData(parsed.prfId);
+        }
+      }
     }
-  }, [])
+  }, [location.state, hasEmailLinkApprovals]);
 
   // fetch approval settings when explicitly needed
   useEffect(() => {
     const fetchApprovalSettings = async () => {
-      // Only fetch if we should fetch approvals AND we're updating an existing PRF
-      if (!shouldFetchApprovals || !isUpdating) return
+      // Skip if we already have email link approvals
+      if (hasEmailLinkApprovals) {
+        return;
+      }
 
-      const userId = localStorage.getItem("userId")
-      if (!userId) return
+      // Only fetch if we should fetch approvals AND we're updating an existing PRF
+      if (!shouldFetchApprovals || !isUpdating) return;
+
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
 
       try {
-        const response = await axios.get(`http://localhost:5000/api/approvals/user/${userId}`)
+        const response = await axios.get(`http://localhost:5000/api/approvals/user/${userId}`);
 
         if (response.data.data && response.data.data.length > 0) {
-          const approval = response.data.data[0]
+          const approval = response.data.data[0];
 
           const fetchEmployeeNames = async (ids) => {
-            const names = {}
+            const names = {};
 
             for (const [key, id] of Object.entries(ids)) {
               if (id) {
                 try {
-                  const empResponse = await axios.get(`http://localhost:5000/api/employee/${id}`)
+                  const empResponse = await axios.get(`http://localhost:5000/api/employee/${id}`);
                   if (empResponse.data && empResponse.data.FullName) {
-                    names[key] = empResponse.data.FullName
+                    names[key] = empResponse.data.FullName;
                   }
                 } catch (error) {
-                  console.error(`Error fetching employee for ${key}:`, error)
+                  console.error(`Error fetching employee for ${key}:`, error);
                 }
               }
             }
 
-            return names
-          }
+            return names;
+          };
 
           const employeeNames = await fetchEmployeeNames({
             checkedByUser: approval.CheckedById,
             approvedByUser: approval.ApprovedById,
             receivedByUser: approval.ReceivedById,
-          })
+          });
 
           // Only update if we have names and we're still in update mode
           if (
@@ -272,21 +328,70 @@ const NutraTechForm = () => {
               checkedByUser: employeeNames.checkedByUser || "",
               approvedByUser: employeeNames.approvedByUser || "",
               receivedByUser: employeeNames.receivedByUser || "",
-            })
+            });
 
             // Update localStorage
-            if (employeeNames.checkedByUser) localStorage.setItem("checkedByUser", employeeNames.checkedByUser)
-            if (employeeNames.approvedByUser) localStorage.setItem("approvedByUser", employeeNames.approvedByUser)
-            if (employeeNames.receivedByUser) localStorage.setItem("receivedByUser", employeeNames.receivedByUser)
+            if (employeeNames.checkedByUser) localStorage.setItem("checkedByUser", employeeNames.checkedByUser);
+            if (employeeNames.approvedByUser) localStorage.setItem("approvedByUser", employeeNames.approvedByUser);
+            if (employeeNames.receivedByUser) localStorage.setItem("receivedByUser", employeeNames.receivedByUser);
           }
         }
       } catch (error) {
-        console.error("Error fetching approval settings:", error)
+        console.error("Error fetching approval settings:", error);
       }
-    }
+    };
 
-    fetchApprovalSettings()
-  }, [shouldFetchApprovals, isUpdating]) // Only run when these specific conditions change
+    fetchApprovalSettings();
+  }, [shouldFetchApprovals, isUpdating, hasEmailLinkApprovals]);
+
+  // Listen for approval settings updates
+  useEffect(() => {
+    const handleApprovalSettingsUpdated = (event) => {
+      if (event.detail) {
+        const updatedNames = {
+          checkedByUser: event.detail.checkedByUser || "",
+          approvedByUser: event.detail.approvedByUser || "",
+          receivedByUser: event.detail.receivedByUser || "",
+        };
+
+        // Only update if we have actual values OR we don't have email link approvals
+        if (
+          (updatedNames.checkedByUser || updatedNames.approvedByUser || updatedNames.receivedByUser) &&
+          !hasEmailLinkApprovals
+        ) {
+          setApprovalNames(updatedNames);
+          console.log("[v0] Approval settings updated from modal:", updatedNames);
+
+          // If we're setting approval names from the modal, enable fetching for future loads
+          if (updatedNames.checkedByUser || updatedNames.approvedByUser || updatedNames.receivedByUser) {
+            setShouldFetchApprovals(true);
+          }
+        } else if (!hasEmailLinkApprovals) {
+          // Only clear if we don't have email link approvals
+          setApprovalNames(updatedNames);
+        } else {
+        }
+      }
+    };
+
+    window.addEventListener("approvalSettingsUpdated", handleApprovalSettingsUpdated);
+
+    return () => {
+      window.removeEventListener("approvalSettingsUpdated", handleApprovalSettingsUpdated);
+    };
+  }, [hasEmailLinkApprovals]);
+
+
+  //  Dispatch PRF ID updates to the layout
+  useEffect(() => {
+    if (prfId) {
+      window.dispatchEvent(
+        new CustomEvent("prfIdUpdated", {
+          detail: { prfId },
+        }),
+      )
+    }
+  }, [prfId])
 
   // Check if a date is the same as today
   const checkIsSameDay = (dateToCheck) => {
@@ -434,7 +539,7 @@ const NutraTechForm = () => {
         setShouldFetchApprovals(true) // Enable fetching approvals for existing PRF
 
         // Set approval names from search results if available
-        if (data.approvalNames) {
+        if (data.approvalNames && !hasEmailLinkApprovals) {
           setApprovalNames({
             checkedByUser: data.approvalNames.checkedByUser || "",
             approvedByUser: data.approvalNames.approvedByUser || "",
@@ -484,6 +589,9 @@ const NutraTechForm = () => {
         approvedByUser: "",
         receivedByUser: "",
       })
+      // Clear the flag for email link approvals on new form
+      setHasEmailLinkApprovals(false)
+      setShouldPreserveEmailApprovals(false)
     }
 
     // Check for existing search results when component mounts
@@ -497,7 +605,7 @@ const NutraTechForm = () => {
       window.removeEventListener("prfSearchCompleted", handleSearchResults)
       window.removeEventListener("prfNewForm", handleNewForm)
     }
-  }, [company]) // Add company as a dependency since we use it in handleNewForm
+  }, [company, hasEmailLinkApprovals])
 
   // Add a focus/visibility event listener to refresh data when returning to the page
   useEffect(() => {
@@ -518,18 +626,7 @@ const NutraTechForm = () => {
     }
   }, [prfId, purchaseCodeNumber])
 
-  const [rows, setRows] = useState(
-    Array.from({ length: 5 }, () => ({
-      stockCode: "",
-      quantity: "",
-      unit: "",
-      description: "",
-      dateNeeded: getCurrentDate(),
-      purpose: "",
-      stockId: "",
-    })),
-  )
-
+ 
   // Sync globalPurpose when rows are loaded from search results
   useEffect(() => {
     const firstPurpose = rows.find((row) => row.purpose)?.purpose || ""
@@ -865,18 +962,18 @@ const NutraTechForm = () => {
           isPrfCancelled,
           isSameDay,
           prfId,
+          hasEmailLinkApprovals,
+          shouldPreserveEmailApprovals,
         },
       }),
     )
-  }, [isUpdating, isPrfCancelled, isSameDay, prfId])
+  }, [isUpdating, isPrfCancelled, isSameDay, prfId, hasEmailLinkApprovals, shouldPreserveEmailApprovals])
 
   useEffect(() => {
     const handleSaveClick = async () => {
       // First check if approval settings are configured
       if (!approvalNames.checkedByUser || !approvalNames.approvedByUser || !approvalNames.receivedByUser) {
-        alert(
-          "Please fill out approval box first. Click on the approval setting to set up the required approvers.",
-        )
+        alert("Please fill out approval box first. Click on the approval setting to set up the required approvers.")
         return
       }
 
@@ -1221,7 +1318,7 @@ const NutraTechForm = () => {
                 // For now, show an alert directing them to set up approvals
                 alert(
                   "Click here to set up approval settings. You need to configure CheckedBy, ApprovedBy, and ReceivedBy users before saving the PRF.",
-                )
+                );
               }
             }}
           >

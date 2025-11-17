@@ -4,7 +4,7 @@ import "../styles/ApprovalModal.css"
 import axios from "axios"
 
 const ApprovalModal = ({ onClose }) => {
-  // Initial form state 
+  // Initial form state
   const initialFormData = {
     checkedByUser: "",
     checkedByEmail: "",
@@ -116,38 +116,37 @@ const ApprovalModal = ({ onClose }) => {
   const loggedUser = JSON.parse(localStorage.getItem("user") || "{}")
   const departmentType = loggedUser?.departmentType
 
-  // Assign Check and Approved by Department
+  // Dito inaassign kung sino ang naka default assign sa Check at Approve 
   useEffect(() => {
     if (departmentType) {
       let defaultCheckedBy = ""
       let defaultApprovedBy = ""
 
       switch (departmentType) {
-
         case "CGS":
           defaultCheckedBy = "Jocelyn D. Ferma" // table SecuritySystemUser
           defaultApprovedBy = "Ma. Ana Teresa D. Castillo" // table SecuritySystemUser
-        break
+          break
 
         case "QC":
           defaultCheckedBy = "Evelyn A. Gatdula" // table SecuritySystemUser
           defaultApprovedBy = "Arsenio Y. Castillo" // table Head User
-        break
+          break
 
         case "MMD":
-          defaultCheckedBy = "John Guiller M. Baon"  // table SecuritySystemUser
+          defaultCheckedBy = "John Guiller M. Baon" // table SecuritySystemUser
           defaultApprovedBy = "Andrea Kathleen D. Castillo" // table SecuritySystemUser
-        break
+          break
 
         case "Purchasing":
           defaultCheckedBy = ""
           defaultApprovedBy = "Benji L. Salvador" // table SecuritySystemUser
-        break
+          break
 
         case "WLO":
           defaultCheckedBy = ""
           defaultApprovedBy = "Kristina G. Remitar" // table SecuritySystemUser
-        break
+          break
 
         // Add more departments as needed
         default:
@@ -155,7 +154,7 @@ const ApprovalModal = ({ onClose }) => {
           defaultApprovedBy = ""
       }
 
-      // ✅ Set initial dropdown values
+      // Set initial dropdown values
       setFormData((prev) => ({
         ...prev,
         checkedByUser: defaultCheckedBy,
@@ -266,7 +265,7 @@ const ApprovalModal = ({ onClose }) => {
     }
 
     try {
-      // Step 1: Check if record exists in AssignedApprovals
+      // Step 1: Check kung ang record ay nag exists sa AssignedApprovals
       const checkResponse = await axios.get(`http://localhost:5000/api/approvals/user/${currentUserId}`)
       const existingApproval = checkResponse.data.data?.[0]
 
@@ -285,7 +284,7 @@ const ApprovalModal = ({ onClose }) => {
       let response
       let approvalId
 
-      // Step 2: Create or update AssignedApprovals
+      // Step 2: Magcreate or mag update ng bago sa AssignedApprovals
       if (existingApproval) {
         approvalId = existingApproval.ApproverAssignID
         await axios.put(`http://localhost:5000/api/approvals/${approvalId}`, approvalData)
@@ -296,7 +295,7 @@ const ApprovalModal = ({ onClose }) => {
         console.log("✅ New approval record created.")
       }
 
-      // Step 3: Populate correct OIDs in AssignedApprovals (NEW PART)
+      // Step 3: Update correct OIDs in AssignedApprovals
       await axios.post("http://localhost:5000/api/populate-approvals", {
         userId: currentUserId,
         checkedBy: formData.checkedByUser,
@@ -305,7 +304,7 @@ const ApprovalModal = ({ onClose }) => {
       })
       console.log("✅ AssignedApprovals OIDs populated successfully.")
 
-      // Step 4: Update PRFTABLE with the selected names
+      // Step 4: Update PRFTABLE sa mga selected names
       const currentPrfId = localStorage.getItem("currentPrfId")
       if (currentPrfId) {
         await axios.put("http://localhost:5000/api/prf/update-approvers", {
@@ -317,12 +316,17 @@ const ApprovalModal = ({ onClose }) => {
         console.log("✅ PRFTABLE updated with approver names.")
       }
 
-      // Step 5: Save to localStorage for frontend use
+      // Step 5: Magsave sa local storage para sa front end use
       localStorage.setItem("checkedByUser", formData.checkedByUser)
       localStorage.setItem("approvedByUser", formData.approvedByUser)
       localStorage.setItem("receivedByUser", formData.receivedByUser)
 
-      // Save email addresses to localStorage for later use when saving PRF
+      // Magsave sa local storage ang Full Name ng approvers para sa email notifications
+      localStorage.setItem("checkedByName", formData.checkedByUser)
+      localStorage.setItem("approvedByName", formData.approvedByUser)
+      localStorage.setItem("receivedByName", formData.receivedByUser)
+
+      // Magsave sa local storage ang email bago magsave ng PRF 
       localStorage.setItem("checkedByEmail", formData.checkedByEmail || "")
       localStorage.setItem("approvedByEmail", formData.approvedByEmail || "")
       localStorage.setItem("receivedByEmail", formData.receivedByEmail || "")
@@ -334,7 +338,7 @@ const ApprovalModal = ({ onClose }) => {
             approvedByUser: formData.approvedByUser,
             receivedByUser: formData.receivedByUser,
           },
-        })
+        }),
       )
 
       alert("✅ Approval details saved successfully!")
@@ -408,7 +412,7 @@ const ApprovalModal = ({ onClose }) => {
                 borderRadius: "4px",
                 marginTop: "2px",
                 backgroundColor: "white",
-                zIndex: 10001, 
+                zIndex: 10001,
                 boxShadow: "0 8px 24px rgba(76, 175, 80, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)",
               }}
             >
@@ -519,7 +523,6 @@ const ApprovalModal = ({ onClose }) => {
                 className="checkby-email-input"
               />
             </div>
-
           </div>
 
           <div className="approval-sects">
