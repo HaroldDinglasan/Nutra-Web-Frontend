@@ -28,12 +28,14 @@ const Login = () => {
     const noFromUrl = params.get("prfNo")
 
     // Step 1: Kunin ang full names ng mga approvers galing sa email link
+    const preparedByFromUrl = params.get("preparedBy") // First step
     const checkedBy = params.get("checkedBy")
     const approvedBy = params.get("approvedBy")
     const receivedBy = params.get("receivedBy")
 
     // decode any URL encoding (like N%2087502 → N 87502)
     const decodedPrfNo = noFromUrl ? decodeURIComponent(noFromUrl) : null
+    const decodedPreparedBy = preparedByFromUrl ? decodeURIComponent(preparedByFromUrl) : null // Second step
 
     if (idFromUrl) {
       // console.log("🔗 PRF ID received from email:", idFromUrl)
@@ -49,6 +51,7 @@ const Login = () => {
       const prfInfo = {
         prfId: idFromUrl,
         prfNo: decodedPrfNo,
+        preparedBy: decodedPreparedBy || "", // Third step
         checkedBy: checkedBy ? decodeURIComponent(checkedBy) : "",
         approvedBy: approvedBy ? decodeURIComponent(approvedBy) : "",
         receivedBy: receivedBy ? decodeURIComponent(receivedBy) : "",
@@ -125,6 +128,7 @@ const Login = () => {
         localStorage.setItem("userRole", isPurchasingAdmin ? "admin" : "user")
 
         if (pendingPrfData && pendingPrfData.prfId) {
+          localStorage.setItem("preparedByUser", pendingPrfData.preparedBy) // Fourth step
           localStorage.setItem("checkedByUser", pendingPrfData.checkedBy || "")
           localStorage.setItem("approvedByUser", pendingPrfData.approvedBy || "")
           localStorage.setItem("receivedByUser", pendingPrfData.receivedBy || "")
@@ -135,6 +139,7 @@ const Login = () => {
               fromEmailLink: true,
               prfNo: pendingPrfData.prfNo,
               prfId: pendingPrfData.prfId,
+              preparedBy: pendingPrfData.preparedBy,
               checkedBy: pendingPrfData.checkedBy,
               approvedBy: pendingPrfData.approvedBy,
               receivedBy: pendingPrfData.receivedBy,
