@@ -134,9 +134,7 @@ const AppLayout = ({ children }) => {
     window.__shouldPreserveEmailApprovals = false
 
     // Sinisigurado na ang React app ay mareset at madisplay ang Login page ng maayos 
-    setTimeout(() => {
-      window.location.replace("/login")
-    }, 100)
+    navigate("/login")
   }
 
 

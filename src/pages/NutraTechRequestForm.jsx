@@ -69,6 +69,21 @@ const NutraTechForm = () => {
     };
     return approvalData;
   });
+  
+  const [emailLinkPreparedBy, setEmailLinkPreparedBy] = useState("");
+
+  useEffect(() => {
+    if (location.state && location.state.preparedBy) {
+      setEmailLinkPreparedBy(location.state.preparedBy);
+      localStorage.setItem("emailLinkPreparedBy", location.state.preparedBy);
+    } else {
+      const stored = localStorage.getItem("emailLinkPreparedBy");
+      if (stored) {
+        setEmailLinkPreparedBy(stored)
+      }
+    }
+  }, [location.state]);
+
 
   const [isOutlookView, setIsOutlookView] = useState(
     location.state && (location.state.checkedBy || location.state.approvedBy || location.state.receivedBy) ? true : false
@@ -143,6 +158,13 @@ const NutraTechForm = () => {
         setPrfDate(data.header.prfDate)
         setPreparedBy(data.header.preparedBy)
         setIsCancel(data.header.isCancel)
+
+        // If from email link, use the emailLinkPreparedBy instead 
+        if (emailLinkPreparedBy) {
+          setPreparedBy(emailLinkPreparedBy);
+        } else {
+          setPreparedBy(data.header.preparedBy);
+        }
 
         if (data.details && Array.isArray(data.details)) {
           const newRows = data.details.map((detail) => ({
@@ -1324,7 +1346,7 @@ const NutraTechForm = () => {
           >
             <div className="approval-box">
               <h3>Prepared By:</h3>
-              <div className="signature-box">{fullname}</div>
+              <div className="signature-box">{ emailLinkPreparedBy || fullname}</div>
               <p className="signature-label">Signature over printed Name / Date</p>
             </div>
 
