@@ -71,7 +71,6 @@ const NutraTechForm = () => {
   });
   
   const [emailLinkPreparedBy, setEmailLinkPreparedBy] = useState("");
-
   useEffect(() => {
     if (location.state && location.state.preparedBy) {
       setEmailLinkPreparedBy(location.state.preparedBy);
@@ -159,7 +158,7 @@ const NutraTechForm = () => {
         setPreparedBy(data.header.preparedBy)
         setIsCancel(data.header.isCancel)
 
-        // If from email link, use the emailLinkPreparedBy instead 
+        // kapag galing sa Outlook link, gamitin ang emailLinkPreparedBy 
         if (emailLinkPreparedBy) {
           setPreparedBy(emailLinkPreparedBy);
         } else {
@@ -692,8 +691,23 @@ const NutraTechForm = () => {
   }
 
   const handleInputChange = (index, event) => {
-    const { name, value } = event.target
+    const { name, value } = event.target;
     const newRows = [...rows]
+
+    // Backspace yung row kapag yung stock code is cleared
+    if (name === "stockCode" && value.trim() === "") {
+      newRows[index] = {
+        stockCode: "",
+        quantity: "",
+        unit: "",
+        description: "",
+        dateNeeded: "",
+        purpose: "",
+        stockId: "",
+      };
+      setRows(newRows);
+      return;
+    }
 
     if (name === "quantity") {
       // Updated validation for integers AND decimals
@@ -1130,10 +1144,10 @@ const NutraTechForm = () => {
             </div>
           </div>
 
-          <div className="field-box">
-            <label className="project-label">Project Code:</label>
-            <input type="text" className="project-code-input" readOnly />
-          </div>
+           <div className="project-code-container">
+              <label className="project-label">Project Code:</label>
+              <input type="text" className="project-code-input" readOnly />
+           </div>
 
           <div className="following-label">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
@@ -1218,13 +1232,20 @@ const NutraTechForm = () => {
                       }}
                       style={{ cursor: isPrfCancelled || !isSameDay ? "default" : "pointer" }}
                     >
-                      <input
-                        type="text"
-                        name="stockCode"
-                        value={row.stockCode}
-                        readOnly
-                        style={{ color: isPrfCancelled ? "red" : "inherit" }}
-                      />
+                    <input
+                      type="text"
+                      name="stockCode"
+                      value={row.stockCode}
+                      onChange={(e) => handleInputChange(index, e)}
+                      onClick={(e) => {
+                        // kapag meron na stock item, hindi na maoopen yung stock code modal
+                        if (row.stockCode) {
+                          e.stopPropagation();
+                        }
+                      }}
+                      readOnly={isPrfCancelled || !isSameDay ? true : false}
+                      style={{ color: isPrfCancelled ? "red" : "inherit" }}
+                    />
                     </td>
                     <td>
                       <input

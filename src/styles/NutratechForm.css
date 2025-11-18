@@ -221,6 +221,43 @@ h3 {
     height: 15px;
 }
 
+.project-code-container{
+    display: flex;
+    align-items: left;
+    height: 15px;
+    margin-bottom: 30px;
+}
+
+.project-label{
+    font-size: 17px;
+    font-weight: bold;
+    white-space: nowrap; 
+    margin-bottom: 15px;
+    margin-left: 25px;
+}
+
+.project-code-input{
+    width: 18.5rem;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 14px;   
+    appearance: none;
+    background-color: white;
+    height: 14px;
+    text-align: center;
+    line-height: 1.2; 
+    font-size: 14px; 
+    height: 20px; 
+    vertical-align: middle; 
+    appearance: none; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    height: 35px;
+    margin-left: 95px;
+}
+
 .nutra-date-label {
     font-size: 16px;
     font-weight: bold;
@@ -266,7 +303,7 @@ h3 {
 }
 
 .approval-box {
-    width: 250px; 
+    width: 21.5%; 
     background-color: #ffffff; 
     padding: 10px;
     text-align: center;
@@ -355,42 +392,12 @@ h3 {
     height: 35px;
 }
 
-
-.project-code-input{
-    width: 26%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    outline: none;
-    font-size: 14px;   
-    appearance: none;
-    background-color: white;
-    height: 14px;
-    text-align: center;
-    line-height: 1.2; 
-    font-size: 14px; 
-    height: 20px; 
-    vertical-align: middle; 
-    appearance: none; 
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    height: 35px;
-    margin-right: 633px; /* Para mag move yung input field ng Project Code */
-}
-
-.project-label {
-    font-size: 17px;
-    font-weight: bold;
-    white-space: nowrap; 
-    margin-left: -1px;
-}
-
 .nutra-header-dept-label {
     font-size: 17px;
     font-weight: bold;
     white-space: nowrap; 
     margin-bottom: 15px;
-    margin-left: -1px;
+    margin-left: 5px;
 }
 
 .full-logo {
