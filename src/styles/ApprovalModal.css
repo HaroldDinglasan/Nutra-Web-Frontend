@@ -13,7 +13,7 @@
 }
 
 /* Update the approval-modal class to make it scrollable */
-.approval-modal {
+.approval-setting-modal {
   background: linear-gradient(145deg, #ffffff, #f8fffe);
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(76, 175, 80, 0.15), 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -33,23 +33,23 @@
 }
 
 /* Add custom scrollbar styling for WebKit browsers */
-.approval-modal::-webkit-scrollbar {
+/* .approval-setting-modal::-webkit-scrollbar {
   width: 8px;
 }
 
-.approval-modal::-webkit-scrollbar-track {
+.approval-setting-modal::-webkit-scrollbar-track {
   background: rgba(248, 255, 254, 0.5);
   border-radius: 10px;
 }
 
-.approval-modal::-webkit-scrollbar-thumb {
+.approval-setting-modal::-webkit-scrollbar-thumb {
   background: rgba(76, 175, 80, 0.5);
   border-radius: 10px;
 }
 
-.approval-modal::-webkit-scrollbar-thumb:hover {
+.approval-setting-modal::-webkit-scrollbar-thumb:hover {
   background: rgba(76, 175, 80, 0.7);
-}
+} */
 
 .section-title {
   display: flex;
@@ -84,7 +84,7 @@
 }
 
 /* Fix the approval-modal-header to stay at the top when scrolling */
-.approval-modal-header {
+.approval-setting-header {
   background: linear-gradient(135deg, #4caf50, #66bb6a);
   color: white;
   padding: 20px 24px;
@@ -99,7 +99,7 @@
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
-.approval-modal-header h2 {
+.approval-setting-header h2 {
   margin: 0;
   font-size: 1.4rem;
   font-weight: 600;

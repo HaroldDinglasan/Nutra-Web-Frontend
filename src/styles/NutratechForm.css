@@ -294,7 +294,7 @@ h3 {
     margin-left: -2px;
 }
 
-.approval-section {
+.approval-section-container {
     display: flex;
     justify-content: center;
     gap: 30px;
@@ -302,7 +302,7 @@ h3 {
     outline: none;
 }
 
-.approval-box {
+.approval-box-container {
     width: 21.5%; 
     background-color: #ffffff; 
     padding: 10px;
@@ -313,8 +313,12 @@ h3 {
     outline: 1px solid #c1c0c0;
 }
 
-.approval-box h3{
+.approval-box-container h3{
     font-size: 17px;    
+}
+
+.approval-button {
+  margin-top: 10px;
 }
 
 .signature-box {
@@ -329,7 +333,7 @@ h3 {
     text-align: center;
 }
 
-.approval-box .signature-label{
+.approval-box-container .signature-label{
     font-size: 12px;
 }
 
