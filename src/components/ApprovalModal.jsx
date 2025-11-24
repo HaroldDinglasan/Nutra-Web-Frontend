@@ -486,8 +486,8 @@ const ApprovalModal = ({ onClose }) => {
 
   return (
     <div className="approval-modal-overlay">
-      <div className="approval-modal">
-        <div className="approval-modal-header">
+      <div className="approval-setting-modal">
+        <div className="approval-setting-header">
           <h2>Approval Settings</h2>
           <button className="close-button" onClick={handleClose}>
             ×

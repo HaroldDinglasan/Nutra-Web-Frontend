@@ -14,6 +14,8 @@ import UomModal from "../components/UomModal"
 import { CancelButton, AddRowButton, UncancelButton } from "../components/button"
 import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
+import ApprovalButtonAction from "../components/ApprovalButtonAction"
+import ApproveOrRejectModal from "../components/ApproveOrRejectModal"
 
 const NutraTechForm = () => {
   // State variables
@@ -44,7 +46,9 @@ const NutraTechForm = () => {
 
   const [hasEmailLinkApprovals, setHasEmailLinkApprovals] = useState(false);
   const [shouldFetchApprovals, setShouldFetchApprovals] = useState(false)   // Track if we should fetch approval settings
-  
+
+  const [assignedAction, setAssignedAction] = useState(null)
+
   const [approvalNames, setApprovalNames] = useState(() => {
     // First, check if location.state has approval data from Outlook email link
     if (location.state && (location.state.checkedBy || location.state.approvedBy || location.state.receivedBy)) {
@@ -1082,6 +1086,85 @@ const NutraTechForm = () => {
   // Check if buttons should be shown based on same day check
   const showActionButtons = isSameDay && isUpdating
 
+  // Function para lumabas yung check, approve, receive button
+  useEffect(() => {
+    if (location.state && location.state.assignedAction) {
+      setAssignedAction(location.state.assignedAction) 
+      localStorage.setItem("assignedAction", location.state.assignedAction)
+      console.log("Assigned action from email link:", location.state.assignedAction)
+    } else {
+      const storedAction = localStorage.getItem("assignedAction")
+      if (storedAction) {
+        setAssignedAction(storedAction)
+      }
+    }
+  }, [location.state])
+
+  // 
+  const handleApprovalAction = async (actionType, reason) => {
+    if (reason) {
+      console.log(`User rejected PRF ${prfId} with reason:`, reason)
+      alert(`PRF has been rejected by ${fullname}\n\nReason: ${reason}`)
+    } else {
+      console.log(`User ${actionType}ed PRF:`, prfId)
+      alert(`PRF has been ${actionType}ed by ${fullname}`)
+    }
+  }
+
+  useEffect(() => {
+    // Check if there's a prfDate from email in localStorage or state
+    const prfDateFromEmail = localStorage.getItem("prfDateFromEmail")
+    const stateDate = location.state?.prfDate
+
+    // Use email date if available (YYYY-MM-DD format), otherwise use today's date
+    if (prfDateFromEmail) {
+      const formattedEmailDate = formatDateForInput(prfDateFromEmail)
+      setCurrentDate(formattedEmailDate)
+    } else if (stateDate) {
+      const formattedStateDate = formatDateForInput(stateDate)
+      setCurrentDate(formattedStateDate)
+    } else {
+      // Default to today's date if no email date
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = String(today.getMonth() + 1).padStart(2, "0")
+      const day = String(today.getDate()).padStart(2, "0")
+      setCurrentDate(`${year}-${month}-${day}`)
+    }
+  }, [location.state])
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return ""
+
+    // If already in YYYY-MM-DD format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString
+    }
+
+    // Handle MM-DD-YYYY format
+    if (/^\d{2}-\d{2}-\d{4}$/.test(dateString)) {
+      const [month, day, year] = dateString.split("-")
+      return `${year}-${month}-${day}`
+    }
+
+    // Try parsing as a Date object
+    try {
+      const date = new Date(dateString)
+      if (!isNaN(date.getTime())) {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, "0")
+        const day = String(date.getDate()).padStart(2, "0")
+        return `${year}-${month}-${day}`
+      }
+    } catch (error) {
+      console.error("Error parsing date:", error)
+    }
+
+    return ""
+  }
+
+ 
+
   return (
     <>
       <div className="form-container">
@@ -1354,7 +1437,7 @@ const NutraTechForm = () => {
           )}
 
           <div
-            className="approval-section"
+            className="approval-section-container" // kaya nakukulong yung ApproverOrRejectModal dahil sa loob lang nito naikot
             onClick={() => {
               if (!approvalNames.checkedByUser || !approvalNames.approvedByUser || !approvalNames.receivedByUser) {
                 // Open approval modal - you'll need to add this state and modal
@@ -1365,29 +1448,55 @@ const NutraTechForm = () => {
               }
             }}
           >
-            <div className="approval-box">
+            <div className="approval-box-container">
               <h3>Prepared By:</h3>
               <div className="signature-box">{ emailLinkPreparedBy || fullname}</div>
               <p className="signature-label">Signature over printed Name / Date</p>
             </div>
 
-            <div className="approval-box">
+            <div className="approval-box-container">
               <h3>Checked By:</h3>
               <div className="signature-box">{approvalNames.checkedByUser}</div>
               <p className="signature-label">Signature over printed Name / Date</p>
+              {assignedAction === "check" && (
+                <ApprovalButtonAction
+                  action="check"
+                  assignedAction={assignedAction}
+                  onAction={handleApprovalAction}
+                  className="approval-button"
+
+                />
+              )}
             </div>
 
-            <div className="approval-box">
+            <div className="approval-box-container">
               <h3>Approved By:</h3>
               <div className="signature-box">{approvalNames.approvedByUser}</div>
               <p className="signature-label">Signature over printed Name / Date</p>
+              {assignedAction === "approve" && (
+                <ApprovalButtonAction
+                  action="approve"
+                  assignedAction={assignedAction}
+                  onAction={handleApprovalAction}
+                  className="approval-button"
+                />
+              )}
             </div>
 
-            <div className="approval-box">
+            <div className="approval-box-container">
               <h3>Received By:</h3>
               <div className="signature-box">{approvalNames.receivedByUser}</div>
               <p className="signature-label">Date / Time / Signature</p>
+              {assignedAction === "receive" && (
+                <ApprovalButtonAction
+                  action="receive"
+                  assignedAction={assignedAction}
+                  onAction={handleApprovalAction}
+                  className="approval-button"
+                />
+              )}
             </div>
+            
           </div>
         </div>
       </div>

@@ -1,31 +1,34 @@
 "use client"
 
 import { useState } from "react"
-import "../styles/Login.css"
+import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
+
 import regLogo from "../assets/fullLogo.jpg"
 import departmentIcon from "../assets/down.png"
 import userIcon from "../assets/user-icon.png"
 import eyeOpenIcon from "../assets/eye-open.png"
 import eyeClosedIcon from "../assets/eye-closed.png"
-import { useEffect } from "react"
+import "../styles/Login.css"
 
 const Login = () => {
+  const [prfId, setPrfId] = useState(null)
+  const [pendingPrfData, setPendingPrfData] = useState(null)
+  const location = useLocation()
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [selectedCompany, setSelectedCompany] = useState("")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState({})
 
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [prfId, setPrfId] = useState(null)
-  const [pendingPrfData, setPendingPrfData] = useState(null)
-
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     const idFromUrl = params.get("prfId")
     const noFromUrl = params.get("prfNo")
+    const dateFromUrl = params.get("prfDate") // una ilagay itu
+
+    const assignedActionFromUrl = params.get("assignedAction") // Kinukuha yung assigned action sa email-service
 
     // Step 1: Kunin ang full names ng mga approvers galing sa email link
     const preparedByFromUrl = params.get("preparedBy") // First step
@@ -35,6 +38,7 @@ const Login = () => {
 
     // decode any URL encoding (like N%2087502 → N 87502)
     const decodedPrfNo = noFromUrl ? decodeURIComponent(noFromUrl) : null
+    const decodedPrfDate = dateFromUrl ? decodeURIComponent(dateFromUrl) : null // pangalawa ilagay itu
     const decodedPreparedBy = preparedByFromUrl ? decodeURIComponent(preparedByFromUrl) : null // Second step
 
     if (idFromUrl) {
@@ -51,14 +55,19 @@ const Login = () => {
       const prfInfo = {
         prfId: idFromUrl,
         prfNo: decodedPrfNo,
+        prfDate: decodedPrfDate || "", // pangatlo store email date
         preparedBy: decodedPreparedBy || "", // Third step
         checkedBy: checkedBy ? decodeURIComponent(checkedBy) : "",
         approvedBy: approvedBy ? decodeURIComponent(approvedBy) : "",
         receivedBy: receivedBy ? decodeURIComponent(receivedBy) : "",
+        assignedAction: assignedActionFromUrl || "",
       }
       setPendingPrfData(prfInfo)
-      // Also keep localStorage as backup
       localStorage.setItem("pendingPRF", JSON.stringify(prfInfo))
+      
+      if (assignedActionFromUrl) {
+        localStorage.setItem("assignedAction", assignedActionFromUrl)
+      }
     }
   }, [location])
 
@@ -132,6 +141,11 @@ const Login = () => {
           localStorage.setItem("checkedByUser", pendingPrfData.checkedBy || "")
           localStorage.setItem("approvedByUser", pendingPrfData.approvedBy || "")
           localStorage.setItem("receivedByUser", pendingPrfData.receivedBy || "")
+          localStorage.setItem("prfDateFromEmail", pendingPrfData.prfDate || "") // Pang apat
+
+          if (pendingPrfData.assignedAction) {
+            localStorage.setItem("assignedAction", pendingPrfData.assignedAction)
+          }
 
           navigate(`/prf/${pendingPrfData.prfId}`, {
             state: {
@@ -139,13 +153,16 @@ const Login = () => {
               fromEmailLink: true,
               prfNo: pendingPrfData.prfNo,
               prfId: pendingPrfData.prfId,
+              prfDate: pendingPrfData.prfDate,
               preparedBy: pendingPrfData.preparedBy,
               checkedBy: pendingPrfData.checkedBy,
               approvedBy: pendingPrfData.approvedBy,
               receivedBy: pendingPrfData.receivedBy,
+              assignedAction: pendingPrfData.assignedAction,
             },
           })
           return
+
         }
 
         // All USERS go to DASHBOARD first
