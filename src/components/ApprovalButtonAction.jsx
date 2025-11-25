@@ -4,17 +4,18 @@ import "../styles/ApprovalButtonAction.css"
 import ApproveOrRejectModal from "./ApproveOrRejectModal"
 
 const ApprovalButtonAction = ({
-    action, // cehck, approve, received
-    assignedAction, // kung saan i aasign si user galing email
-    onAction
+  action, // check, approve, receive
+  assignedAction, // kung saan i aasign si user galing email
+  onAction,
+  prfId, // Added prfId prop for API call
 }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-    // Magsshow lang kapag si user na assigned sa specific action
-    const shouldShow = assignedAction === action
+  // Magsshow lang kapag si user na assigned sa specific action
+  const shouldShow = assignedAction === action
 
-    const getButtonLabel = () => {
+  const getButtonLabel = () => {
     switch (action) {
       case "check":
         return "Check"
@@ -47,31 +48,84 @@ const ApprovalButtonAction = ({
   const handleApprove = async (actionType) => {
     setIsSubmitting(true)
     try {
-      if (onAction) {
-        await onAction(actionType, null)
+      if (!prfId) {
+        alert("❌ Error: PRF ID is missing. Please refresh the page and try again.")
+        setIsSubmitting(false)
+        return
+      }
+
+      // Get user data from localStorage
+      const userData = JSON.parse(localStorage.getItem("user") || "{}")
+      const response = await fetch(`http://localhost:5000/api/prf/approve/${prfId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          actionType: actionType,
+          userFullName: userData.fullName || "System User",
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        if (onAction) {
+          await onAction(actionType, null)
+        }
+        alert(`✅ PRF has been ${actionType}ed successfully!`)
+      } else {
+        alert(`❌ Error: ${data.message}`)
       }
     } catch (error) {
-      console.error("Error approving:", error)
+      alert("❌ An error occurred while processing the approval")
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const handleReject = async (actionType, reason) => {
+  const handleReject = async () => {
     setIsSubmitting(true)
     try {
-      if (onAction) {
-        await onAction(actionType, reason)
+      if (!prfId) {
+        console.error(" prfId is null or undefined")
+        alert("❌ Error: PRF ID is missing. Please refresh the page and try again.")
+        setIsSubmitting(false)
+        return
+      }
+
+      // Get user data from localStorage
+      const userData = JSON.parse(localStorage.getItem("user") || "{}")
+
+      console.log(" Calling rejection API with:", { prfId, userFullName: userData.fullName })
+
+      // Call the rejection endpoint
+      const response = await fetch(`http://localhost:5000/api/prf/reject/${prfId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userFullName: userData.fullName || "System User",
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        if (onAction) {
+          await onAction("reject", null)
+        }
+        alert(`✅ PRF has been rejected successfully!`)
+      } else {
+        alert(`❌ Error: ${data.message}`)
       }
     } catch (error) {
       console.error("Error rejecting:", error)
+      alert("❌ An error occurred while processing the rejection")
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  if (!shouldShow) {
-    return null
   }
 
   return (
