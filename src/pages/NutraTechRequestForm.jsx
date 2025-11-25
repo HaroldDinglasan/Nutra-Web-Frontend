@@ -14,6 +14,7 @@ import UomModal from "../components/UomModal"
 import { CancelButton, AddRowButton, UncancelButton } from "../components/button"
 import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
+
 import ApprovalButtonAction from "../components/ApprovalButtonAction"
 import ApproveOrRejectModal from "../components/ApproveOrRejectModal"
 
@@ -57,7 +58,7 @@ const NutraTechForm = () => {
         approvedByUser: location.state.approvedBy || "",
         receivedByUser: location.state.receivedBy || "",
       };
-      console.log("[v0] Using approval data from location.state:", approvalData);
+      console.log(" Using approval data from location.state:", approvalData);
       return approvalData;
     }
 
@@ -223,6 +224,38 @@ const NutraTechForm = () => {
     }
   }
 
+  useEffect(() => {
+    let selectedPrfId = null
+
+    // Step 1: Try to get prfId galing sa location.state (usually from email link)
+    if (location.state?.prfId) {
+      selectedPrfId = location.state.prfId
+    }
+    // Step 2: Kapag wala sa location.state, kunin naman sa localStorage (pendingPRF)
+    else if (!selectedPrfId) {
+      const pending = localStorage.getItem("pendingPRF")
+      if (pending) {
+        try {
+          const parsed = JSON.parse(pending)
+
+          // Kapag meron prfId sa localStorage, gamitin natin
+          if (parsed.prfId) {
+            selectedPrfId = parsed.prfId
+            console.log("✅ Setting prfId from localStorage pendingPRF:", selectedPrfId)
+          }
+        } catch (error) {
+          console.error(" Error parsing pendingPRF:", error)
+        }
+      }
+    }
+
+    // Step 3: I-set lang yung prfId state kung may nahanap tayo
+    if (selectedPrfId && selectedPrfId !== prfId) {
+      setPrfId(selectedPrfId)
+      console.log(" prfId state updated:", selectedPrfId)
+    }
+  }, [location.state?.prfId])
+
   // nag rurun kapag nag load ng ang page
   // dito nagcause ng loop sa console
   useEffect(() => {
@@ -232,7 +265,7 @@ const NutraTechForm = () => {
         try {
           const response = await fetch(`http://localhost:5000/api/prf/${id}`);
           const data = await response.json();
-          
+
           if (response.ok && data.approvalNames && !hasEmailLinkApprovals) {
             // Set approval names from API
             setApprovalNames({
@@ -248,17 +281,16 @@ const NutraTechForm = () => {
         } catch (error) {
           console.error("Error fetching approval names:", error);
         }
-        
+
         // Still call the original fetchPrfData
         if (fetchPrfData) {
           fetchPrfData(id);
-        }
-      };
-      
+        };
+      }
       wrappedFetch(location.state.prfId);
     }
 
-    if (location.state && (location.state.checkedBy || location.state.approvedBy || location.state.receivedBy)) {
+   if (location.state && (location.state.checkedBy || location.state.approvedBy || location.state.receivedBy)) {
       const approvalData = {
         checkedByUser: location.state.checkedBy || "",
         approvedByUser: location.state.approvedBy || "",
@@ -278,23 +310,13 @@ const NutraTechForm = () => {
       const storedCheckedBy = localStorage.getItem("checkedByUser") || "";
       const storedApprovedBy = localStorage.getItem("approvedByUser") || "";
       const storedReceivedBy = localStorage.getItem("receivedByUser") || "";
-      
+
       if (storedCheckedBy || storedApprovedBy || storedReceivedBy) {
         setApprovalNames({
           checkedByUser: storedCheckedBy,
           approvedByUser: storedApprovedBy,
           receivedByUser: storedReceivedBy,
-        });
-      }
-    }
-
-    if (!prfId) {
-      const pending = localStorage.getItem("pendingPRF");
-      if (pending && fetchPrfData) {
-        const parsed = JSON.parse(pending);
-        if (parsed.prfId) {
-          fetchPrfData(parsed.prfId);
-        }
+        })
       }
     }
   }, [location.state, hasEmailLinkApprovals]);
@@ -385,7 +407,7 @@ const NutraTechForm = () => {
           !hasEmailLinkApprovals
         ) {
           setApprovalNames(updatedNames);
-          console.log("[v0] Approval settings updated from modal:", updatedNames);
+          console.log(" Approval settings updated from modal:", updatedNames);
 
           // If we're setting approval names from the modal, enable fetching for future loads
           if (updatedNames.checkedByUser || updatedNames.approvedByUser || updatedNames.receivedByUser) {
@@ -1464,7 +1486,7 @@ const NutraTechForm = () => {
                   assignedAction={assignedAction}
                   onAction={handleApprovalAction}
                   className="approval-button"
-
+                  prfId={prfId}
                 />
               )}
             </div>
@@ -1479,6 +1501,7 @@ const NutraTechForm = () => {
                   assignedAction={assignedAction}
                   onAction={handleApprovalAction}
                   className="approval-button"
+                  prfId={prfId}
                 />
               )}
             </div>
@@ -1493,6 +1516,7 @@ const NutraTechForm = () => {
                   assignedAction={assignedAction}
                   onAction={handleApprovalAction}
                   className="approval-button"
+                  prfId={prfId}
                 />
               )}
             </div>
