@@ -106,7 +106,6 @@ const Login = () => {
 
       if (response.ok) {
         alert("✅ Login successful!")
-
         // user details na sa isang object para sa pagbato ng Approval Modal
         const userData = {
           userId: data.user.userID,
@@ -186,7 +185,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error:", error)
-      alert("❌ An error occurred while logging in.")
+      alert(" An error occurred while logging in.")
     }
   }
 

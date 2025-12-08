@@ -23,7 +23,7 @@ const ApprovalModal = ({ onClose }) => {
   const [currentPrfNo, setCurrentPrfNo] = useState("")
   const [formData, setFormData] = useState(initialFormData)
 
-  // Get userId from localStorage
+  // Kinukuha yung userId sa local storage 
   const [currentUserId, setCurrentUserId] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
@@ -35,7 +35,7 @@ const ApprovalModal = ({ onClose }) => {
     receivedByUser: "",
   }
 
-  // states for custom dropdowns
+  // states para sa custom dropdowns
   const [openDropdown, setOpenDropdown] = useState(null)
   const [searchTerms, setSearchTerms] = useState(initialSearchTerms)
 
@@ -56,7 +56,7 @@ const ApprovalModal = ({ onClose }) => {
   // prevent focus loss during typing
   const isTypingRef = useRef(false)
 
-  // Function to reset all form fields
+  // Function para mag reset lahat ng fields
   const resetFormFields = () => {
     setFormData(initialFormData)
     setSearchTerms(initialSearchTerms)
@@ -65,13 +65,13 @@ const ApprovalModal = ({ onClose }) => {
     setSubmitting(false)
   }
 
-  // kapag nag close mag rereset yung fields
+  // Function after mag close mag reset ng fields
   const handleClose = () => {
     resetFormFields()
     onClose()
   }
 
-  // Initialize with empty form when modal opens
+  // Effect once na mag open ng approval modal walang laman yung mga fields
   useEffect(() => {
     resetFormFields()
   }, [])
@@ -148,7 +148,7 @@ const ApprovalModal = ({ onClose }) => {
           defaultApprovedBy = "Kristina G. Remitar" // table SecuritySystemUser
           break
 
-        // Add more departments as needed
+          // Add more departments as needed
         default:
           defaultCheckedBy = ""
           defaultApprovedBy = ""
@@ -163,7 +163,7 @@ const ApprovalModal = ({ onClose }) => {
     }
   }, [departmentType])
 
-  // Close dropdown when clicking outside
+  // Effect kapag nag click outside ng modal mag close yung modal
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (openDropdown && !isTypingRef.current) {
@@ -269,6 +269,9 @@ const ApprovalModal = ({ onClose }) => {
       const checkResponse = await axios.get(`http://localhost:5000/api/approvals/user/${currentUserId}`)
       const existingApproval = checkResponse.data.data?.[0]
 
+      localStorage.setItem("senderEmail", process.env.REACT_APP_SMTP_USER || "dinglasan.harold.ian.dave@gmail.com")
+      localStorage.setItem("smtpPassword", process.env.REACT_APP_SMTP_PASSWORD || "yxvi pzmc lnah cywl")
+
       const approvalData = {
         UserID: currentUserId,
         ApplicType: "PRF",
@@ -302,7 +305,6 @@ const ApprovalModal = ({ onClose }) => {
         approvedBy: formData.approvedByUser,
         receivedBy: formData.receivedByUser,
       })
-      console.log("✅ AssignedApprovals OIDs populated successfully.")
 
       // Step 4: Update PRFTABLE sa mga selected names
       const currentPrfId = localStorage.getItem("currentPrfId")
@@ -330,6 +332,9 @@ const ApprovalModal = ({ onClose }) => {
       localStorage.setItem("checkedByEmail", formData.checkedByEmail || "")
       localStorage.setItem("approvedByEmail", formData.approvedByEmail || "")
       localStorage.setItem("receivedByEmail", formData.receivedByEmail || "")
+
+      localStorage.setItem("senderEmail", process.env.REACT_APP_SMTP_USER || "")
+      localStorage.setItem("smtpPassword", process.env.REACT_APP_SMTP_PASSWORD || "")
 
       window.dispatchEvent(
         new CustomEvent("approvalSettingsUpdated", {
@@ -510,7 +515,7 @@ const ApprovalModal = ({ onClose }) => {
             <div className="form-grid">
               <CustomDropdown field="checkedByUser" className="checkby-form-input" />
 
-              <label htmlFor="checkedByEmail" className="checkby-form-label">
+                <label htmlFor="checkedByEmail" className="checkby-form-label">
                 {/*Email*/}
               </label>
               <input

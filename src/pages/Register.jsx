@@ -10,6 +10,7 @@ import { Link } from "react-router-dom"
 import eyeOpenIcon from "../assets/eye-open.png"
 import eyeClosedIcon from "../assets/eye-closed.png"
 import axios from "axios"
+import email from "../assets/multimedia.png"
 
 const Register = () => {
   const navigate = useNavigate()
@@ -23,6 +24,7 @@ const Register = () => {
   const [filteredEmployees, setFilteredEmployees] = useState([]) // Filtered results
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
+  const [outlookEmail, setOutlookEmail] = useState("")
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -36,7 +38,7 @@ const Register = () => {
     fetchEmployees()
   }, [])
 
-  // Set departmentId when department changes
+  // Sineset ang department Id
   useEffect(() => {
     let id = null
     switch (department) {
@@ -60,7 +62,11 @@ const Register = () => {
       case "Purchasing":
         id = 5
       break
-    
+
+      case "Approvers":
+        id = 6
+      break
+
       default:
         id = null
     }
@@ -71,10 +77,8 @@ const Register = () => {
   const handleFullnameChange = (e) => {
     const input = e.target.value
     setFullname(input)
-
-    // Filter only non-null values
+    // Filter employees based on the input value
     const filtered = employees.filter((emp) => emp.FullName && emp.FullName.toLowerCase().includes(input.toLowerCase()))
-
     setFilteredEmployees(filtered)
     setShowDropdown(filtered.length > 0)
   }
@@ -99,7 +103,9 @@ const Register = () => {
 
   // Send POST request to the Backend
   const handleRegister = async () => {
-    if (!department || !fullname || !username || !password) {
+    const isApprovers = department === "Approvers"
+
+    if (!department || !fullname || !username || !password || (!isApprovers && !outlookEmail)) {
       alert("Please fill in all fields!")
       return
     }
@@ -111,18 +117,16 @@ const Register = () => {
         fullName: fullname,
         username: username,
         password: password,
+        outlookEmail: isApprovers ? null : outlookEmail, // Once na si Approvers mag register mag null 
       })
 
-      // If we get here, registration was successful
-      alert("Registration successful!")
+      alert("✅ Registration successful!")
       localStorage.setItem("userDepartment", department)
       localStorage.setItem("userFullname", fullname)
       localStorage.setItem("userDepartmentId", departmentId)
       navigate("/login")
     } catch (error) {
       console.error("❌ Registration error:", error)
-
-      // Check if the error response contains our message
       if (error.response && error.response.data) {
         // Show the specific error message from the server
         alert(error.response.data.message || "Registration failed")
@@ -160,6 +164,7 @@ const Register = () => {
               <option value="MMD">MMD</option> 
               <option value="WLO">WLO</option> 
               <option value="Purchasing">Purchasing</option> 
+              <option value="Approvers">Approvers</option> 
             </select>
             <img src={departmentIcon || "/placeholder.svg"} alt="Dept Icon" className="dropdown-icon" />
           </div>
@@ -203,6 +208,23 @@ const Register = () => {
             <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
           </div>
         </div>
+        
+        {department !== "Approvers" && (
+          <div className="reg-field-box">
+            <label htmlFor="outlookEmail">Outlook Email</label>
+            <div className="reg-input-container">
+              <img src={email || "/multimedia.png"} alt="Email Icon" className="input-icon" />
+              <input
+                type="email"
+                id="outlookEmail"
+                value={outlookEmail}
+                onChange={(e) => setOutlookEmail(e.target.value)}
+                placeholder="your.email@outlook.com"
+                required
+              />
+            </div>
+          </div>
+        )}
 
         <div className="reg-field-box-password">
           <label htmlFor="password">Password</label>

@@ -21,7 +21,6 @@ const ApproveOrRejectModal = ({ isOpen, actionType, approverName, onApprove, onR
   
   if (!isOpen) return null
 
-
   const handleApprove = async () => {
     setIsSubmitting(true)
     try {
@@ -83,9 +82,6 @@ const ApproveOrRejectModal = ({ isOpen, actionType, approverName, onApprove, onR
         return "#0078D7"
     }
   }
-
- 
-
   return (
     <div className="approve-reject-modal">
       <div className="approve-reject-container">
