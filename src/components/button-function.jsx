@@ -8,12 +8,14 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) =
   }
 
   const departmentId = localStorage.getItem("userDepartmentId")
+  const userId = localStorage.getItem("userId") // Kinukuha yung UserID sa localStorage
 
   const prfHeaderData = {
     departmentId: departmentId,
     prfNo: purchaseCodeNumber,
     prfDate: currentDate,
     preparedBy: fullname,
+    userId: userId ? parseInt(userId) : null, // add UserID  
   }
 
   try {
@@ -40,64 +42,57 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) =
 // Send email notifications after successful PRF save
 const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
   try {
-    // Kinukuha yung email address galing sa localStorage sa Approval Modal
-    const checkedByEmail = localStorage.getItem("checkedByEmail")
-    const approvedByEmail = localStorage.getItem("approvedByEmail")
-    const receivedByEmail = localStorage.getItem("receivedByEmail")
+    // Get email credentials from localStorage (should be set by backend from .env)
+    const checkedByEmail = localStorage.getItem("checkedByEmail");
+    const checkedByName = localStorage.getItem("checkedByUser");
 
-    // Kinukuha yung FullName galing sa localStorage sa Approval Modal
-    const checkedByName = localStorage.getItem("checkedByUser")
-    const approvedByName = localStorage.getItem("approvedByUser")
-    const receivedByName = localStorage.getItem("receivedByUser")
-
-    // Only send notifications if we have at least one email address
-    if (!checkedByEmail && !approvedByEmail && !receivedByEmail) {
-      console.log("No email addresses configured for notifications")
-      return { success: true, message: "No emails configured" }
+    if (!checkedByEmail) {
+      console.warn(" No checkBy email configured");
+      return { success: true, message: "No emails configured" };
     }
 
-    const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc"
-    const userId = localStorage.getItem("userId")
+    const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc";
+    const userId = localStorage.getItem("userId");
+    
+    // Get SMTP credentials from environment variables
+    const senderEmail = process.env.REACT_APP_SMTP_USER;
+    const smtpPassword = process.env.REACT_APP_SMTP_PASSWORD;
 
-    console.log("Sending PRF notifications:", {
-      prfId,
-      prfNo,
-      preparedBy,
-      company,
+    console.log(" Sending PRF notification:", {
       checkedByEmail,
-      checkedByName, // dinagdag
-      approvedByEmail,
-      approvedByName, // dinagdag
-      receivedByEmail,
-      receivedByName, // dinagdag
-    })
+      checkedByName,
+      senderEmail, // Debug: verify SMTP credentials are being passed
+    });
 
     const response = await axios.post("http://localhost:5000/api/notifications/send-direct", {
       prfId,
-      prfNo,
+      prfNo, 
       preparedBy,
-      company,
+      company, 
       userId: userId ? Number(userId) : undefined,
-      checkedByEmail,
-      checkedByName, // dinagdag
-      approvedByEmail,
-      approvedByName, // dinagdag
-      receivedByEmail,
-      receivedByName, // dinagdag
-    })
+      checkedByEmail: localStorage.getItem("checkedByEmail"),
+      checkedByName: localStorage.getItem("checkedByUser"), 
+      approvedByEmail: localStorage.getItem("approvedByEmail"),  // ibabato sa backend para madisplay sa Outlook email notification
+      approvedByName: localStorage.getItem("approvedByUser"),    // ibabato sa backend para madisplay sa Outlook email notification 
+      receivedByEmail: localStorage.getItem("receivedByEmail"),  // ibabato sa backend para madisplay sa Outlook email notification
+      receivedByName: localStorage.getItem("receivedByUser"),    // ibabato sa backend para madisplay sa Outlook email notification 
+      senderEmail, 
+      smtpPassword, 
+    });
 
     if (response.data.success) {
-      console.log("PRF notifications sent successfully!")
-      return { success: true, message: "Notifications sent successfully" }
+      console.log("✅ Email sent to checkBy:", checkedByEmail);
+      return { success: true, message: "Email sent successfully" };
     } else {
-      console.error("Failed to send PRF notifications:", response.data)
-      return { success: false, message: "Failed to send notifications" }
+      console.error("❌ Email service returned error:", response.data);
+      return { success: false, message: response.data.message || "Email service error" };
     }
   } catch (error) {
-    console.error("Error sending PRF notifications:", error)
-    return { success: false, message: error.response?.data?.message || "Failed to send notifications" }
+    console.error("❌ Error sending email notification:", error);
+    // Show error in notification instead of silently failing
+    return { success: false, message: error.response?.data?.message || error.message || "Failed to send email" };
   }
-}
+};
 
 // Save PRF details with immediate feedback and background notifications
 export const savePrfDetails = async (headerPrfId, rows) => {
