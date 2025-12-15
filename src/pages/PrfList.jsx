@@ -11,8 +11,9 @@ const DashboardAdmin = () => {
   const [prfList, setPrfList] = useState([]) // Store PRF data
   const [filteredPrfList, setFilteredPrfList] = useState([]) // Store filtered PRF data
   const [searchTerm, setSearchTerm] = useState("") // Store search term
+  const [isPolling, setIsPolling] = useState(false) // Store polling state
   const showDashboard = location.hash === "#dashboard"
-
+ 
   // Get user fullname and role from localStorage
   const fullname = localStorage.getItem("userFullname") || "User"
   const userRole = localStorage.getItem("userRole") || "user"
@@ -23,19 +24,25 @@ const DashboardAdmin = () => {
     if (!showDashboard) {
       fetchPrfList()
     }
-
-    // Add event listener for PRF status updates
+    // Event listener for PRF status updates
     const handlePrfStatusUpdate = () => {
       console.log("PRF status updated, refreshing data...")
       fetchPrfList()
     }
 
+    const handlePrfApproved = () => {
+      console.log(" PRF approved event received, refreshing list immediately...")
+      fetchPrfList()
+    }
+
     window.addEventListener("prfStatusUpdated", handlePrfStatusUpdate)
+    window.addEventListener("prfApproved", handlePrfApproved)
 
     return () => {
       window.removeEventListener("prfStatusUpdated", handlePrfStatusUpdate)
+      window.removeEventListener("prfApproved", handlePrfApproved)
     }
-  }, [showDashboard])
+  }, [showDashboard, isAdmin])
 
   // Function to determine PRF status
   const determinePrfStatus = (prf) => {
@@ -51,12 +58,11 @@ const DashboardAdmin = () => {
       return "Cancelled"
     }
 
-    // Check if approved
-    if (prf.approvedBy && prf.approvedBy.trim() !== "") {
+    // This reflects the actual approval status saved by the approver
+    if (prf.approvedBy_Status && prf.approvedBy_Status.trim().toUpperCase() === "APPROVED") {
       return "Approved"
     }
 
-    // Default to pending for newly created requests
     return "Pending"
   }
 
@@ -66,7 +72,7 @@ const DashboardAdmin = () => {
   }
 
   // Function to check if a date is the same as today
-  const checkIsSameDay = (dateToCheck) => {
+  const checkIsPrfSameDay = (dateToCheck) => {
     if (!dateToCheck) return false
 
     const today = new Date()
@@ -78,42 +84,6 @@ const DashboardAdmin = () => {
       checkDate.getDate() === today.getDate()
     )
   }
-
-  // Effect to filter the PRF list
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      // If search is empty, show all PRFs
-      setFilteredPrfList(prfList)
-      return
-    }
-
-    // Convert search term to lowercase
-    let term = searchTerm.toLowerCase()
-
-    // Remove "No. " prefix from search term if it exists
-    if (term.startsWith("no. ")) {
-      term = term.substring(4)
-    }
-
-    // Filter the PRF list
-    const filtered = prfList.filter((prf) => {
-      // Get prfNo as string and convert to lowercase
-      const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
-
-      return (
-        // Search in PRF number
-        prfNoStr.includes(term) ||
-        // Search in prepared by
-        (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
-        // Search in date
-        (prf.dateNeeded && formatDate(prf.dateNeeded).toLowerCase().includes(term)) ||
-        // Search in description
-        (prf.StockName && prf.StockName.toLowerCase().includes(term))
-      )
-    })
-
-    setFilteredPrfList(filtered)
-  }, [searchTerm, prfList])
 
   // fetchPrfList function to handle potential issues with user data
   const fetchPrfList = async () => {
@@ -209,6 +179,20 @@ const DashboardAdmin = () => {
     }
   }
 
+  useEffect(() => {
+    if (showDashboard || isPolling) {
+      return // Don't poll on dashboard
+    }
+
+    // Poll every 15 seconds only when on Purchase List
+    const interval = setInterval(() => {
+      console.log(" Polling for PRF updates...")
+      fetchPrfList()
+    }, 15000)
+
+    return () => clearInterval(interval)
+  }, [showDashboard, isPolling])
+
   const formatDate = (dateString) => {
     if (!dateString) return "N/A"
 
@@ -245,9 +229,45 @@ const DashboardAdmin = () => {
       prf.isCancel === 1
 
     // Check if the PRF date is not today (past the creation day)
-    const isSameDay = checkIsSameDay(prf.prfDate)
+    const isPrfSameDay = checkIsPrfSameDay(prf.prfDate)
     return isDbCancelled
   }
+
+  // Effect to filter the PRF list
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      // If search is empty, show all PRFs
+      setFilteredPrfList(prfList)
+      return
+    }
+
+    // Convert search term to lowercase
+    let term = searchTerm.toLowerCase()
+
+    // Remove "No. " prefix from search term if it exists
+    if (term.startsWith("no. ")) {
+      term = term.substring(4)
+    }
+
+    // Filter the PRF list
+    const filtered = prfList.filter((prf) => {
+      // Get prfNo as string and convert to lowercase
+      const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
+
+      return (
+        // Search in PRF number
+        prfNoStr.includes(term) ||
+        // Search in prepared by
+        (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+        // Search in date
+        (prf.dateNeeded && formatDate(prf.dateNeeded).toLowerCase().includes(term)) ||
+        // Search in description
+        (prf.StockName && prf.StockName.toLowerCase().includes(term))
+      )
+    })
+
+    setFilteredPrfList(filtered)
+  }, [searchTerm, prfList])
 
   return (
     <>
@@ -320,7 +340,7 @@ const DashboardAdmin = () => {
               <table className="log-table">
                 <thead>
                   <tr>
-                    <th>Prf No.</th>
+                    <th>Prf No</th>
                     <th>Prepared By</th>
                     <th>Date</th>
                     <th>Description</th>

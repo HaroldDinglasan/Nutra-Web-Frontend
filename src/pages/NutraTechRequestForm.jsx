@@ -14,9 +14,7 @@ import UomModal from "../components/UomModal"
 import { CancelButton, AddRowButton, UncancelButton } from "../components/button"
 import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
-
 import ApprovalButtonAction from "../components/ApprovalButtonAction"
-import ApproveOrRejectModal from "../components/ApproveOrRejectModal"
 
 const NutraTechForm = () => {
   // State variables
@@ -32,22 +30,19 @@ const NutraTechForm = () => {
   const [isPrfCancelled, setIsPrfCancelled] = useState(false) // Track if the PRF is cancelled
   const [cancelButtonLabel, setCancelButtonLabel] = useState("Cancel")
   const [prfDate, setPrfDate] = useState(null) // Store the PRF date
-  const [isSameDay, setIsSameDay] = useState(true) // Track if PRF date is the same as current date
+  const [isPrfSameDay, setIsPrfSameDay] = useState(true) // Track if PRF date is the same as current date
   const [globalPurpose, setGlobalPurpose] = useState("")
   const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
   const department = localStorage.getItem("userDepartment") || "" // Retrieve department
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
-
   const location = useLocation() // binabasa nito yung data (prfId) na galing sa Proceed button router
   const [preparedBy, setPreparedBy] = useState("") // sino nag preapre ng prf
   const [isCancel, setIsCancel] = useState(false) // kapag ang prf ay cancelled
   const [prfDetails, setPrfDetails] = useState([]) // list ng prf items from PRFTABLE_DETAILS
   const [loading, setLoading] = useState(false)
-
   const [hasEmailLinkApprovals, setHasEmailLinkApprovals] = useState(false);
   const [shouldFetchApprovals, setShouldFetchApprovals] = useState(false)   // Track if we should fetch approval settings
-
   const [assignedAction, setAssignedAction] = useState(null)
 
   const [approvalNames, setApprovalNames] = useState(() => {
@@ -441,7 +436,7 @@ const NutraTechForm = () => {
   }, [prfId])
 
   // Check if a date is the same as today
-  const checkIsSameDay = (dateToCheck) => {
+  const checkisPrfSameDay = (dateToCheck) => {
     if (!dateToCheck) return false
 
     const today = new Date()
@@ -470,8 +465,8 @@ const NutraTechForm = () => {
           const prfDateObj = new Date(data.header.prfDate)
           setPrfDate(prfDateObj)
           // Check if PRF date is today
-          const sameDay = checkIsSameDay(prfDateObj)
-          setIsSameDay(sameDay)
+          const sameDay = checkisPrfSameDay(prfDateObj)
+          setIsPrfSameDay(sameDay)
           // Check if PRF is cancelled in the database
           const isDbCancelled =
             (data.header && data.header.prfIsCancel === 1) ||
@@ -536,8 +531,8 @@ const NutraTechForm = () => {
         setPrfDate(prfDateObj)
 
         // Check if PRF date is today
-        const sameDay = checkIsSameDay(prfDateObj)
-        setIsSameDay(sameDay)
+        const sameDay = checkisPrfSameDay(prfDateObj)
+        setIsPrfSameDay(sameDay)
 
         // Check if the PRF is cancelled from the response
         const isDbCancelled = data.header.prfIsCancel === 1 || data.isCancel === 1
@@ -611,7 +606,7 @@ const NutraTechForm = () => {
       setIsUpdating(false)
       setIsPrfCancelled(false)
       setCancelButtonLabel("Cancel")
-      setIsSameDay(true)
+      setIsPrfSameDay(true)
       setShouldFetchApprovals(false) // Disable fetching approvals for new PRF
 
       // Generate a new purchase code
@@ -915,7 +910,7 @@ const NutraTechForm = () => {
   // Cancel PRF
   const handleCancel = async () => {
     // Don't allow cancellation if not on the same day
-    if (!isSameDay || isPrfCancelled) {
+    if (!isPrfSameDay || isPrfCancelled) {
       alert("PRF can only be cancelled on the same day it was created")
       return
     }
@@ -929,7 +924,7 @@ const NutraTechForm = () => {
 
       console.log("PRF cancelled successfully, updating state:", {
         isPrfCancelled: true,
-        isSameDay,
+        isPrfSameDay,
       })
 
       try {
@@ -959,13 +954,13 @@ const NutraTechForm = () => {
   // Uncancel PRF
   const handleUncancel = async () => {
     // Don't allow uncancellation if not on the same day
-    if (!isSameDay) {
+    if (!isPrfSameDay) {
       alert("PRF can only be uncancelled on the same day it was created")
       return
     }
 
     console.log("Uncancelling PRF with ID:", prfId)
-    console.log("Current state before uncancel:", { isPrfCancelled, isSameDay })
+    console.log("Current state before uncancel:", { isPrfCancelled, isPrfSameDay })
 
     // First verify if the PRF is actually cancelled in the database
     try {
@@ -1001,7 +996,7 @@ const NutraTechForm = () => {
 
         console.log("PRF uncancelled successfully, updating state:", {
           isPrfCancelled: false,
-          isSameDay,
+          isPrfSameDay,
         })
         setTimeout(() => {
           refreshPrfData()
@@ -1022,14 +1017,14 @@ const NutraTechForm = () => {
         detail: {
           isUpdating,
           isPrfCancelled,
-          isSameDay,
+          isPrfSameDay,
           prfId,
           hasEmailLinkApprovals,
           shouldPreserveEmailApprovals,
         },
       }),
     )
-  }, [isUpdating, isPrfCancelled, isSameDay, prfId, hasEmailLinkApprovals, shouldPreserveEmailApprovals])
+  }, [isUpdating, isPrfCancelled, isPrfSameDay, prfId, hasEmailLinkApprovals, shouldPreserveEmailApprovals])
 
   useEffect(() => {
     const handleSaveClick = async () => {
@@ -1106,14 +1101,13 @@ const NutraTechForm = () => {
   }, [rows, prfId, purchaseCodeNumber, currentDate, fullname, approvalNames])
 
   // Check if buttons should be shown based on same day check
-  const showActionButtons = isSameDay && isUpdating
+  const showActionButtons = isPrfSameDay && isUpdating && !assignedAction
 
   // Function para lumabas yung check, approve, receive button
   useEffect(() => {
     if (location.state && location.state.assignedAction) {
       setAssignedAction(location.state.assignedAction) 
       localStorage.setItem("assignedAction", location.state.assignedAction)
-      console.log("Assigned action from email link:", location.state.assignedAction)
     } else {
       const storedAction = localStorage.getItem("assignedAction")
       if (storedAction) {
@@ -1283,7 +1277,7 @@ const NutraTechForm = () => {
                   placeholder="Enter purpose for all items"
                   onFocus={(e) => (e.target.style.borderColor = "#3b82f6")}
                   onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
-                  disabled={isPrfCancelled || !isSameDay}
+                  disabled={isPrfCancelled || !isPrfSameDay}
                 />
               </div>
             </div>
@@ -1296,12 +1290,12 @@ const NutraTechForm = () => {
                   <th>
                     <label
                       onClick={() => {
-                        if (!isPrfCancelled && isSameDay) {
+                        if (!isPrfCancelled && isPrfSameDay) {
                           setIsModalOpen(true)
                           setSelectedRowIndex(0)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled || !isSameDay ? "default" : "pointer" }}
+                      style={{ cursor: isPrfCancelled || !isPrfSameDay ? "default" : "pointer" }}
                     >
                       STOCK CODE
                     </label>
@@ -1310,12 +1304,12 @@ const NutraTechForm = () => {
                   <th>
                     <label
                       onClick={() => {
-                        if (!isPrfCancelled && isSameDay) {
+                        if (!isPrfCancelled && isPrfSameDay) {
                           setIsUomModalOpen(true)
                           setSelectedUomRowIndex(0)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled || !isSameDay ? "default" : "pointer" }}
+                      style={{ cursor: isPrfCancelled || !isPrfSameDay ? "default" : "pointer" }}
                     >
                       UNIT
                     </label>
@@ -1330,12 +1324,12 @@ const NutraTechForm = () => {
                   <tr key={index}>
                     <td
                       onClick={() => {
-                        if (!isPrfCancelled && isSameDay) {
+                        if (!isPrfCancelled && isPrfSameDay) {
                           setIsModalOpen(true)
                           setSelectedRowIndex(index)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled || !isSameDay ? "default" : "pointer" }}
+                      style={{ cursor: isPrfCancelled || !isPrfSameDay ? "default" : "pointer" }}
                     >
                     <input
                       type="text"
@@ -1348,7 +1342,7 @@ const NutraTechForm = () => {
                           e.stopPropagation();
                         }
                       }}
-                      readOnly={isPrfCancelled || !isSameDay ? true : false}
+                      readOnly={isPrfCancelled || !isPrfSameDay ? true : false}
                       style={{ color: isPrfCancelled ? "red" : "inherit" }}
                     />
                     </td>
@@ -1358,25 +1352,25 @@ const NutraTechForm = () => {
                         name="quantity"
                         value={row.quantity}
                         onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled || !isSameDay}
+                        readOnly={isPrfCancelled || !isPrfSameDay}
                         style={{ color: isPrfCancelled ? "red" : "inherit" }}
                       />
                     </td>
                     <td
                       onClick={() => {
-                        if (!isPrfCancelled && isSameDay) {
+                        if (!isPrfCancelled && isPrfSameDay) {
                           setIsUomModalOpen(true)
                           setSelectedUomRowIndex(index)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled || !isSameDay ? "default" : "pointer" }}
+                      style={{ cursor: isPrfCancelled || !isPrfSameDay ? "default" : "pointer" }}
                     >
                       <input
                         type="text"
                         name="unit"
                         value={row.unit}
                         onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled || !isSameDay}
+                        readOnly={isPrfCancelled || !isPrfSameDay}
                         style={{ color: isPrfCancelled ? "red" : "inherit" }}
                       />
                     </td>
@@ -1386,7 +1380,7 @@ const NutraTechForm = () => {
                         name="description"
                         value={row.description}
                         onChange={(e) => handleInputChange(index, e)}
-                        readOnly={isPrfCancelled || !isSameDay}
+                        readOnly={isPrfCancelled || !isPrfSameDay}
                         style={{ color: isPrfCancelled ? "red" : "inherit" }}
                       />
                     </td>
@@ -1399,7 +1393,7 @@ const NutraTechForm = () => {
                             name="dateNeeded"
                             value={row.dateNeeded}
                             onChange={(e) => handleInputChange(index, e)}
-                            readOnly={isPrfCancelled || !isSameDay}
+                            readOnly={isPrfCancelled || !isPrfSameDay}
                             className="enhanced-date-input"
                             style={{ color: isPrfCancelled ? "red" : "inherit" }}
                           />
@@ -1416,11 +1410,11 @@ const NutraTechForm = () => {
                           name="purpose"
                           value={row.purpose}
                           onChange={(e) => handleInputChange(index, e)}
-                          readOnly={isPrfCancelled || !isSameDay}
+                          readOnly={isPrfCancelled || !isPrfSameDay}
                           style={{
                             color: isPrfCancelled ? "red" : "inherit",
-                            backgroundColor: isPrfCancelled || !isSameDay ? "#f8f9fa" : "white",
-                            cursor: isPrfCancelled || !isSameDay ? "not-allowed" : "text",
+                            backgroundColor: isPrfCancelled || !isPrfSameDay ? "#f8f9fa" : "white",
+                            cursor: isPrfCancelled || !isPrfSameDay ? "not-allowed" : "text",
                           }}
                           placeholder="Enter purpose"
                         />
@@ -1435,13 +1429,13 @@ const NutraTechForm = () => {
           </div>
 
           <div className="save-button-container">
-            <AddRowButton onClick={handleAddRow} disabled={isPrfCancelled || !isSameDay} />
+            <AddRowButton onClick={handleAddRow} disabled={isPrfCancelled || !isPrfSameDay} />
 
             {showActionButtons && (
               <div className="action-buttons">
                 <CancelButton
                   onClick={handleCancel}
-                  disabled={isPrfCancelled || !isSameDay}
+                  disabled={isPrfCancelled || !isPrfSameDay}
                   label={cancelButtonLabel}
                 />
                 <UncancelButton onClick={handleUncancel} disabled={!isPrfCancelled} label="Uncancel" />

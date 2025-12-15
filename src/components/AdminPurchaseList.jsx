@@ -58,7 +58,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     }
 
     // Approved
-    if (prf.approvedBy && prf.approvedBy.trim() !== "") {
+    if (prf.approvedBy_Status && prf.approvedBy_Status.trim().toUpperCase() === "APPROVED") {
       return "Approved";
     }
 
@@ -389,7 +389,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
             <div className="stats-content">
               <div className="stats-number">{isLoading ? "..." : pendingCount}</div>
-              <div className="stats-label">Purchase Request</div>
+              <div className="stats-label">PURCHASE REQUEST</div>
               <div className="stats-description">Awaiting approval</div>
             </div>
           </div>
@@ -413,8 +413,8 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
             <div className="stats-content">
               <div className="stats-number">{isLoading ? "..." : approvedCount}</div>
-              <div className="stats-label">Long Outstanding Request</div>
-              <div className="stats-description">Pending Request</div>
+              <div className="stats-label">APPROVED</div>
+              <div className="stats-description">Approved Request</div>
             </div>
           </div>
 
@@ -438,7 +438,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
             <div className="stats-content">
               <div className="stats-number">{isLoading ? "..." : receivedCount}</div>
-              <div className="stats-label">Delivered</div>
+              <div className="stats-label">DELIVERED</div>
               <div className="stats-description">Successfully received</div>
             </div>
           </div>
