@@ -33,7 +33,6 @@ const NutraTechForm = () => {
   const [isPrfSameDay, setIsPrfSameDay] = useState(true) // Track if PRF date is the same as current date
   const [globalPurpose, setGlobalPurpose] = useState("")
   const fullname = localStorage.getItem("userFullname") || "" // Retrieve fullname
-  const department = localStorage.getItem("userDepartment") || "" // Retrieve department
   const [isUomModalOpen, setIsUomModalOpen] = useState(false)
   const [selectedUomRowIndex, setSelectedUomRowIndex] = useState(null)
   const location = useLocation() // binabasa nito yung data (prfId) na galing sa Proceed button router
@@ -44,6 +43,132 @@ const NutraTechForm = () => {
   const [hasEmailLinkApprovals, setHasEmailLinkApprovals] = useState(false);
   const [shouldFetchApprovals, setShouldFetchApprovals] = useState(false)   // Track if we should fetch approval settings
   const [assignedAction, setAssignedAction] = useState(null)
+  const [departmentFromPrf, setDepartmentFromPrf] = useState(false)
+
+  const getSearchParams = () => {
+    return new URLSearchParams(location.search)
+  }
+
+  const [department, setDepartment] = useState(() => {
+    // Priority 1: Check URL search params (from email link)
+    const params = new URLSearchParams(location.search)
+    const urlDepartment = params.get("departmentType")
+    if (urlDepartment) {
+      console.log(" Using department from URL:", urlDepartment)
+      return decodeURIComponent(urlDepartment)
+    }
+
+    // Priority 2: Check location.state (department passed from Login navigation)
+    if (location.state?.departmentType) {
+      console.log(" Using department from location.state:", location.state.departmentType)
+      return location.state.departmentType
+    }
+
+    // Priority 3: Check pending PRF in localStorage
+    const pendingPRFStr = localStorage.getItem("pendingPRF")
+    if (pendingPRFStr) {
+      try {
+        const pendingPRF = JSON.parse(pendingPRFStr)
+        if (pendingPRF.departmentType) {
+          console.log(" Using department from pending PRF:", pendingPRF.departmentType)
+          return pendingPRF.departmentType
+        }
+      } catch (error) {
+        console.error(" Error parsing pending PRF:", error)
+      }
+    }
+
+    // Priority 4: Check stored PRF department
+    const storedPrfDept = localStorage.getItem("prfDepartmentType")
+    if (storedPrfDept) {
+      console.log(" Using stored PRF department:", storedPrfDept)
+      return storedPrfDept
+    }
+
+    // Priority 5: Fallback to user's department (only for new PRFs)
+    const localDept = localStorage.getItem("userDepartment") || ""
+    console.log(" Using department from localStorage (user's department):", localDept)
+    return localDept
+  })
+
+  useEffect(() => {
+    const params = getSearchParams()
+    const urlPrfId = params.get("prfId")
+    const pendingPRFStr = localStorage.getItem("pendingPRF")
+
+    if (urlPrfId) {
+      console.log(" Loading PRF from URL:", urlPrfId)
+      setPrfId(urlPrfId)
+      setIsUpdating(true)
+    } else if (pendingPRFStr) {
+      try {
+        const pendingPRF = JSON.parse(pendingPRFStr)
+        if (pendingPRF.prfId) {
+          console.log(" Loading PRF from localStorage:", pendingPRF.prfId)
+          setPrfId(pendingPRF.prfId)
+          setIsUpdating(true)
+        }
+      } catch (error) {
+        console.error(" Error parsing pending PRF:", error)
+      }
+    }
+  }, [location.search])
+
+  useEffect(() => {
+    const params = getSearchParams()
+    const urlDepartment = params.get("departmentType")
+
+    // Priority 1: URL parameter (from email)
+    if (urlDepartment) {
+      const decodedDept = decodeURIComponent(urlDepartment)
+      console.log(" Setting department from URL:", decodedDept)
+      setDepartment(decodedDept)
+      setDepartmentFromPrf(true)
+      localStorage.setItem("prfDepartmentType", decodedDept)
+      return
+    }
+
+    // Priority 2: Location state (from Login navigation)
+    if (location.state?.departmentType) {
+      console.log(" Setting department from location.state:", location.state.departmentType)
+      setDepartment(location.state.departmentType)
+      setDepartmentFromPrf(true)
+      localStorage.setItem("prfDepartmentType", location.state.departmentType)
+      return
+    }
+
+    // Priority 3: Pending PRF in localStorage
+    const pendingPRFStr = localStorage.getItem("pendingPRF")
+    if (pendingPRFStr && prfId) {
+      try {
+        const pendingPRF = JSON.parse(pendingPRFStr)
+        if (pendingPRF.departmentType) {
+          console.log(" Setting department from pending PRF:", pendingPRF.departmentType)
+          setDepartment(pendingPRF.departmentType)
+          setDepartmentFromPrf(true)
+          localStorage.setItem("prfDepartmentType", pendingPRF.departmentType)
+          return
+        }
+      } catch (error) {
+        console.error(" Error parsing pending PRF:", error)
+      }
+    }
+
+    // Priority 4: Stored PRF department
+    const storedPrfDept = localStorage.getItem("prfDepartmentType")
+    if (storedPrfDept && prfId) {
+      console.log(" Using stored PRF department:", storedPrfDept)
+      setDepartment(storedPrfDept)
+      setDepartmentFromPrf(true)
+      return
+    }
+
+    // Priority 5: User's department (only for new PRFs or when no email link)
+    const userDept = localStorage.getItem("userDepartment") || ""
+    console.log(" Using user's department:", userDept)
+    setDepartment(userDept)
+    setDepartmentFromPrf(false)
+  }, [prfId, location.search, location.state])
 
   const [approvalNames, setApprovalNames] = useState(() => {
     // First, check if location.state has approval data from Outlook email link

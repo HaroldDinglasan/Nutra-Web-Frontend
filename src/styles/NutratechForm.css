@@ -255,7 +255,7 @@ h3 {
     -webkit-appearance: none;
     -moz-appearance: none;
     height: 35px;
-    margin-left: 95px;
+    margin-left: 96px;
 }
 
 .nutra-date-label {
@@ -271,7 +271,7 @@ h3 {
     font-size: 14px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    margin-right: 40px;
+    margin-right: 45px;
     outline: none;
     margin-top: 9.5px;
     line-height: 1.2; 
@@ -597,7 +597,7 @@ h3 {
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s ease;
-    margin-right: 20px;
+    margin-right: 25px;
 }
 
 .uncancel-button {
@@ -627,4 +627,287 @@ h3 {
     margin-left: px;
 }
 
+
+@media print {
+   /* Target ALL elements to remove scrollbars */
+  html,
+  body,
+  div,
+  section,
+  main,
+  article,
+  aside,
+  header,
+  footer,
+  nav,
+  form {
+    overflow: visible !important;
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE and Edge */
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+  }
+
+    * {
+        background-color: transparent !important;
+    }
+
+    .nav-bar-container, .nav-icons {
+        display: none; 
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 2px;
+        background: white;
+        margin-top: 20mm;
+        min-height: auto; 
+        overflow-x: hidden;
+    }
+
+    .form-box-container {
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+        border: none;
+        padding: 2px;
+        margin: 0;
+    }
+
+    .logo img {
+        width: 250px; 
+        height: auto;   
+    }
+
+    .header-three {
+        font-size: 11px;
+    }
+
+    .header-four {
+        font-size: 11px;
+    }
+
+    /* Prevent page breaks inside rows */
+    tr {
+        page-break-inside: avoid;
+        height: auto !important;
+    }
+
+    .approval-section-container {
+        margin-top: 50px;
+    }
+
+    .approval-section {
+        page-break-inside: avoid; 
+    }
+
+
+    /* ADJUST TABLE FOR PRINT */
+    .table-container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .table-container table {
+        width: 100% !important;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    .table-container table th {
+        font-size: 10px;
+    }
+
+    .approval-box {
+        width: 450px;
+    }
+
+    td input {
+        border: none;
+        background: transparent;
+    }
+
+    .print-icon {
+        display: none; 
+    }
+
+    .department-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .project-label {
+        margin-left: 1px;
+    }
+
+    .project-code-input {
+        width: 18rem;
+    }
+
+    /* Input field of department type*/
+    .department-type { 
+        width: 290px;
+    }
+
+    .nutra-header-dept-label {
+        white-space: nowrap;
+        font-weight: bold;
+    }
+
+    .request-text {
+        text-align: left !important;
+        margin-left: 0;
+        font-weight: bold;
+    }
+
+    .nutra-date-container{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-right: -22px;
+    }
+
+    .nutra-date-label{
+        margin-left: 10px;
+    }
+
+    .search-input-container-type .nutra-header-dept-label{
+        margin-left: -22px;
+    }
+
+    .following-label{
+        margin-left: 2px;
+    }
+
+    @page {
+        size: A4; 
+        margin: 5mm; 
+    }
+
+    .signature-box{
+        font-size: 15px;
+    }
+
+    .department-display{
+        padding: 8px;
+    }
+
+    .input-date-nutra{
+        padding: 8px;
+    }
+} 
+
+@media print {
+    td input {
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: center;
+        padding: 0px; 
+        line-height: 1;
+        font-size: 10px; 
+        height: auto; 
+        vertical-align: middle;
+    }
+}
+/* Hides save button when printing */
+@media print {
+    .save-button-container {
+        display: none !important;
+    }
+}
+
+/* Print-specific adjustments */
+@media print {
+  .table-container table th:nth-child(5),
+  .table-container table td:nth-child(5) {
+    width: 16% !important;
+    min-width: 120px !important;
+  }
+
+  .date-needed-cell .date-input-container {
+    border: 1px solid #ccc !important;
+    background: white !important;
+    padding: 2px 4px !important;
+    min-width: 120px !important;
+  }
+
+  .date-needed-cell .enhanced-date-input {
+    font-size: 10px !important;
+    color: black !important;
+  }
+}
+
+ @media (max-width: 768px) {
+    .date-input-container {
+        padding: 4px 6px;
+        border-radius: 6px;
+    }
+          
+    .date-icon {
+        width: 12px;
+        height: 12px;
+        }
+          
+    .enhanced-date-input {
+        font-size: 11px;
+    }
+          
+    .date-display {
+        font-size: 8px;
+        padding: 1px 3px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .date-needed-cell {
+        width: 16% !important;
+        min-width: 120px !important;
+    }
+          
+    .date-input-container {
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        padding: 2px 4px !important;
+        background: white !important;
+        box-shadow: none !important;
+    }
+          
+    .date-icon {
+        width: 12px !important;
+        height: 12px !important;
+        color: #666 !important;
+    }
+          
+    .enhanced-date-input {
+        font-size: 10px !important;
+    }
+          
+    .date-display {
+        display: none !important;
+    }
+          
+    :global(th:nth-child(5), td:nth-child(5)) { 
+        width: 16% !important; 
+        min-width: 120px !important;
+    }
+}
+
+@media print {
+    
+    /* Hide the global purpose input field */
+    .purpose-item-input {
+        display: none !important;
+    }
+    
+    /* Hide the purpose label in the following-label section */
+    .purpose-requi-label {
+        display: none !important;
+    }
+    
+}
 

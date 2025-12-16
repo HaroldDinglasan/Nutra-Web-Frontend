@@ -27,7 +27,7 @@ const Login = () => {
     const idFromUrl = params.get("prfId")
     const noFromUrl = params.get("prfNo")
     const dateFromUrl = params.get("prfDate") // una ilagay itu
-
+    const departmentTypeFromUrl = params.get("departmentType")
     const assignedActionFromUrl = params.get("assignedAction") // Kinukuha yung assigned action sa email-service
 
     // Step 1: Kunin ang full names ng mga approvers galing sa email link
@@ -40,6 +40,7 @@ const Login = () => {
     const decodedPrfNo = noFromUrl ? decodeURIComponent(noFromUrl) : null
     const decodedPrfDate = dateFromUrl ? decodeURIComponent(dateFromUrl) : null // pangalawa ilagay itu
     const decodedPreparedBy = preparedByFromUrl ? decodeURIComponent(preparedByFromUrl) : null // Second step
+    const decodedDepartmentType = departmentTypeFromUrl ? decodeURIComponent(departmentTypeFromUrl) : null
 
     if (idFromUrl) {
       // console.log("🔗 PRF ID received from email:", idFromUrl)
@@ -61,6 +62,7 @@ const Login = () => {
         approvedBy: approvedBy ? decodeURIComponent(approvedBy) : "",
         receivedBy: receivedBy ? decodeURIComponent(receivedBy) : "",
         assignedAction: assignedActionFromUrl || "",
+        departmentType: decodedDepartmentType || "", // Store department from email
       }
       setPendingPrfData(prfInfo)
       localStorage.setItem("pendingPRF", JSON.stringify(prfInfo))
@@ -105,7 +107,6 @@ const Login = () => {
       const data = await response.json()
 
       if (response.ok) {
-        alert("✅ Login successful!")
         // user details na sa isang object para sa pagbato ng Approval Modal
         const userData = {
           userId: data.user.userID,
@@ -141,7 +142,9 @@ const Login = () => {
           localStorage.setItem("approvedByUser", pendingPrfData.approvedBy || "")
           localStorage.setItem("receivedByUser", pendingPrfData.receivedBy || "")
           localStorage.setItem("prfDateFromEmail", pendingPrfData.prfDate || "") // Pang apat
-
+          if (pendingPrfData.departmentType) {
+            localStorage.setItem("prfDepartmentType", pendingPrfData.departmentType)
+          }
           if (pendingPrfData.assignedAction) {
             localStorage.setItem("assignedAction", pendingPrfData.assignedAction)
           }
@@ -154,6 +157,7 @@ const Login = () => {
               prfId: pendingPrfData.prfId,
               prfDate: pendingPrfData.prfDate,
               preparedBy: pendingPrfData.preparedBy,
+              departmentType: pendingPrfData.departmentType,
               checkedBy: pendingPrfData.checkedBy,
               approvedBy: pendingPrfData.approvedBy,
               receivedBy: pendingPrfData.receivedBy,
