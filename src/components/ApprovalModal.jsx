@@ -269,8 +269,8 @@ const ApprovalModal = ({ onClose }) => {
       const checkResponse = await axios.get(`http://localhost:5000/api/approvals/user/${currentUserId}`)
       const existingApproval = checkResponse.data.data?.[0]
 
-      localStorage.setItem("senderEmail", process.env.REACT_APP_SMTP_USER || "dinglasan.harold.ian.dave@gmail.com")
-      localStorage.setItem("smtpPassword", process.env.REACT_APP_SMTP_PASSWORD || "yxvi pzmc lnah cywl")
+      localStorage.setItem("senderEmail", process.env.REACT_APP_SMTP_USER || "purchaserequestsys@gmail.com")
+      localStorage.setItem("smtpPassword", process.env.REACT_APP_SMTP_PASSWORD || "gcqc ugzf xcxm phaj")
 
       const approvalData = {
         UserID: currentUserId,
@@ -360,14 +360,7 @@ const ApprovalModal = ({ onClose }) => {
   }
 
   const CustomDropdown = ({ field, label, className }) => {
-    // Calculate z-index based on dropdown position and open state
-    const getZIndex = () => {
-      if (openDropdown === field) {
-        return 10000 // Highest z-index for active dropdown
-      }
-      return 1000 // Base z-index for inactive dropdowns
-    }
-
+    
     return (
       <>
         <label htmlFor={field} className={field.includes("approved") ? "approvedby-form-label" : "form-label"}>
@@ -379,7 +372,6 @@ const ApprovalModal = ({ onClose }) => {
           className={`custom-dropdown-container ${openDropdown === field ? "dropdown-open" : ""}`}
           style={{
             position: "relative",
-            zIndex: getZIndex(),
           }}
         >
           <div
@@ -417,7 +409,7 @@ const ApprovalModal = ({ onClose }) => {
                 borderRadius: "4px",
                 marginTop: "2px",
                 backgroundColor: "white",
-                zIndex: 10001,
+                zIndex: 20,
                 boxShadow: "0 8px 24px rgba(76, 175, 80, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)",
               }}
             >
