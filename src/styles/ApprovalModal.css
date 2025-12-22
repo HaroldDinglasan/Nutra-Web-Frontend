@@ -12,24 +12,24 @@
   backdrop-filter: blur(4px);
 }
 
-/* Update the approval-modal class to make it scrollable */
+
 .approval-setting-modal {
   background: linear-gradient(145deg, #ffffff, #f8fffe);
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(76, 175, 80, 0.15), 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   width: 580px;
   max-width: 90%;
-  max-height: 90vh; /* Limit height to 90% of viewport */
-  overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: hidden; /* Hide horizontal scrollbar */
+  max-height: 90vh; 
+  overflow-y: auto; 
+  overflow-x: hidden; 
   animation: modalFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   border: 1px solid rgba(76, 175, 80, 0.1);
-  scrollbar-width: thin; /* For Firefox */
-  scrollbar-color: rgba(76, 175, 80, 0.5) rgba(248, 255, 254, 0.5); /* For Firefox */
+  scrollbar-width: thin; 
+  scrollbar-color: rgba(76, 175, 80, 0.5) rgba(248, 255, 254, 0.5); 
 }
 
 .section-title {
@@ -64,7 +64,7 @@
   }
 }
 
-/* Fix the approval-modal-header to stay at the top when scrolling */
+
 .approval-setting-header {
   background: linear-gradient(135deg, #4caf50, #66bb6a);
   color: white;
@@ -155,13 +155,12 @@
 
 }
 
-/* Fix the form-label to match approvedby-form-label */
 .form-label {
   display: flex;
   font-size: 0.9rem;
   color: #2e7d32;
   padding-right: 10px;
-  margin-left: -40px; /* Changed from -35px to -40px to match other labels */
+  margin-left: -40px; 
   margin-top: 10px;
   font-weight: 500;
 }
@@ -394,7 +393,7 @@
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(76, 175, 80, 0.15),
               0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 20; /* lower than header (50) */
+  z-index: 20; 
 }
 
 
@@ -448,7 +447,6 @@
   border-bottom: none;
 }
 
-/* Settings icon styles */
 .settings-icon-wrapper {
   position: relative;
   cursor: pointer;
@@ -534,7 +532,7 @@
   color: #4caf50;
 }
 
-/* Error message styling */
+
 .error-message {
   color: #d32f2f;
   margin: 10px 0;
@@ -546,7 +544,6 @@
   box-shadow: 0 2px 8px rgba(211, 47, 47, 0.1);
 }
 
-/* Loading state */
 .approval-form input:disabled,
 .approval-form select:disabled {
   background: #f5f5f5;
@@ -554,7 +551,6 @@
   opacity: 0.7;
 }
 
-/* Responsive adjustments */
 @media (max-width: 640px) {
   .approval-modal {
     width: 95%;

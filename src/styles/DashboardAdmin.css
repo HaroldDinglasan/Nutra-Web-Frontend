@@ -1,4 +1,4 @@
-/* Base Styles */
+
 :root {
   --primary-color: #4caf50;
   --primary-dark: #388e3c;
@@ -29,7 +29,7 @@ body {
   background-color: var(--background-color);
 }
 
-/* Container Styles */
+
 .nutra-container {
   width: 100%;
   min-height: 100vh;
@@ -38,7 +38,7 @@ body {
   overflow: hidden;
 }
 
-/* Decorative Elements */
+
 .nutra-container::before {
   content: "";
   position: absolute;
@@ -65,7 +65,6 @@ body {
   opacity: 0.5;
 }
 
-/* Admin Dashboard */
 .admin-dashboard {
   position: relative;
   z-index: 1;
@@ -75,7 +74,6 @@ body {
   flex-direction: column;
 }
 
-/* Header */
 .dashboard-header {
   background-color: var(--card-color);
   box-shadow: 0 2px 10px var(--shadow-color);
@@ -83,7 +81,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  height: 50px; /* Set explicit height */
+  height: 50px; 
   display: flex;
   align-items: center;
 }
@@ -102,12 +100,11 @@ body {
 }
 
 .company-logo {
-  height: 50px; /* Increased logo size */
+  height: 50px; 
   width: auto;
   margin-right: 20px;
 }
 
-/* Search Container */
 .search-container {
   flex: 0 1 350px;
   max-width: 350px;
@@ -182,7 +179,6 @@ body {
   transform: scale(1.1);
 }
 
-/* Buttons Container */
 .buttons-container {
   margin-left: 20px;
   margin-right: 20px;
@@ -194,12 +190,10 @@ body {
   font-weight: bold;
 }
 
-/* Save/Update Button */
 .save-update-button {
   margin-left: 20px;
 }
 
-/* Navigation Icons */
 .nav-icons {
   display: flex;
   margin-left: auto;
@@ -232,7 +226,6 @@ body {
   opacity: 0.8;
 }
 
-/* User Dashboard Container */
 .user-dashboard-container {
   position: relative;
   margin-left: 10px;
@@ -341,7 +334,6 @@ body {
   box-shadow: none;
 }
 
-/* Dashboard Content */
 .dashboard-content {
   display: flex;
   flex: 1;
@@ -349,7 +341,6 @@ body {
   z-index: 2;
 }
 
-/* Sidebar */
 .dashboard-sidebar {
   width: 240px;
   background-color: var(--card-color);
@@ -439,7 +430,6 @@ body {
   font-weight: 600;
 }
 
-/* Main Content */
 .dashboard-main {
   flex: 1;
   padding: 20px;
@@ -467,7 +457,6 @@ body {
   min-height: calc(100vh - 180px);
 }
 
-/* Log Table */
 .log-table-container {
   border-radius: var(--border-radius);
   overflow: hidden;
@@ -509,7 +498,7 @@ body {
   color: var(--error-color) !important;
 }
 
-/* Responsive Adjustments */
+
 @media (max-width: 1024px) {
   .dashboard-sidebar {
     width: 200px;
@@ -554,7 +543,6 @@ body {
   }
 }
 
-/* Print Styles */
 @media print {
   .dashboard-header,
   .dashboard-sidebar,

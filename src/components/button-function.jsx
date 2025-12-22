@@ -1,7 +1,7 @@
 import axios from "axios"
 
 // Save PRF header
-export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) => {
+export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, departmentCharge) => {
   if (!purchaseCodeNumber || !currentDate || !fullname) {
     console.error("Missing required data for PRF header")
     return null
@@ -16,7 +16,10 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) =
     prfDate: currentDate,
     preparedBy: fullname,
     userId: userId ? parseInt(userId) : null, // add UserID  
+    departmentCharge: departmentCharge || null, // add department charge
   }
+
+  console.log("[v0] Sending PRF header data:", prfHeaderData)
 
   try {
     const response = await fetch("http://localhost:5000/api/save-table-header", {
@@ -27,7 +30,7 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname) =
 
     const data = await response.json()
     if (response.ok) {
-      console.log("PRF header saved:", data.prfId)
+      console.log("✅ PRF header saved with departmentCharge:", data.prfId)
       return data.prfId
     } else {
       console.error("Error saving PRF header:", data.message)
