@@ -52,16 +52,16 @@ const NutraTechForm = () => {
   const [department, setDepartment] = useState(() => {
     // Priority 1: Check URL search params (from email link)
     const params = new URLSearchParams(location.search)
-    const urlDepartment = params.get("departmentType")
+    const urlDepartment = params.get("departmentCharge")
     if (urlDepartment) {
       console.log(" Using department from URL:", urlDepartment)
       return decodeURIComponent(urlDepartment)
     }
 
     // Priority 2: Check location.state (department passed from Login navigation)
-    if (location.state?.departmentType) {
-      console.log(" Using department from location.state:", location.state.departmentType)
-      return location.state.departmentType
+    if (location.state?.departmentCharge) {
+      console.log(" Using department from location.state:", location.state.departmentCharge)
+      return location.state.departmentCharge
     }
 
     // Priority 3: Check pending PRF in localStorage
@@ -69,9 +69,9 @@ const NutraTechForm = () => {
     if (pendingPRFStr) {
       try {
         const pendingPRF = JSON.parse(pendingPRFStr)
-        if (pendingPRF.departmentType) {
-          console.log(" Using department from pending PRF:", pendingPRF.departmentType)
-          return pendingPRF.departmentType
+        if (pendingPRF.departmentCharge) {
+          console.log(" Using department from pending PRF:", pendingPRF.departmentCharge)
+          return pendingPRF.departmentCharge
         }
       } catch (error) {
         console.error(" Error parsing pending PRF:", error)
@@ -79,7 +79,7 @@ const NutraTechForm = () => {
     }
 
     // Priority 4: Check stored PRF department
-    const storedPrfDept = localStorage.getItem("prfDepartmentType")
+    const storedPrfDept = localStorage.getItem("prfDepartmentCharge") // <CHANGE> Use departmentCharge key
     if (storedPrfDept) {
       console.log(" Using stored PRF department:", storedPrfDept)
       return storedPrfDept
@@ -116,7 +116,7 @@ const NutraTechForm = () => {
 
   useEffect(() => {
     const params = getSearchParams()
-    const urlDepartment = params.get("departmentType")
+    const urlDepartment = params.get("departmentCharge") // <CHANGE> Get departmentCharge from email URL
 
     // Priority 1: URL parameter (from email)
     if (urlDepartment) {
@@ -124,16 +124,16 @@ const NutraTechForm = () => {
       console.log(" Setting department from URL:", decodedDept)
       setDepartment(decodedDept)
       setDepartmentFromPrf(true)
-      localStorage.setItem("prfDepartmentType", decodedDept)
+      localStorage.setItem("prfDepartmentCharge", decodedDept)
       return
     }
 
     // Priority 2: Location state (from Login navigation)
-    if (location.state?.departmentType) {
-      console.log(" Setting department from location.state:", location.state.departmentType)
-      setDepartment(location.state.departmentType)
+    if (location.state?.departmentCharge) {
+      console.log(" Setting department from location.state:", location.state.departmentCharge)
+      setDepartment(location.state.departmentCharge)
       setDepartmentFromPrf(true)
-      localStorage.setItem("prfDepartmentType", location.state.departmentType)
+      localStorage.setItem("prfDepartmentCharge", location.state.departmentCharge)
       return
     }
 
@@ -142,11 +142,11 @@ const NutraTechForm = () => {
     if (pendingPRFStr && prfId) {
       try {
         const pendingPRF = JSON.parse(pendingPRFStr)
-        if (pendingPRF.departmentType) {
-          console.log(" Setting department from pending PRF:", pendingPRF.departmentType)
-          setDepartment(pendingPRF.departmentType)
+        if (pendingPRF.departmentCharge) {
+          console.log(" Setting department from pending PRF:", pendingPRF.departmentCharge)
+          setDepartment(pendingPRF.departmentCharge)
           setDepartmentFromPrf(true)
-          localStorage.setItem("prfDepartmentType", pendingPRF.departmentType)
+          localStorage.setItem("prfDepartmentCharge", pendingPRF.departmentCharge)
           return
         }
       } catch (error) {
@@ -155,7 +155,7 @@ const NutraTechForm = () => {
     }
 
     // Priority 4: Stored PRF department
-    const storedPrfDept = localStorage.getItem("prfDepartmentType")
+    const storedPrfDept = localStorage.getItem("prfDepartmentCharge") // <CHANGE> Use departmentCharge key
     if (storedPrfDept && prfId) {
       console.log(" Using stored PRF department:", storedPrfDept)
       setDepartment(storedPrfDept)
@@ -163,10 +163,9 @@ const NutraTechForm = () => {
       return
     }
 
-    // Priority 5: User's department (only for new PRFs or when no email link)
-    const userDept = localStorage.getItem("userDepartment") || ""
-    console.log(" Using user's department:", userDept)
-    setDepartment(userDept)
+    // No PRF loaded - department field remains empty
+    console.log("✅ No PRF loaded - department field remains empty")
+    setDepartment("")
     setDepartmentFromPrf(false)
   }, [prfId, location.search, location.state])
 
@@ -651,6 +650,13 @@ const NutraTechForm = () => {
         setCurrentDate(data.header.prfDate.split("T")[0])
         setPrfId(data.header.prfId)
 
+        // <CHANGE> Set department from departmentCharge when searching PRF
+        if (data.header.departmentCharge) {
+          setDepartment(data.header.departmentCharge)
+          setDepartmentFromPrf(true)
+          localStorage.setItem("prfDepartmentCharge", data.header.departmentCharge)
+        }
+
         // Get PRF date
         const prfDateObj = new Date(data.header.prfDate)
         setPrfDate(prfDateObj)
@@ -918,6 +924,7 @@ const NutraTechForm = () => {
       checkedBy: approvalNames.checkedByUser,
       approvedByUser: approvalNames.approvedByUser,
       receivedByUser: approvalNames.receivedByUser,
+      departmentCharge: department || null, // Add department charge from the input field
     }
 
     try {
@@ -1352,7 +1359,7 @@ const NutraTechForm = () => {
               <label className="nutra-header-dept-label" htmlFor="department">
                 Department (charge to):
               </label>
-              <input type="text" id="department" className="department-type" value={department} readOnly />
+              <input type="text"id="department"className="department-type" value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="Enter department" />           
             </div>
 
             <div className="nutra-date-container">

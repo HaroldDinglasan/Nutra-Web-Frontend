@@ -23,6 +23,7 @@ const AppLayout = ({ children }) => {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isPrfCancelled, setIsPrfCancelled] = useState(false)
   const [cancelLimitReached, setCancelLimitReached] = useState(false)
+  const [isSearchMode, setIsSearchMode] = useState(false)
   // 'prfNo' or 'purpose'
 
   // Kinukuha yung user role sa local storage
@@ -84,6 +85,17 @@ const AppLayout = ({ children }) => {
     window.addEventListener("prfFormStateChanged", handleFormStateChange)
     return () => {
       window.removeEventListener("prfFormStateChanged", handleFormStateChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleEnableEditMode = () => {
+      setIsSearchMode(false)
+    }
+
+    window.addEventListener("prfEnableEditMode", handleEnableEditMode)
+    return () => {
+      window.removeEventListener("prfEnableEditMode", handleEnableEditMode)
     }
   }, [])
 
@@ -244,6 +256,8 @@ const AppLayout = ({ children }) => {
     // Clear search input
     setSearchInput("")
 
+    setIsSearchMode(false)
+
     // Clear approval names from localStorage for new form
     localStorage.removeItem("checkedByUser")
     localStorage.removeItem("approvedByUser")
@@ -297,6 +311,8 @@ const AppLayout = ({ children }) => {
 
         // store the prf search results in sessionStorage to pass to NutraTechForm
         sessionStorage.setItem("prfSearchResults", JSON.stringify(data))
+
+        setIsSearchMode(true)
 
         // navigate to the form page if not already there
         if (location.pathname !== "/nutratech/form") {
@@ -358,14 +374,14 @@ const AppLayout = ({ children }) => {
 
             {activeSection === "prfRequest" && (
               <div className="save-update-button">
-                {isUpdating ? (
+                {isUpdating && !isSearchMode ? (
                   <UpdateButton
                     onClick={() => window.dispatchEvent(new CustomEvent("prfUpdateClicked"))}
                     disabled={isPrfCancelled || cancelLimitReached}
                   />
-                ) : (
+                ) : !isUpdating ? (
                   <SaveButton onClick={() => window.dispatchEvent(new CustomEvent("prfSaveClicked"))} />
-                )}
+                ) : null}
               </div>
             )}
 
