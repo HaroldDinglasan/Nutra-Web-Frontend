@@ -62,10 +62,10 @@ const ApprovalButtonAction = ({
 
       // Kapag wala sa local storage, pede kunin sa .env.local
       if (!senderEmail) {
-        senderEmail = process.env.REACT_APP_SMTP_USER || "dinglasan.harold.ian.dave@gmail.com"
+        senderEmail = process.env.REACT_APP_SMTP_USER || "purchaserequestsys@gmail.com"
       }
       if (!smtpPassword) {
-        smtpPassword = process.env.REACT_APP_SMTP_PASSWORD || "yxvi pzmc lnah cywl"
+        smtpPassword = process.env.REACT_APP_SMTP_PASSWORD || "gcqc ugzf xcxm phaj"
       }
 
       const checkedByName = localStorage.getItem("checkedByUser") || "N/A" // dinagdag para hindi mawala ang fullnames sa Outlook notification
@@ -119,7 +119,6 @@ const ApprovalButtonAction = ({
     setIsSubmitting(true)
     try {
       if (!prfId) {
-        alert(" PRF ID is missing. Please refresh the page and try again.")
         setIsSubmitting(false)
         return
       }
@@ -127,9 +126,22 @@ const ApprovalButtonAction = ({
       // Get user data from localStorage
       const userData = JSON.parse(localStorage.getItem("user") || "{}")
 
+      let senderEmail = localStorage.getItem("senderEmail")
+      let smtpPassword = localStorage.getItem("smtpPassword")
+
+      // Kapag wala sa local storage, pede kunin sa .env.local
+      if (!senderEmail) {
+        senderEmail = process.env.REACT_APP_SMTP_USER || "purchaserequestsys@gmail.com"
+      }
+      if (!smtpPassword) {
+        smtpPassword = process.env.REACT_APP_SMTP_PASSWORD || "gcqc ugzf xcxm phaj"
+      }
+
       const requestBody = {
         userFullName: userData.fullName || "System User",
         rejectionReason: rejectionReason || "",
+        senderEmail,
+        smtpPassword,
       }
 
       // Call the rejection endpoint
@@ -152,8 +164,7 @@ const ApprovalButtonAction = ({
         alert(`❌ Error: ${data.message}`)
       }
     } catch (error) {
-      console.error("Error rejecting:", error)
-      alert("❌ An error occurred while processing the rejection")
+      console.error(" Error rejecting:", error)
     } finally {
       setIsSubmitting(false)
     }
