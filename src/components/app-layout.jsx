@@ -322,7 +322,7 @@ const AppLayout = ({ children }) => {
           window.dispatchEvent(new CustomEvent("prfSearchCompleted"))
         }
 
-        alert("PRF details loaded successfully!")
+        // alert("PRF details loaded successfully!")
       } else {
         alert("PRF not found. Please check the PRF number and try again.")
       }

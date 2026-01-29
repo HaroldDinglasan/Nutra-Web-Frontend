@@ -157,6 +157,9 @@ export const savePrfDetails = async (headerPrfId, rows) => {
       // Show immediate success message
       alert("PRF saved successfully!")
 
+      // Reload page for new PRF creation
+      window.location.reload();
+
       // Send notifications in the background (don't wait for completion)
       const prfNo =
         localStorage.getItem("currentPrfNo") ||

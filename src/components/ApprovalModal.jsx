@@ -346,7 +346,7 @@ const ApprovalModal = ({ onClose }) => {
         }),
       )
 
-      alert("✅ Approval details saved successfully!")
+      // alert("✅ Approval details saved successfully!")
       setTimeout(() => {
         resetFormFields()
         onClose()
