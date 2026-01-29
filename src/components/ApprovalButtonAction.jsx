@@ -115,11 +115,10 @@ const ApprovalButtonAction = ({
     }
   }
 
-  const handleReject = async () => {
+  const handleReject = async (actionType, rejectionReason) => {
     setIsSubmitting(true)
     try {
       if (!prfId) {
-        console.error(" prfId is null or undefined")
         alert(" PRF ID is missing. Please refresh the page and try again.")
         setIsSubmitting(false)
         return
@@ -128,7 +127,10 @@ const ApprovalButtonAction = ({
       // Get user data from localStorage
       const userData = JSON.parse(localStorage.getItem("user") || "{}")
 
-      console.log(" Calling rejection endpoint with:", { prfId, userFullName: userData.fullName })
+      const requestBody = {
+        userFullName: userData.fullName || "System User",
+        rejectionReason: rejectionReason || "",
+      }
 
       // Call the rejection endpoint
       const response = await fetch(`http://localhost:5000/api/prf/reject/${prfId}`, {
@@ -136,16 +138,14 @@ const ApprovalButtonAction = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userFullName: userData.fullName || "System User",
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
 
       if (response.ok) {
         if (onAction) {
-          await onAction("reject", null)
+          await onAction("reject", rejectionReason)
         }
         alert(`✅ PRF has been rejected successfully!`)
       } else {

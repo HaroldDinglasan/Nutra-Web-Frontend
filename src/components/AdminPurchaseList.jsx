@@ -389,12 +389,11 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
             <div className="stats-content">
               <div className="stats-number">{isLoading ? "..." : pendingCount}</div>
-              <div className="stats-label">PURCHASE REQUEST</div>
-              <div className="stats-description">Awaiting approval</div>
+              <div className="stats-label">UNASSIGNED</div>
             </div>
           </div>
 
-          <div className="stats-card approved-card">
+          {/* <div className="stats-card approved-card">
             <div className="stats-icon">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -416,7 +415,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
               <div className="stats-label">APPROVED</div>
               <div className="stats-description">Approved Request</div>
             </div>
-          </div>
+          </div> */}
 
           <div className="stats-card received-card">
             <div className="stats-icon">
@@ -522,7 +521,12 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="received">Received</option>
+            <option value="On-assigned">On-assigned</option>
+            <option value="Assigned">Assigned</option>
+            <option value="On-assigned">On-assigned</option>
+            <option value="For-approval">For Approval</option>
             <option value="cancelled">Cancelled</option>
+            <option value="reject">Reject</option>
           </select>
         </div>
       </div>

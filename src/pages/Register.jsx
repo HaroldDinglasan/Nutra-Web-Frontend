@@ -38,40 +38,82 @@ const Register = () => {
     fetchEmployees()
   }, [])
 
-  // Sineset ang department Id
-  useEffect(() => {
-    let id = null
-    switch (department) {
+  // // Sineset ang department Id
+  // // PERO SA BACKEND WORKING SA FRONT END HINDI
+  // useEffect(() => {
+  //   let id = null
+  //   switch (department) {
 
-      case "CGS":
-        id = 1
-      break
+  //     case "PRODUCTION":
+  //       id = 1
+  //     break
 
-      case "QC":
-        id = 2
-      break
+  //     case "CGS":
+  //       id = 2
+  //     break
 
-      case "MMD":
-        id = 3
-      break
+  //     case "CMD":
+  //       id = 3
+  //     break
 
-      case "WLO": 
-        id = 4
-      break
+  //     case "AUDIT ": 
+  //       id = 4
+  //     break
 
-      case "Purchasing":
-        id = 5
-      break
+  //     case "LEGAL":
+  //       id = 5
+  //     break
 
-      case "Approvers":
-        id = 6
-      break
+  //     case "Approvers":
+  //       id = 6
+  //     break
 
-      default:
-        id = null
-    }
-    setDepartmentId(id)
-  }, [department])
+  //     case "FINANCE":
+  //       id = 7
+  //     break
+
+  //     case "HR":
+  //       id = 8
+  //     break
+
+  //     case "MARKETING":
+  //       id = 9
+  //     break
+
+  //     case "REGULATORY":
+  //       id = 10
+  //     break
+
+  //     case "PURCHASING":
+  //       id = 11
+  //     break
+
+  //     case "WLO":
+  //       id = 12
+  //     break
+
+  //     case "ENGINEERING":
+  //       id = 13
+  //     break
+
+  //     case "SALES":
+  //       id = 14 
+  //     break
+
+  //     case "CORPLAN":
+  //       id = 15 
+  //     break
+
+  //     case "WLO":
+  //       id = 16
+  //     break
+
+  //     default:
+  //       id = null
+
+  //   }
+  //   setDepartmentId(id)
+  // }, [department])
 
   // Handle user input
   const handleFullnameChange = (e) => {
@@ -159,12 +201,23 @@ const Register = () => {
               onChange={(e) => setDepartment(e.target.value)}
             >
               <option value="">Select Department</option>
+              <option value="PRODUCTION">PRODUCTION</option> 
               <option value="CGS">CGS</option> 
+              <option value="CMD">CMD</option>
+              <option value="AUDIT">AUDIT</option>
+              <option value="LEGAL">LEGAL</option>
+              <option value="FINANCE">FINANCE</option>
+              <option value="HR">HR</option>
+              <option value="MARKETING">MARKETING</option>
+              <option value="REGULATORY">REGULATORY</option>
+              <option value="CORPLAN">CORPLAN</option> 
+              <option value="Purchasing">PURCHASING</option> 
+              <option value="WLO">WLO</option> 
+              <option value="SALES">SALES</option>
               <option value="QC">QC</option> 
               <option value="MMD">MMD</option> 
-              <option value="WLO">WLO</option> 
-              <option value="Purchasing">Purchasing</option> 
-              <option value="Approvers">Approvers</option> 
+              <option value="ENGINEERING">ENGINEERING</option>
+              <option value="Approvers">APPROVERS</option> 
             </select>
             <img src={departmentIcon || "/placeholder.svg"} alt="Dept Icon" className="dropdown-icon" />
           </div>

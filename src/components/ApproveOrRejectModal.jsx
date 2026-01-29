@@ -36,10 +36,16 @@ const ApproveOrRejectModal = ({ isOpen, actionType, approverName, onApprove, onR
   }
 
   const handleReject = async () => {
+    // Validate that rejection reason is proivded
+    if (!rejectionReason.trim()) {
+      alert("Please provide a reason for rejection before proceeding.")
+      return
+    }
+
     setIsSubmitting(true)
     try {
       if (onReject) {
-        await onReject(actionType)
+        await onReject(actionType, rejectionReason)
       }
       handleClose()
     } catch (error) {
@@ -139,6 +145,21 @@ const ApproveOrRejectModal = ({ isOpen, actionType, approverName, onApprove, onR
               </div>
             </div>
           </div>
+
+          {/* Rejection Reason Input - Only show when reject is selected*/}
+          {selectedDecision === "reject" && (
+            <div className="rejection-reason-section">
+              <label htmlFor="rejectionReason"> Reason for Rejection</label>
+              <textarea
+                  id="rejectionReason"
+                  className="rejection-reason-input"
+                  placeholder="Please provide a detailed reason for rejecting this request"
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  disabled={isSubmitting}
+              />
+            </div>
+          )}
 
         </div>
 

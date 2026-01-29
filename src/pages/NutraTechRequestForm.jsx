@@ -220,7 +220,7 @@ const NutraTechForm = () => {
   }
 
   const [rows, setRows] = useState(
-    Array.from({ length: 5 }, () => ({
+    Array.from({ length: 12 }, () => ({
       stockCode: "",
       quantity: "",
       unit: "",
