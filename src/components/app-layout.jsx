@@ -354,6 +354,13 @@ const AppLayout = ({ children }) => {
                   className="search-input-form"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleSearchPrf()
+                    }
+                  } 
+                  }
                 />
                 <button className="search-button" onClick={handleSearchPrf}>
                   <img className="searchPrfNo" src={search || "/placeholder.svg"} alt="Search" />
@@ -362,14 +369,14 @@ const AppLayout = ({ children }) => {
             </div>
 
             <div className="buttons-container">
-              {activeSection === "prfRequest" && !isAdmin && (
+              {/* {activeSection === "prfRequest" && !isAdmin && (
                 <>
                   <button className="new-button" onClick={handleNewPrf}>
                     <span className="button-icon">+</span>
                     <span>New PRF</span>
                   </button>
                 </>
-              )}
+              )} */}
             </div>
 
             {activeSection === "prfRequest" && (

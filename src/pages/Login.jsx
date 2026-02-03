@@ -194,8 +194,9 @@ const Login = () => {
   }
 
   return (
-    <div className="login-form-container">
+    <form className="login-form-container" onSubmit={handleLogin}>
       <div className="login-box-container">
+        
         <div className="login-header">
           <div className="reg-logo">
             <img src={regLogo || "/placeholder.svg"} alt="Logo" id="reglogo" />
@@ -252,7 +253,7 @@ const Login = () => {
           {errors.password && <p className="error-text-show">{errors.password}</p>}
         </div>
 
-        <button type="submit" className="login-button" onClick={handleLogin}>
+        <button type="submit" className="login-button">
           LOGIN
         </button>
 
@@ -265,7 +266,7 @@ const Login = () => {
           </p>
         </div>
       </div>
-    </div>
+    </form>
   )
 }
 
