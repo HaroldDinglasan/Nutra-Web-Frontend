@@ -39,10 +39,16 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     }, [])
 
     const determinePrfStatus =  (prf) => {
+
+    // REJECT STATUS
+    if (prf.isReject === 1 || prf.isReject === true) {
+      return "REJECTED"
+    }
+
     // Normalize isDelivered to handle "1", 1, true
     const delivered = prf.isDelivered === 1 || prf.isDelivered === true || prf.isDelivered === "1";
 
-    if (delivered) return "Received";
+    if (delivered) return "RECEIVED";
 
     // Check if cancelled first
     if (
@@ -62,7 +68,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       return "Approved";
     }
 
-    return "Pending";
+    return "PENDING";
   };
 
   // Fetch all PRF requests for admin
@@ -81,7 +87,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
         return {
           ...prf,
-          status: delivered ? "Received" : calculatedStatus,
+          status: delivered ? "RECEIVED" : calculatedStatus,
         };
       });
 
@@ -101,7 +107,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       setSelectedPrf(prf);
       setSelectedId(prf.Id);
       setSelectedRemarks(prf.remarks || ""); // load existing remarks if available
-      setDateDelivered(prf.dateDelivered || ""); // load exisisting date delivered
+      setDateDelivered(prf.DateDelivered || ""); // load exisisting date delivered
       setModalStatus(prf.status);
       setIsModalOpen(true);
 
@@ -161,12 +167,11 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
     try {
       await axios.put(`http://localhost:5000/api/markAsReceived/${selectedPrf.Id}`)
-      console.log("Marking as received ID:", selectedPrf.Id)
       await fetchAllPrfList() // refresh data
 
       // Update the local state
       const updatedPrfList = prfList.map((prf) =>
-        prf.Id === selectedPrf.Id ? { ...prf, status: "Received", isDelivered: 1 } : prf,
+        prf.Id === selectedPrf.Id ? { ...prf, status: "RECEIVED", isDelivered: 1 } : prf,
       )
 
       setPrfList(updatedPrfList)
@@ -179,7 +184,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       // Dispatch event for other components
       window.dispatchEvent(new Event("prfStatusUpdated"))
 
-      alert("Item marked as received successfully!")
+      // alert("Item marked as received successfully!")
     } catch (error) {
       console.error("❌ Error marking PRF as received:", error)
       alert("Failed to mark item as received. Please try again.")
@@ -237,9 +242,10 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       const statusMatch =
         statusFilter === "all" ||
         (statusFilter === "cancelled" && prf.status === "Cancelled") ||
-        (statusFilter === "pending" && prf.status === "Pending") ||
+        (statusFilter === "reject" && prf.status === "REJECTED") ||
+        (statusFilter === "PENDING" && prf.status === "PENDING") ||
         (statusFilter === "approved" && prf.status === "Approved") ||
-        (statusFilter === "received" && prf.status === "Received")
+        (statusFilter === "RECEIVED" && prf.status === "RECEIVED")
       return searchMatch && statusMatch
     })
 
@@ -247,21 +253,18 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   }
 
   // Calculate counts
-  const pendingCount = prfList.filter((prf) => prf.status === "Pending").length
+  const pendingCount = prfList.filter((prf) => prf.status === "PENDING").length
   const approvedCount = prfList.filter((prf) => prf.status === "Approved").length
-  const receivedCount = prfList.filter((prf) => prf.status === "Received").length
+  const receivedCount = prfList.filter((prf) => prf.status === "RECEIVED").length
   const cancelledCount = prfList.filter((prf) => prf.status === "Cancelled").length
 
   // Effect to filter the PRF list based on search term and status
   useEffect(() => {
     const fetchFilteredList = async () => {
       try {
-       if (statusFilter === "received") {
-        console.log("✅ Fetching received items from backend...")
+       if (statusFilter === "RECEIVED") {
 
         const response = await axios.get("http://localhost:5000/api/getDeliveredList")
-
-        console.log("📦 Delivered API response:", response.data)
 
         const deliveredData = Array.isArray(response.data)
           ? response.data
@@ -269,7 +272,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
         const deliveredList = deliveredData.map((prf) => ({
           ...prf,
-          status: "Received",
+          status: "RECEIVED",
         }))
 
         const searchedList = deliveredList.filter((prf) => {
@@ -303,7 +306,8 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
           const statusMatch =
             statusFilter === "all" ||
             (statusFilter === "cancelled" && prf.status === "Cancelled") ||
-            (statusFilter === "pending" && prf.status === "Pending") ||
+            (statusFilter === "reject" && prf.status === "REJECTED") ||
+            (statusFilter === "PENDING" && prf.status === "PENDING") ||
             (statusFilter === "approved" && prf.status === "Approved")
 
           if (!statusMatch) return false
@@ -342,25 +346,28 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     setSearchTerm("")
   }
 
-  // Get status badge class
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case "Pending":
+      case "PENDING":
         return "pending"
+
       case "Approved":
         return "approved"
-      case "Received":
+
+      case "RECEIVED":
         return "received"
+
       case "Cancelled":
         return "cancelled"
-      case "For Delivery":
-        return "for-delivery"
-      case "Delivered":
-        return "delivered"
+
+      case "REJECTED":
+        return "rejected"
+
       default:
         return "pending"
     }
   }
+
 
   if (showDashboard) {
     return (
@@ -392,30 +399,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
               <div className="stats-label">UNASSIGNED</div>
             </div>
           </div>
-
-          {/* <div className="stats-card approved-card">
-            <div className="stats-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div className="stats-content">
-              <div className="stats-number">{isLoading ? "..." : approvedCount}</div>
-              <div className="stats-label">APPROVED</div>
-              <div className="stats-description">Approved Request</div>
-            </div>
-          </div> */}
 
           <div className="stats-card received-card">
             <div className="stats-icon">
@@ -509,21 +492,19 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             onChange={(e) => {
               const selectedStatus = e.target.value
               setStatusFilter(selectedStatus)
-              console.log(`🟢 Status filter changed to: ${selectedStatus}`)
 
-              if (selectedStatus === "received") {
-                console.log("✅ Received filter clicked — fetching delivered list from API...")
+              if (selectedStatus === "RECEIVED") {
               }
             }}
             className="status-admin-filter"
           >
             <option value="all">All</option>
-            <option value="pending">Pending</option>
+            <option value="On-Assigned">On-Assigned</option>
+            <option value="Unassigned">Unassigned</option>
+            <option value="PARTIALDELIVERED">Partially Delivered</option>
+            <option value="PENDING">Pending</option>
             <option value="approved">Approved</option>
-            <option value="received">Received</option>
-            <option value="On-assigned">On-assigned</option>
-            <option value="Assigned">Assigned</option>
-            <option value="On-assigned">On-assigned</option>
+            <option value="RECEIVED">Received</option>
             <option value="For-approval">For Approval</option>
             <option value="cancelled">Cancelled</option>
             <option value="reject">Reject</option>
@@ -548,6 +529,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 <th>Quantity</th>
                 <th>Unit</th>
                 <th>Status</th>
+                <th>Assigned To</th>
               </tr>
             </thead>
             <tbody>
@@ -573,12 +555,13 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                       <td>
                         <span className={`status-badge ${getStatusBadgeClass(prf.status)}`}>{prf.status}</span>
                       </td>
+                      <td></td>
                     </tr>
                   )
                 })
               ) : (
                 <tr>
-                  <td colSpan="7" className="no-results">
+                  <td colSpan="8" className="no-results">
                     No matching PRF records found.
                   </td>
                 </tr>
@@ -712,7 +695,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 SAVE
               </button>
 
-              {selectedPrf.status !== "Received" && selectedPrf.status !== "Cancelled" && (
+              {selectedPrf.status !== "RECEIVED" && selectedPrf.status !== "Cancelled" && (
                 <>
                   <button onClick={handleMarkAsReceived} className="received-admin-button">
                     <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

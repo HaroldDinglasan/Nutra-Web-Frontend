@@ -26,12 +26,10 @@ const DashboardAdmin = () => {
     }
     // Event listener for PRF status updates
     const handlePrfStatusUpdate = () => {
-      console.log("PRF status updated, refreshing data...")
       fetchPrfList()
     }
 
     const handlePrfApproved = () => {
-      console.log(" PRF approved event received, refreshing list immediately...")
       fetchPrfList()
     }
 
@@ -46,6 +44,17 @@ const DashboardAdmin = () => {
 
   // Function to determine PRF status
   const determinePrfStatus = (prf) => {
+
+    // REJECT STATUS
+    if (prf.isReject === 1 || prf.isReject === true) {
+      return "REJECTED"
+    }
+    
+    // RECEIVED STATUS
+    if (prf.isDelivered === 1 || prf.isDelivered === true) {
+      return "RECEIVED"
+    }
+
     // Check if cancelled first - check all possible cancel flags
     if (
       prf.prfIsCancel === 1 ||
@@ -55,15 +64,15 @@ const DashboardAdmin = () => {
       prf.isCancel === 1 ||
       prf.isCancel === true
     ) {
-      return "Cancelled"
+      return "CANCELLED"
     }
 
     // This reflects the actual approval status saved by the approver
     if (prf.approvedBy_Status && prf.approvedBy_Status.trim().toUpperCase() === "APPROVED") {
-      return "Approved"
+      return "APPROVED"
     }
 
-    return "Pending"
+    return "PENDING"
   }
 
   // Function to refresh PRF data
@@ -122,12 +131,8 @@ const DashboardAdmin = () => {
         return
       }
 
-      console.log(`Fetching PRFs for user: ${currentUser}`)
-
       // Fetch PRFs for the current user only
       const response = await axios.get(`http://localhost:5000/api/prf-list/user/${encodeURIComponent(currentUser)}`)
-
-      console.log(`Received ${response.data.length} PRFs from server`)
 
       if (response.data.length === 0) {
         console.log("No PRFs found for this user, checking if there's a case-sensitivity issue...")
@@ -346,6 +351,7 @@ const DashboardAdmin = () => {
                     <th>Description</th>
                     <th>Quantity</th>
                     <th>Unit</th>
+                    <th>Delivered Date</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -361,15 +367,18 @@ const DashboardAdmin = () => {
                           <td>{prf.StockName || "No stock name available"}</td>
                           <td>{prf.quantity || "N/A"}</td>
                           <td>{prf.unit || "N/A"}</td>
+                          <td>{formatDate(prf.DateDelivered)}</td>  
                           <td>
-                            <span className={`status-badge ${prf.status.toLowerCase()}`}>{prf.status}</span>
+                            <span className={`status-badge ${prf.status.toLowerCase()}`}>
+                              {prf.status}
+                            </span>
                           </td>
                         </tr>
                       )
                     })
                   ) : (
                     <tr>
-                      <td colSpan="7">No matching PRF records found.</td>
+                      <td colSpan="8">No matching PRF records found.</td>
                     </tr>
                   )}
                 </tbody>
