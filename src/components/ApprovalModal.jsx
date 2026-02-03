@@ -123,21 +123,61 @@ const ApprovalModal = ({ onClose }) => {
       let defaultApprovedBy = ""
 
       switch (departmentType) {
+        case "PRODUCTION":
+          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultApprovedBy = "Michelle Anne C. Perez" // table SecuritySystemUser
+          break
+
         case "CGS":
           defaultCheckedBy = "Jocelyn D. Ferma" // table SecuritySystemUser
           defaultApprovedBy = "Ma. Ana Teresa D. Castillo" // table SecuritySystemUser
           break
-
-        case "QC":
-          defaultCheckedBy = "Evelyn A. Gatdula" // table SecuritySystemUser
-          defaultApprovedBy = "Arsenio Y. Castillo" // table Head User
+        
+        case "CMD":
+          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultApprovedBy = "Glenn Villanueva" // table SecuritySystemUser
           break
 
-        case "MMD":
-          defaultCheckedBy = "John Guiller M. Baon" // table SecuritySystemUser
-          defaultApprovedBy = "Andrea Kathleen D. Castillo" // table SecuritySystemUser
+        case "AUDIT":
+          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultApprovedBy = "Carmilyn J. Berenguel" // table SecuritySystemUser
           break
 
+        case "LEGAL":
+          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultApprovedBy = "Jovie Hona" // table SecuritySystemUser
+          break
+
+        case "FINANCE":
+          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultApprovedBy = "Jennifer June G. Cambongga" // table SecuritySystemUser
+          break
+        
+        case "HR":
+          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultApprovedBy = "Jennifer June G. Cambongga" // table SecuritySystemUser
+          break
+
+        case "MARKETING":
+          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultApprovedBy = "Dave Rinson R. de Villa" // table SecuritySystemUser
+          break
+
+        case "REGULATORY":
+          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultApprovedBy = "Myra Q. Bautista" // table Head User
+          break
+        
+        case "CORPLAN":
+          defaultCheckedBy = "Neca P. Conde" // table SecuritySystemUser
+          defaultApprovedBy = "Dave Rinson R. de Villa" 
+          break
+
+        case "IT":
+          defaultCheckedBy = "Arman A. Creencia" // table SecuritySystemUser
+          defaultApprovedBy = "Andrea Kathleen D. Castillo" 
+          break
+        
         case "Purchasing":
           defaultCheckedBy = ""
           defaultApprovedBy = "Benji L. Salvador" // table SecuritySystemUser
@@ -146,6 +186,26 @@ const ApprovalModal = ({ onClose }) => {
         case "WLO":
           defaultCheckedBy = ""
           defaultApprovedBy = "Kristina G. Remitar" // table SecuritySystemUser
+          break
+
+        case "ENGINEERING":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Henry Escoses" // table SecuritySystemUser
+          break
+
+        case "SALES":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Referenda Lopez" // table SecuritySystemUser
+          break
+        
+        case "QC":
+          defaultCheckedBy = "Evelyn A. Gatdula" // table SecuritySystemUser
+          defaultApprovedBy = "Arsenio Y. Castillo" // table Head User
+          break
+
+        case "MMD":
+          defaultCheckedBy = "John Guiller M. Baon" // table SecuritySystemUser
+          defaultApprovedBy = "Andrea Kathleen D. Castillo" // table SecuritySystemUser
           break
 
           // Add more departments as needed

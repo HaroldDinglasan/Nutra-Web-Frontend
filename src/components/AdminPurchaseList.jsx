@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import axios from "axios"
-import Modal from "../components/PrfStatusAdminModal"
+import Modal from "./SelectedPrfAdminModal"
 import "../styles/AdminPurchaseList.css"
-import "../styles/PrfStatusAdminModal.css"
+import "../styles/SelectedPrfAdminModal.css"
 
 const AdminPurchaseList = ({ showDashboard = false }) => {
   const [prfList, setPrfList] = useState([])
@@ -14,6 +14,8 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedPrf, setSelectedPrf] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  
+  const [assignedTo, setAssignedTo] = useState("");
 
   //       getter          setter
   const [modalStatus, setModalStatus] = useState("")
@@ -108,6 +110,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       setSelectedId(prf.Id);
       setSelectedRemarks(prf.remarks || ""); // load existing remarks if available
       setDateDelivered(prf.DateDelivered || ""); // load exisisting date delivered
+      setAssignedTo(prf.assignedTo || "");
       setModalStatus(prf.status);
       setIsModalOpen(true);
 
@@ -201,6 +204,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       await axios.put(`http://localhost:5000/api/updateRemarks/${selectedId}`, {
         remarks: selectedRemarks,
         dateDelivered: dateDelivered || null,
+        assignedTo: assignedTo || null,
       });
 
       alert("✅ Remarks saved successfully!");
@@ -212,6 +216,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       setIsModalOpen(false);
       setSelectedRemarks("");
       setSelectedPrf(null);
+      setAssignedTo("");
 
       // ✅ Notify other components
       window.dispatchEvent(new Event("prfStatusUpdated"));
@@ -231,10 +236,12 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       }
 
       const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
+
       const searchMatch =
         !searchTerm.trim() ||
         prfNoStr.includes(term) ||
         (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+        (prf.assignedTo && prf.assignedTo.toLowerCase().includes(term)) || // ADDED
         (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
         (prf.StockName && prf.StockName.toLowerCase().includes(term))
 
@@ -284,6 +291,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             !searchTerm.trim() ||
             prfNoStr.includes(term) ||
             (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+            (prf.assignedTo && prf.assignedTo.toLowerCase().includes(term)) || // ADDED
             (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
             (prf.StockName && prf.StockName.toLowerCase().includes(term))
           )
@@ -315,6 +323,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
           return (
             prfNoStr.includes(term) ||
             (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
+            (prf.assignedTo && prf.assignedTo.toLowerCase().includes(term)) || // ADDED
             (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
             (prf.StockName && prf.StockName.toLowerCase().includes(term))
           )
@@ -528,8 +537,8 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 <th>Description</th>
                 <th>Quantity</th>
                 <th>Unit</th>
-                <th>Status</th>
                 <th>Assigned To</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -552,10 +561,10 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                       <td>{prf.StockName || "No stock name available"}</td>
                       <td>{prf.quantity || "N/A"}</td>
                       <td>{prf.unit || "N/A"}</td>
+                      <td>{prf.assignedTo || "" }</td>
                       <td>
                         <span className={`status-badge ${getStatusBadgeClass(prf.status)}`}>{prf.status}</span>
                       </td>
-                      <td></td>
                     </tr>
                   )
                 })
@@ -652,7 +661,9 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
 
             <div className="remarks-section" style={{ marginTop: "16px" }}>
-              <h4>Remarks:</h4>
+              <label className="remarks-label">
+                 📝 Remarks
+              </label>
               <textarea
                 value={selectedRemarks || ""}
                 onChange={(e) => setSelectedRemarks(e.target.value)}
@@ -667,6 +678,27 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                   marginTop: "8px",
                   minHeight: "80px",
                   resize: "vertical",
+                }}
+              />
+            </div>
+
+            <div className="assigned-to-section" style={{ marginTop: "16px" }}>
+              <label className="assign-label">
+                👤 Assigned To
+              </label>              
+              <input
+                type="text"
+                value={assignedTo}
+                onChange={(e) => setAssignedTo(e.target.value)}
+                placeholder="Enter assignee name"
+                className="assigned-to-input"
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #d1d5db",
+                  fontSize: "14px",
+                  marginTop: "8px",
                 }}
               />
             </div>
