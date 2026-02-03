@@ -1,5 +1,5 @@
 "use client"
-import "../styles/PrfStatusAdminModal.css"
+import "../styles/SelectedPrfAdminModal.css"
 
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null

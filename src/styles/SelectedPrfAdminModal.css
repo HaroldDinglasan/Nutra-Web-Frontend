@@ -266,6 +266,50 @@
   height: 16px;
 }
 
+.remarks-section {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.assigned-to-section {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.remarks-label{
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151; /* slate-700 */
+  margin-bottom: 6px;
+}
+
+.assign-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151; /* slate-700 */
+  margin-bottom: 6px;
+}
+
+.assigned-to-input,
+.remarks-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background-color: #fff;
+}
+
+.assigned-to-input:focus,
+.remarks-input:focus {
+  outline: none;
+  border-color: #2563eb; /* blue-600 */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
 @media (max-width: 640px) {
   .modal-content {
     margin: 10px;

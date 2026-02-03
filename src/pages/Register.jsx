@@ -201,7 +201,7 @@ const Register = () => {
               onChange={(e) => setDepartment(e.target.value)}
             >
               <option value="">Select Department</option>
-              <option value="PRODUCTION">PRODUCTION</option> 
+              <option value="PRODUCTION">PRODUCTION</option>
               <option value="CGS">CGS</option> 
               <option value="CMD">CMD</option>
               <option value="AUDIT">AUDIT</option>
@@ -211,6 +211,7 @@ const Register = () => {
               <option value="MARKETING">MARKETING</option>
               <option value="REGULATORY">REGULATORY</option>
               <option value="CORPLAN">CORPLAN</option> 
+              <option value="IT">IT</option>
               <option value="Purchasing">PURCHASING</option> 
               <option value="WLO">WLO</option> 
               <option value="SALES">SALES</option>
