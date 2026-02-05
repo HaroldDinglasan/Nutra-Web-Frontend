@@ -179,9 +179,16 @@ const Register = () => {
     }
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    handleRegister()
+  }
+
   return (
     <div className="register-form-container">
-      <div className="register-box-container">
+      
+      <form className="register-box-container" onSubmit={handleSubmit}>
+
         <div className="register-header">
           <div className="reg-logo">
             <img src={regLogo || "/placeholder.svg"} alt="Logo" id="reglogo" />
@@ -312,7 +319,9 @@ const Register = () => {
             </Link>
           </p>
         </div>
-      </div>
+        
+      </form>
+
     </div>
   )
 }

@@ -165,14 +165,37 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     }
   }
 
+  // Notif requestor / prepared item has been delivered
+  // through outlook
   const handleMarkAsReceived = async () => {
     if (!selectedPrf) return
 
     try {
+      // Step 1: Mark item as received in the database
       await axios.put(`http://localhost:5000/api/markAsReceived/${selectedPrf.Id}`)
-      await fetchAllPrfList() // refresh data
+      await fetchAllPrfList()
 
-      // Update the local state
+      // Step 2: Send notification email via the new endpoint
+      try {
+        console.log("[v0] Sending delivery notification for PRF:", selectedPrf.prfNo)
+        console.log("[v0] Selected Item ID:", selectedPrf.Id)
+        console.log("[v0] Stock Name:", selectedPrf.StockName)
+        
+        const notificationResponse = await axios.post(
+          `http://localhost:5000/api/delivered/${selectedPrf.Id}`,
+          {
+            userFullName: "Admin User",
+            senderEmail: process.env.REACT_APP_SMTP_USER || "",
+            smtpPassword: process.env.REACT_APP_SMTP_PASSWORD || "",
+          }
+        )
+
+        console.log("[v0] Notification sent:", notificationResponse.data)
+      } catch (notificationError) {
+        console.warn("[v0] Email notification warning:", notificationError.message)
+      }
+
+      // Step 3: Update local state
       const updatedPrfList = prfList.map((prf) =>
         prf.Id === selectedPrf.Id ? { ...prf, status: "RECEIVED", isDelivered: 1 } : prf,
       )
@@ -180,14 +203,13 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       setPrfList(updatedPrfList)
       updateFilteredList(updatedPrfList)
 
-      // Close modal
+      // Step 4: Close modal
       setIsModalOpen(false)
       setSelectedPrf(null)
 
-      // Dispatch event for other components
+      // Step 5: Dispatch update event
       window.dispatchEvent(new Event("prfStatusUpdated"))
 
-      // alert("Item marked as received successfully!")
     } catch (error) {
       console.error("❌ Error marking PRF as received:", error)
       alert("Failed to mark item as received. Please try again.")
@@ -252,7 +274,9 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         (statusFilter === "reject" && prf.status === "REJECTED") ||
         (statusFilter === "PENDING" && prf.status === "PENDING") ||
         (statusFilter === "approved" && prf.status === "Approved") ||
-        (statusFilter === "RECEIVED" && prf.status === "RECEIVED")
+        (statusFilter === "RECEIVED" && prf.status === "RECEIVED") ||
+        (statusFilter === "Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
+        (statusFilter === "Unassigned" && (!prf.assignedTo || prf.assignedTo.trim() === ""))
       return searchMatch && statusMatch
     })
 
@@ -316,7 +340,9 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             (statusFilter === "cancelled" && prf.status === "Cancelled") ||
             (statusFilter === "reject" && prf.status === "REJECTED") ||
             (statusFilter === "PENDING" && prf.status === "PENDING") ||
-            (statusFilter === "approved" && prf.status === "Approved")
+            (statusFilter === "approved" && prf.status === "Approved") ||
+            (statusFilter === "Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
+            (statusFilter === "Unassigned" && (!prf.assignedTo || prf.assignedTo.trim() === ""))
 
           if (!statusMatch) return false
 
@@ -495,20 +521,17 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
         <div className="filter-container">
           <label htmlFor="status-filter">Status:</label>
-         <select
+          <select
             id="status-filter"
             value={statusFilter}
             onChange={(e) => {
               const selectedStatus = e.target.value
               setStatusFilter(selectedStatus)
-
-              if (selectedStatus === "RECEIVED") {
-              }
             }}
             className="status-admin-filter"
           >
             <option value="all">All</option>
-            <option value="On-Assigned">On-Assigned</option>
+            <option value="Assigned">Assigned</option>
             <option value="Unassigned">Unassigned</option>
             <option value="PARTIALDELIVERED">Partially Delivered</option>
             <option value="PENDING">Pending</option>

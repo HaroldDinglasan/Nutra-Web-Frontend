@@ -271,9 +271,9 @@
 
 /* OPTIONAL – other statuses for consistency */
 .status-badge.pending {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #fac003;
+  background-color: #b3f3d4;
+  color: #302f2f;
+  border: 1px solid #3b5a3b;
 }
 
 .status-badge.approved {
@@ -284,6 +284,7 @@
 .status-badge.received {
   background-color: #e0f2fe;
   color: #075985;
+  border: 1px solid
 }
 
 .status-badge.cancelled {
