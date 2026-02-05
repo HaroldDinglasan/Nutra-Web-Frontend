@@ -6,7 +6,7 @@ import axios from "axios"
 import "../styles/DashboardAdmin.css"
 import AdminPurchaseList from "../components/AdminPurchaseList"
 
-const DashboardAdmin = () => {
+const PrfList = () => {
   const location = useLocation()
   const [prfList, setPrfList] = useState([]) // Store PRF data
   const [filteredPrfList, setFilteredPrfList] = useState([]) // Store filtered PRF data
@@ -50,9 +50,9 @@ const DashboardAdmin = () => {
       return "REJECTED"
     }
     
-    // RECEIVED STATUS
+    // CLOSED STATUS - when item is delivered
     if (prf.isDelivered === 1 || prf.isDelivered === true) {
-      return "RECEIVED"
+      return "CLOSED"
     }
 
     // Check if cancelled first - check all possible cancel flags
@@ -391,4 +391,4 @@ const DashboardAdmin = () => {
   )
 }
 
-export default DashboardAdmin
+export default PrfList

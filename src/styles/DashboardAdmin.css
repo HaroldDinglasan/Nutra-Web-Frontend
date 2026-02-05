@@ -520,9 +520,9 @@ body {
 
 /* OPTIONAL – other statuses for consistency */
 .status-badge.pending {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #fac003;
+  background-color: #8880f7;
+  color: #ffffff;
+  border: 1px solid #2e1ebb;
 }
 
 .status-badge.approved {
@@ -530,9 +530,10 @@ body {
   color: #166534;
 }
 
-.status-badge.received {
+.status-badge.closed {
   background-color: #e0f2fe;
   color: #075985;
+  border: 1px solid #075985;
 }
 
 .status-badge.cancelled {
