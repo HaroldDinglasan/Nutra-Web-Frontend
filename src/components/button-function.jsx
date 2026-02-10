@@ -15,7 +15,7 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, d
     prfNo: purchaseCodeNumber,
     prfDate: currentDate,
     preparedBy: fullname,
-    userId: userId ? parseInt(userId) : null, // add UserID  
+    userId: userId ? parseInt(userId) : null, // add UserID 
     departmentCharge: departmentCharge || null, // add department charge
   }
 
@@ -40,9 +40,132 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, d
     console.error("Failed to save PRF header:", error)
     return null
   }
-}
+};
 
-// Send email notifications after successful PRF save
+// Send stock availability notification to the 3 fixed stock checkers
+// Fetches their emails from Users_Info database table
+const sendStockAvailabilityNotification = async (
+  stockCode,
+  stockName,
+  prfNo,
+  preparedBy
+) => {
+  try {
+    console.log(
+      "[v0] Starting stock availability notification for stock code:",
+      stockCode
+    );
+
+    const company =
+      localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc";
+    const senderEmail = process.env.REACT_APP_SMTP_USER;
+    const smtpPassword = process.env.REACT_APP_SMTP_PASSWORD;
+
+    // Step 1: Fetch stock checkers from database
+    console.log("[v0] Fetching stock checkers from database...");
+    let stockCheckRecipients = [];
+
+    try {
+      const dbResponse = await axios.get(
+        "http://localhost:5000/api/get-stock-checkers"
+      );
+
+      if (
+        dbResponse.data.success &&
+        dbResponse.data.recipients &&
+        dbResponse.data.recipients.length > 0
+      ) {
+        stockCheckRecipients = dbResponse.data.recipients;
+        console.log(
+          "[v0] Successfully fetched stock checkers from database:",
+          stockCheckRecipients
+        );
+      } else {
+        console.warn(
+          "[v0] No stock checkers returned from database:",
+          dbResponse.data
+        );
+        return {
+          success: false,
+          message: "No stock checkers configured in database",
+        };
+      }
+    } catch (dbError) {
+      console.error(
+        "[v0] Error fetching stock checkers from database:",
+        dbError
+      );
+      return {
+        success: false,
+        message: "Failed to fetch stock checkers: " + dbError.message,
+      };
+    }
+
+    // Step 2: Validate we have recipients
+    if (!stockCheckRecipients || stockCheckRecipients.length === 0) {
+      console.error(
+        "[v0] No valid stock checker emails found after database fetch"
+      );
+      return {
+        success: false,
+        message: "Stock checkers not configured properly",
+      };
+    }
+
+    console.log("[v0] Sending stock availability notification to:", {
+      stockCode,
+      stockName,
+      prfNo,
+      recipientCount: stockCheckRecipients.length,
+      recipients: stockCheckRecipients.map((r) => r.email),
+    });
+
+    // Step 3: Send notification through backend
+    const response = await axios.post(
+      "http://localhost:5000/api/notifications/stock-availability",
+      {
+        stockCode,
+        stockName,
+        prfNo,
+        preparedBy,
+        company,
+        recipients: stockCheckRecipients,
+        senderEmail,
+        smtpPassword,
+      }
+    );
+
+    if (response.data.success) {
+      console.log(
+        "[v0] Stock availability notification sent to all 3 recipients"
+      );
+      return {
+        success: true,
+        message: "Stock availability notification sent successfully",
+      };
+    } else {
+      console.error(
+        "[v0] Stock availability notification error:",
+        response.data
+      );
+      return {
+        success: false,
+        message: response.data.message || "Failed to send notification",
+      };
+    }
+  } catch (error) {
+    console.error(
+      "[v0] Error sending stock availability notification:",
+      error
+    );
+    return {
+      success: false,
+      message: error.message || "Failed to send notification",
+    };
+  }
+};
+
+// Send email notifications to checkBy, approvedBy, and receivedBy
 const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
   try {
     // Get email credentials from localStorage (should be set by backend from .env)
@@ -56,7 +179,7 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
 
     const company = localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc";
     const userId = localStorage.getItem("userId");
-    
+
     // Get SMTP credentials from environment variables
     const senderEmail = process.env.REACT_APP_SMTP_USER;
     const smtpPassword = process.env.REACT_APP_SMTP_PASSWORD;
@@ -69,18 +192,18 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
 
     const response = await axios.post("http://localhost:5000/api/notifications/send-direct", {
       prfId,
-      prfNo, 
+      prfNo,
       preparedBy,
-      company, 
+      company,
       userId: userId ? Number(userId) : undefined,
       checkedByEmail: localStorage.getItem("checkedByEmail"),
-      checkedByName: localStorage.getItem("checkedByUser"), 
+      checkedByName: localStorage.getItem("checkedByUser"),
       approvedByEmail: localStorage.getItem("approvedByEmail"),  // ibabato sa backend para madisplay sa Outlook email notification
-      approvedByName: localStorage.getItem("approvedByUser"),    // ibabato sa backend para madisplay sa Outlook email notification 
+      approvedByName: localStorage.getItem("approvedByUser"),    // ibabato sa backend para madisplay sa Outlook email notification
       receivedByEmail: localStorage.getItem("receivedByEmail"),  // ibabato sa backend para madisplay sa Outlook email notification
-      receivedByName: localStorage.getItem("receivedByUser"),    // ibabato sa backend para madisplay sa Outlook email notification 
-      senderEmail, 
-      smtpPassword, 
+      receivedByName: localStorage.getItem("receivedByUser"),    // ibabato sa backend para madisplay sa Outlook email notification
+      senderEmail,
+      smtpPassword,
     });
 
     if (response.data.success) {
@@ -97,14 +220,18 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
   }
 };
 
-// Save PRF details with immediate feedback and background notifications
+
+// Save PRF details and handle notifications
+// 1. If IM stock code is detected, send notification to 3 stock checkers FIRST
+// 2. Then send to checkBy, approvedBy, and receivedBy
+
 export const savePrfDetails = async (headerPrfId, rows) => {
   if (!headerPrfId) {
     alert("Failed to save PRF header. Please try again.")
     return false
   }
 
-  // Check if any row with a stockCode has an empty purpose field or date needed field
+  // Validate required fields
   const hasEmptyFields = rows.some((row) => {
     if (row.stockCode) {
       const emptyPurpose = !row.purpose || !row.purpose.trim()
@@ -154,94 +281,59 @@ export const savePrfDetails = async (headerPrfId, rows) => {
 
     const data = await response.json()
     if (response.ok) {
-      // Show immediate success message
       alert("PRF saved successfully!")
-
-      // Reload page for new PRF creation
-      window.location.reload();
 
       // Send notifications in the background (don't wait for completion)
       const prfNo =
         localStorage.getItem("currentPrfNo") ||
         document.querySelector('input[id="purchaseCodeNumber"]')?.value ||
         "New PRF"
-      const preparedBy = localStorage.getItem("userFullname") || localStorage.getItem("userName") || "System User"
+      const preparedBy =
+        localStorage.getItem("userFullname") ||
+        localStorage.getItem("userName") ||
+        "System User";
 
-      console.log("PRF saved successfully, sending notifications in background...")
+      // Check if any row contains IM stock code (starts with "IM-" or exact "IM")
+      const hasImStock = rows.some((row) => row.stockCode && (row.stockCode === "IM" || row.stockCode.startsWith("IM-")));
 
-      // Send notifications asynchronously without blocking the UI
-      sendPrfNotifications(headerPrfId, prfNo, preparedBy)
-        .then((notificationResult) => {
-          if (notificationResult.success) {
-            console.log("Email notifications sent successfully!")
-            // Optionally show a subtle notification that emails were sent
-            setTimeout(() => {
-              const emailCount = [
-                localStorage.getItem("checkedByEmail"),
-                localStorage.getItem("approvedByEmail"),
-                localStorage.getItem("receivedByEmail"),
-              ].filter(Boolean).length
+      // IMPORTANT: Send stock availability notification FIRST to the 3 stock checkers
+      if (hasImStock) {
+        console.log(
+          "[v0] IM stock code detected - sending notification to 3 stock checkers"
+        );
 
-              if (emailCount > 0) {
-                // Show a non-blocking notification
-                const notification = document.createElement("div")
-                notification.style.cssText = `
-                  position: fixed;
-                  top: 20px;
-                  right: 20px;
-                  background: #4CAF50;
-                  color: white;
-                  padding: 12px 20px;
-                  border-radius: 4px;
-                  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                  z-index: 10000;
-                  font-family: Arial, sans-serif;
-                  font-size: 14px;
-                `
-                notification.textContent = `✓ Email notifications sent to ${emailCount} recipient${emailCount > 1 ? "s" : ""}`
-                document.body.appendChild(notification)
+        const imStockRow = rows.find((row) => row.stockCode && (row.stockCode === "IM" || row.stockCode.startsWith("IM-")));
 
-                // Remove notification after 3 seconds
-                setTimeout(() => {
-                  if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification)
-                  }
-                }, 3000)
-              }
-            }, 1000) // Show after 1 second to let the main alert clear
+        console.log("[v0] IM Stock Row Details:", imStockRow);
+
+        // Send stock availability notification and WAIT for it to complete
+        try {
+          const stockNotificationResult = await sendStockAvailabilityNotification(
+            imStockRow?.stockCode || "IM",
+            imStockRow?.description || imStockRow?.stockName || "IM Stock",
+            prfNo,
+            preparedBy
+          );
+
+          if (stockNotificationResult.success) {
+            console.log("[v0] Stock availability notification sent to 3 recipients successfully");
           } else {
-            console.error("Email notifications failed:", notificationResult.message)
-            // Optionally show a subtle error notification
-            setTimeout(() => {
-              const notification = document.createElement("div")
-              notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #f44336;
-                color: white;
-                padding: 12px 20px;
-                border-radius: 4px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                z-index: 10000;
-                font-family: Arial, sans-serif;
-                font-size: 14px;
-              `
-              notification.textContent = `⚠ Email notifications failed: ${notificationResult.message}`
-              document.body.appendChild(notification)
-
-              // Remove notification after 5 seconds
-              setTimeout(() => {
-                if (notification.parentNode) {
-                  notification.parentNode.removeChild(notification)
-                }
-              }, 5000)
-            }, 1000)
+            console.error("[v0] Stock availability notification failed:", stockNotificationResult.message);
           }
-        })
-        .catch((error) => {
-          console.error("Error sending notifications:", error)
-        })
+        } catch (stockError) {
+          console.error("[v0] Error in stock notification:", stockError);
+        }
+      }
+
+      // THEN send notifications to checkBy, approvedBy, and receivedBy
+      console.log("[v0] Sending PRF notifications to checkBy/approvedBy/receivedBy...");
+
+      const notificationResult = await sendPrfNotifications(headerPrfId, prfNo, preparedBy);
+      if (notificationResult.success) {
+        console.log("[v0] Email notifications sent successfully!");
+      } else {
+        console.error("[v0] Email notifications failed:",notificationResult.message);
+      }
 
       return true
     } else {
@@ -255,7 +347,7 @@ export const savePrfDetails = async (headerPrfId, rows) => {
   }
 }
 
-// Update PRF details
+// Other functions remain the same (updatePrfDetails, cancelPrf, uncancelPrf)
 export const updatePrfDetails = async (prfId, rows) => {
   if (!prfId) {
     alert("No PRF ID found. Please search for a PRF first.")
@@ -278,9 +370,9 @@ export const updatePrfDetails = async (prfId, rows) => {
 
   try {
     const response = await axios.post("http://localhost:5000/api/update-prf-details", {
-      prfId,
-      details: prfDetails,
-    })
+        prfId,
+        details: prfDetails,
+      })
 
     if (response.status === 200) {
       alert("PRF details updated successfully!")
@@ -373,8 +465,6 @@ export const uncancelPrf = async (prfId) => {
       prfId: prfId,
     })
 
-    // console.log("Uncancel PRF response:", response.data)
-
     if (response.status === 200 && response.data.success) {
       const result = {
         success: true,
@@ -383,7 +473,7 @@ export const uncancelPrf = async (prfId) => {
       }
 
       alert(result.message)
-
+    
       // Dispatch event to update status in other components
       window.dispatchEvent(
         new CustomEvent("prfStatusUpdated", {
