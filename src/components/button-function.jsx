@@ -45,6 +45,7 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, d
 // Send stock availability notification to the 3 fixed stock checkers
 // Fetches their emails from Users_Info database table
 const sendStockAvailabilityNotification = async (
+  prfId,
   stockCode,
   stockName,
   prfNo,
@@ -124,6 +125,7 @@ const sendStockAvailabilityNotification = async (
     const response = await axios.post(
       "http://localhost:5000/api/notifications/stock-availability",
       {
+        prfId,
         stockCode,
         stockName,
         prfNo,
@@ -309,6 +311,7 @@ export const savePrfDetails = async (headerPrfId, rows) => {
         // Send stock availability notification and WAIT for it to complete
         try {
           const stockNotificationResult = await sendStockAvailabilityNotification(
+            headerPrfId,
             imStockRow?.stockCode || "IM",
             imStockRow?.description || imStockRow?.stockName || "IM Stock",
             prfNo,
