@@ -8,6 +8,9 @@ import Login from "./pages/Login";
 import PrfList from "./pages/PrfList";
 import AppLayout from "./components/app-layout";
 
+import StockApproveAvailability from "./pages/StockApproveAvailability";
+import StockRejectAvailability from "./pages/StockRejectAvailability";
+
 const App = () => {
   return (
     <Router>
@@ -18,6 +21,9 @@ const App = () => {
         <Route path="/stock/modal/form" element={<StockcodeModal />}/>
         <Route path="/prf/list" element={<AppLayout><PrfList /></AppLayout>}/>
 
+        <Route path="stock/approve/form" element={<StockApproveAvailability />} />
+        <Route path="stock/reject/form" element={<StockRejectAvailability />} />
+        
         <Route path="/prf/:prfId" element={<AppLayout><NutraTechForm /></AppLayout>} />
         
         <Route path="*" element={<Navigate to="/" />} />

@@ -103,7 +103,7 @@ const ApprovalButtonAction = ({
         if (onAction) {
           await onAction(actionType, null)
         }
-        alert(`✅ PRF has been ${actionType}ed successfully!`)
+        // alert(`✅ PRF has been ${actionType} successfully!`)
       } else {
         alert(` Error: ${data.message}`)
       }
