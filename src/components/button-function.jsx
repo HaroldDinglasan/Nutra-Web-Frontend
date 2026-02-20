@@ -1,26 +1,29 @@
-import axios from "axios"
+import axios from "axios" // Used for sending HTTP requests to backend
 
 // Save PRF header
 export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, departmentCharge) => {
+
+  // Check if required fields are missing
   if (!purchaseCodeNumber || !currentDate || !fullname) {
     console.error("Missing required data for PRF header")
     return null
   }
 
+  // Get department and user info from localStorage
   const departmentId = localStorage.getItem("userDepartmentId")
-  const userId = localStorage.getItem("userId") // Kinukuha yung UserID sa localStorage
+  const userId = localStorage.getItem("userId") 
 
+  // Create object that will be sent to backend
   const prfHeaderData = {
     departmentId: departmentId,
     prfNo: purchaseCodeNumber,
     prfDate: currentDate,
     preparedBy: fullname,
-    userId: userId ? parseInt(userId) : null, // add UserID 
-    departmentCharge: departmentCharge || null, // add department charge
+    userId: userId ? parseInt(userId) : null, 
+    departmentCharge: departmentCharge || null,
   }
 
-  console.log("[v0] Sending PRF header data:", prfHeaderData)
-
+  // Send data to backend
   try {
     const response = await fetch("http://localhost:5000/api/save-table-header", {
       method: "POST",
@@ -29,33 +32,22 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, d
     })
 
     const data = await response.json()
+
     if (response.ok) {
-      console.log("✅ PRF header saved with departmentCharge:", data.prfId)
       return data.prfId
     } else {
-      console.error("Error saving PRF header:", data.message)
       return null
     }
   } catch (error) {
-    console.error("Failed to save PRF header:", error)
     return null
   }
 };
 
 // Send stock availability notification to the 3 fixed stock checkers
 // Fetches their emails from Users_Info database table
-const sendStockAvailabilityNotification = async (
-  prfId,
-  stockCode,
-  stockName,
-  prfNo,
-  preparedBy
-) => {
+const sendStockAvailabilityNotification = async ( prfId, stockCode, stockName, prfNo, preparedBy) => {
+
   try {
-    console.log(
-      "[v0] Starting stock availability notification for stock code:",
-      stockCode
-    );
 
     const company =
       localStorage.getItem("userCompany") || "NutraTech Biopharma, Inc";
@@ -63,13 +55,11 @@ const sendStockAvailabilityNotification = async (
     const smtpPassword = process.env.REACT_APP_SMTP_PASSWORD;
 
     // Step 1: Fetch stock checkers from database
-    console.log("[v0] Fetching stock checkers from database...");
     let stockCheckRecipients = [];
 
     try {
-      const dbResponse = await axios.get(
-        "http://localhost:5000/api/get-stock-checkers"
-      );
+      // Step 1: Get stock checkers from database
+      const dbResponse = await axios.get("http://localhost:5000/api/get-stock-checkers");
 
       if (
         dbResponse.data.success &&
@@ -77,51 +67,27 @@ const sendStockAvailabilityNotification = async (
         dbResponse.data.recipients.length > 0
       ) {
         stockCheckRecipients = dbResponse.data.recipients;
-        console.log(
-          "[v0] Successfully fetched stock checkers from database:",
-          stockCheckRecipients
-        );
       } else {
-        console.warn(
-          "[v0] No stock checkers returned from database:",
-          dbResponse.data
-        );
         return {
           success: false,
           message: "No stock checkers configured in database",
         };
       }
     } catch (dbError) {
-      console.error(
-        "[v0] Error fetching stock checkers from database:",
-        dbError
-      );
       return {
         success: false,
         message: "Failed to fetch stock checkers: " + dbError.message,
       };
     }
 
-    // Step 2: Validate we have recipients
     if (!stockCheckRecipients || stockCheckRecipients.length === 0) {
-      console.error(
-        "[v0] No valid stock checker emails found after database fetch"
-      );
       return {
         success: false,
         message: "Stock checkers not configured properly",
       };
     }
 
-    console.log("[v0] Sending stock availability notification to:", {
-      stockCode,
-      stockName,
-      prfNo,
-      recipientCount: stockCheckRecipients.length,
-      recipients: stockCheckRecipients.map((r) => r.email),
-    });
-
-    // Step 3: Send notification through backend
+    // Step 2: Send email through backend
     const response = await axios.post(
       "http://localhost:5000/api/notifications/stock-availability",
       {
@@ -138,28 +104,17 @@ const sendStockAvailabilityNotification = async (
     );
 
     if (response.data.success) {
-      console.log(
-        "[v0] Stock availability notification sent to all 3 recipients"
-      );
       return {
         success: true,
         message: "Stock availability notification sent successfully",
       };
     } else {
-      console.error(
-        "[v0] Stock availability notification error:",
-        response.data
-      );
       return {
         success: false,
         message: response.data.message || "Failed to send notification",
       };
     }
   } catch (error) {
-    console.error(
-      "[v0] Error sending stock availability notification:",
-      error
-    );
     return {
       success: false,
       message: error.message || "Failed to send notification",
@@ -168,14 +123,14 @@ const sendStockAvailabilityNotification = async (
 };
 
 // Send email notifications to checkBy, approvedBy, and receivedBy
-const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
+// If hasImStock is true, this will be skipped during PRF save and called later after CGS approval
+const sendPrfNotifications = async (prfId, prfNo, preparedBy, hasImStock = false) => {
   try {
     // Get email credentials from localStorage (should be set by backend from .env)
     const checkedByEmail = localStorage.getItem("checkedByEmail");
     const checkedByName = localStorage.getItem("checkedByUser");
 
     if (!checkedByEmail) {
-      console.warn(" No checkBy email configured");
       return { success: true, message: "No emails configured" };
     }
 
@@ -186,12 +141,7 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
     const senderEmail = process.env.REACT_APP_SMTP_USER;
     const smtpPassword = process.env.REACT_APP_SMTP_PASSWORD;
 
-    console.log(" Sending PRF notification:", {
-      checkedByEmail,
-      checkedByName,
-      senderEmail, // Debug: verify SMTP credentials are being passed
-    });
-
+    // Send email using backend
     const response = await axios.post("http://localhost:5000/api/notifications/send-direct", {
       prfId,
       prfNo,
@@ -209,15 +159,11 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
     });
 
     if (response.data.success) {
-      console.log("✅ Email sent to checkBy:", checkedByEmail);
       return { success: true, message: "Email sent successfully" };
     } else {
-      console.error("❌ Email service returned error:", response.data);
       return { success: false, message: response.data.message || "Email service error" };
     }
   } catch (error) {
-    console.error("❌ Error sending email notification:", error);
-    // Show error in notification instead of silently failing
     return { success: false, message: error.response?.data?.message || error.message || "Failed to send email" };
   }
 };
@@ -226,7 +172,6 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy) => {
 // Save PRF details and handle notifications
 // 1. If IM stock code is detected, send notification to 3 stock checkers FIRST
 // 2. Then send to checkBy, approvedBy, and receivedBy
-
 export const savePrfDetails = async (headerPrfId, rows) => {
   if (!headerPrfId) {
     alert("Failed to save PRF header. Please try again.")
@@ -257,6 +202,7 @@ export const savePrfDetails = async (headerPrfId, rows) => {
     return false
   }
 
+  // Convert rows into format for backend
   const prfDetails = rows
     .filter((row) => row.stockCode)
     .map((row) => ({
@@ -285,6 +231,10 @@ export const savePrfDetails = async (headerPrfId, rows) => {
     if (response.ok) {
       alert("PRF saved successfully!")
 
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+
       // Send notifications in the background (don't wait for completion)
       const prfNo =
         localStorage.getItem("currentPrfNo") ||
@@ -300,13 +250,8 @@ export const savePrfDetails = async (headerPrfId, rows) => {
 
       // IMPORTANT: Send stock availability notification FIRST to the 3 stock checkers
       if (hasImStock) {
-        console.log(
-          "[v0] IM stock code detected - sending notification to 3 stock checkers"
-        );
 
         const imStockRow = rows.find((row) => row.stockCode && (row.stockCode === "IM" || row.stockCode.startsWith("IM-")));
-
-        console.log("[v0] IM Stock Row Details:", imStockRow);
 
         // Send stock availability notification and WAIT for it to complete
         try {
@@ -319,23 +264,21 @@ export const savePrfDetails = async (headerPrfId, rows) => {
           );
 
           if (stockNotificationResult.success) {
-            console.log("[v0] Stock availability notification sent to 3 recipients successfully");
           } else {
-            console.error("[v0] Stock availability notification failed:", stockNotificationResult.message);
           }
         } catch (stockError) {
-          console.error("[v0] Error in stock notification:", stockError);
         }
       }
 
       // THEN send notifications to checkBy, approvedBy, and receivedBy
-      console.log("[v0] Sending PRF notifications to checkBy/approvedBy/receivedBy...");
-
-      const notificationResult = await sendPrfNotifications(headerPrfId, prfNo, preparedBy);
-      if (notificationResult.success) {
-        console.log("[v0] Email notifications sent successfully!");
+      // BUT: If IM stock is detected, SKIP sending checkBy notification here
+      // It will be sent AFTER the CGS approval + requestor notification
+      if (!hasImStock) {
+        const notificationResult = await sendPrfNotifications(headerPrfId, prfNo, preparedBy, false);
+        if (notificationResult.success) {
+        } else {
+        }
       } else {
-        console.error("[v0] Email notifications failed:",notificationResult.message);
       }
 
       return true
@@ -344,7 +287,6 @@ export const savePrfDetails = async (headerPrfId, rows) => {
       return false
     }
   } catch (error) {
-    console.error("Error:", error)
     alert("Failed to save data.")
     return false
   }
@@ -352,6 +294,7 @@ export const savePrfDetails = async (headerPrfId, rows) => {
 
 // Other functions remain the same (updatePrfDetails, cancelPrf, uncancelPrf)
 export const updatePrfDetails = async (prfId, rows) => {
+
   if (!prfId) {
     alert("No PRF ID found. Please search for a PRF first.")
     return false
@@ -388,7 +331,6 @@ export const updatePrfDetails = async (prfId, rows) => {
     if (error.response && error.response.data && error.response.data.message) {
       alert(error.response.data.message)
     } else {
-      console.error("Error updating PRF details:", error)
       alert("Failed to update PRF details. Please try again.")
     }
     return false
@@ -445,7 +387,6 @@ export const cancelPrf = async (prfId) => {
     if (error.response && error.response.data && error.response.data.message) {
       alert(error.response.data.message)
     } else {
-      console.error("Error canceling PRF:", error)
       alert("Failed to cancel PRF. Please try again.")
     }
     return false
@@ -497,15 +438,12 @@ export const uncancelPrf = async (prfId) => {
               (verifyResponse.data.header && verifyResponse.data.header.prfIsCancel === 1) ||
               verifyResponse.data.isCancel === 1
 
-            console.log("Verification of uncancel status:", !isDbCancelled)
-
             if (isDbCancelled) {
               return { success: false, needsRefresh: true }
             }
           }
         }
       } catch (error) {
-        console.error("Error verifying uncancellation:", error)
       }
 
       return result
@@ -523,7 +461,6 @@ export const uncancelPrf = async (prfId) => {
         alert(error.response.data.message)
       }
     } else {
-      console.error("Error uncanceling PRF:", error)
       alert("Failed to uncancel PRF. Please try again.")
     }
     return false
