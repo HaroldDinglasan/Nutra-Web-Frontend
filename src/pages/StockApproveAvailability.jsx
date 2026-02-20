@@ -29,36 +29,43 @@ const StockApproveAvailability = () => {
   // Function that runs when APPROVE button is clicked
   const handleApprove = async () => {
     if (!notedBy || !verifiedBy) {
-        setMessage("required");
-        return;
+      alert("Please fill in Noted By and Verified By.");
+      return;
     }
-
 
     try {
       setLoading(true);
 
-      // Call backend API to approve the stock
-      await fetch(
-        `http://localhost:5000/api/cgs-stock/approve`,
+      const response = await fetch(
+        "http://localhost:5000/api/cgs-stock/approve",
         {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                prfId,
-                stockCode,
-                stockName,
-                checkerName,
-                notedBy,
-                verifiedBy,
-            }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prfId,
+            stockCode,
+            stockName,
+            notedBy,
+            verifiedBy,
+          }),
         }
       );
 
+      const data = await response.json();
+
+      // ✅ THIS IS THE IMPORTANT PART
+      if (!response.ok) {
+        alert(data.message);  // 🔥 ALERT HERE
+        return;
+      }
+
+      alert("Stock marked as AVAILABLE successfully.");
       setMessage("success");
+
     } catch (error) {
-      setMessage("error");
+      alert("Server error occurred.");
     } finally {
       setLoading(false);
     }
