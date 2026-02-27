@@ -38,82 +38,94 @@ const Register = () => {
     fetchEmployees()
   }, [])
 
-  // // Sineset ang department Id
-  // // PERO SA BACKEND WORKING SA FRONT END HINDI
-  // useEffect(() => {
-  //   let id = null
-  //   switch (department) {
+  // Sineset ang department Id
+  // PERO SA BACKEND WORKING SA FRONT END HINDI
+  useEffect(() => {
+    let id = null
+    switch (department) {
 
-  //     case "PRODUCTION":
-  //       id = 1
-  //     break
+      case "PRODUCTION":
+        id = 1
+      break
 
-  //     case "CGS":
-  //       id = 2
-  //     break
+      case "CGS":
+        id = 2
+      break
 
-  //     case "CMD":
-  //       id = 3
-  //     break
+      case "CMD":
+        id = 3
+      break
 
-  //     case "AUDIT ": 
-  //       id = 4
-  //     break
+      case "AUDIT": 
+        id = 4
+      break
+     
+      case "LEGAL":
+        id = 5
+      break
 
-  //     case "LEGAL":
-  //       id = 5
-  //     break
+      case "APPROVERS":
+        id = 6
+      break
 
-  //     case "Approvers":
-  //       id = 6
-  //     break
+      case "LEGAL":
+        id = 7
+      break
 
-  //     case "FINANCE":
-  //       id = 7
-  //     break
+      case "FINANCE":
+        id = 8
+      break
 
-  //     case "HR":
-  //       id = 8
-  //     break
+      case "HR":
+        id = 9
+      break
 
-  //     case "MARKETING":
-  //       id = 9
-  //     break
+      case "MARKETING":
+        id = 10
+      break
 
-  //     case "REGULATORY":
-  //       id = 10
-  //     break
+      case "REGULATORY":
+        id = 11
+      break
 
-  //     case "PURCHASING":
-  //       id = 11
-  //     break
+      case "PURCHASING":
+        id = 12
+      break
 
-  //     case "WLO":
-  //       id = 12
-  //     break
+      case "WLO":
+        id = 13
+      break
 
-  //     case "ENGINEERING":
-  //       id = 13
-  //     break
+      case "ENGINEERING":
+        id = 14
+      break
 
-  //     case "SALES":
-  //       id = 14 
-  //     break
+      case "SALES":
+        id = 15
+      break
 
-  //     case "CORPLAN":
-  //       id = 15 
-  //     break
+      case "CORPLAN":
+        id = 16
+      break
 
-  //     case "WLO":
-  //       id = 16
-  //     break
+      case "IT":
+        id = 17
+      break
 
-  //     default:
-  //       id = null
+      case "MMD":
+        id = 18
+      break
 
-  //   }
-  //   setDepartmentId(id)
-  // }, [department])
+      case "QC":
+        id = 19
+      break
+
+      default:
+        id = null
+
+    }
+    setDepartmentId(id)
+  }, [department])
 
   // Handle user input
   const handleFullnameChange = (e) => {
@@ -219,13 +231,13 @@ const Register = () => {
               <option value="REGULATORY">REGULATORY</option>
               <option value="CORPLAN">CORPLAN</option> 
               <option value="IT">IT</option>
-              <option value="Purchasing">PURCHASING</option> 
+              <option value="PURCHASING">PURCHASING</option> 
               <option value="WLO">WLO</option> 
               <option value="SALES">SALES</option>
               <option value="QC">QC</option> 
               <option value="MMD">MMD</option> 
               <option value="ENGINEERING">ENGINEERING</option>
-              <option value="Approvers">APPROVERS</option> 
+              <option value="APPROVERS">APPROVERS</option> 
             </select>
             <img src={departmentIcon || "/placeholder.svg"} alt="Dept Icon" className="dropdown-icon" />
           </div>
@@ -307,7 +319,7 @@ const Register = () => {
           </div>
         </div>
 
-        <button type="submit" className="register-button" onClick={handleRegister}>
+        <button type="submit" className="register-button">
           REGISTER
         </button>
 

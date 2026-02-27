@@ -1349,7 +1349,7 @@ const NutraTechForm = () => {
 
           <div className="form-header">
             <div className="purchase-code-number" style={cancelledStyle}>
-              <label style={{ color: isPrfCancelled ? "red" : "inherit" }}>No. {purchaseCodeNumber}</label>
+              <label style={{ color: isPrfCancelled ? "red" : "inherit" }}> {purchaseCodeNumber}</label>
             </div>
             <h1 className="header-one-label">PURCHASE REQUEST FORM</h1>
           </div>
