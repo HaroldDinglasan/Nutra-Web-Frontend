@@ -21,6 +21,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   const [modalStatus, setModalStatus] = useState("")
   const [selectedId, setSelectedId] = useState(null);
   const [selectedRemarks, setSelectedRemarks] = useState("");
+  const [selectedPartialDeliver, setSelectedPartialDeliver] = useState("");
   const [dateDelivered, setDateDelivered] = useState("");
 
 
@@ -109,6 +110,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       setSelectedPrf(prf);
       setSelectedId(prf.Id);
       setSelectedRemarks(prf.remarks || ""); // load existing remarks if available
+      setSelectedPartialDeliver(prf.partialDeliver || "");
       setDateDelivered(prf.DateDelivered || ""); // load exisisting date delivered
       setAssignedTo(prf.assignedTo || "");
       setModalStatus(prf.status);
@@ -117,8 +119,9 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       // ✅ Fetch latest remarks from backend
       const response = await axios.get(`http://localhost:5000/api/getRemarks/${prf.Id}`);
 
-      if (response.data && response.data.remarks !== undefined) {
+      if (response.data) {
         setSelectedRemarks(response.data.remarks);
+        setSelectedPartialDeliver(response.data.partialDeliver);
         setDateDelivered(response.data.DateDelivered || "");
       } else {
         setSelectedRemarks("");
@@ -126,6 +129,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     } catch (error) {
       console.error("❌ Error fetching remarks:", error);
       setSelectedRemarks("");
+      setSelectedPartialDeliver("");
     } finally {
       // ✅ Always open modal even if API fails
       setIsModalOpen(true);
@@ -144,6 +148,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
               ...prf,
               status: modalStatus,
               remarks: selectedRemarks,
+              partialDeliver: selectedPartialDeliver,
             }
           : prf,
       )
@@ -225,6 +230,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
     try {
       await axios.put(`http://localhost:5000/api/updateRemarks/${selectedId}`, {
         remarks: selectedRemarks,
+        partialDeliver: selectedPartialDeliver,
         dateDelivered: dateDelivered || null,
         assignedTo: assignedTo || null,
       });
@@ -237,6 +243,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       // ✅ Close modal
       setIsModalOpen(false);
       setSelectedRemarks("");
+      setSelectedPartialDeliver("");
       setSelectedPrf(null);
       setAssignedTo("");
 
@@ -275,7 +282,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         (statusFilter === "PENDING" && prf.status === "PENDING") ||
         (statusFilter === "approved" && prf.status === "Approved") ||
         (statusFilter === "RECEIVED" && prf.status === "RECEIVED") ||
-        (statusFilter === "Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
+        (statusFilter === "On-Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
         (statusFilter === "Unassigned" && (!prf.assignedTo || prf.assignedTo.trim() === ""))
       return searchMatch && statusMatch
     })
@@ -284,7 +291,14 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   }
 
   // Calculate counts
-  const pendingCount = prfList.filter((prf) => prf.status === "PENDING").length
+  const unassignedCount = prfList.filter(
+  (prf) => !prf.assignedTo || prf.assignedTo.trim() === ""
+  ).length
+
+  const assignedCount = prfList.filter(
+  (prf) => prf.assignedTo && prf.assignedTo.trim() !== ""
+  ).length
+
   const approvedCount = prfList.filter((prf) => prf.status === "Approved").length
   const receivedCount = prfList.filter((prf) => prf.status === "RECEIVED").length
   const cancelledCount = prfList.filter((prf) => prf.status === "Cancelled").length
@@ -341,7 +355,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             (statusFilter === "reject" && prf.status === "REJECTED") ||
             (statusFilter === "PENDING" && prf.status === "PENDING") ||
             (statusFilter === "approved" && prf.status === "Approved") ||
-            (statusFilter === "Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
+            (statusFilter === "On-Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
             (statusFilter === "Unassigned" && (!prf.assignedTo || prf.assignedTo.trim() === ""))
 
           if (!statusMatch) return false
@@ -430,7 +444,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
               </svg>
             </div>
             <div className="stats-content">
-              <div className="stats-number">{isLoading ? "..." : pendingCount}</div>
+              <div className="stats-number">{isLoading ? "..." : unassignedCount}</div>
               <div className="stats-label">UNASSIGNED</div>
             </div>
           </div>
@@ -531,13 +545,11 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             className="status-admin-filter"
           >
             <option value="all">All</option>
-            <option value="Assigned">Assigned</option>
+            <option value="On-Assigned">Assigned</option>
             <option value="Unassigned">Unassigned</option>
-            <option value="PARTIALDELIVERED">Partially Delivered</option>
-            <option value="PENDING">Pending</option>
             <option value="approved">Approved</option>
             <option value="RECEIVED">Received</option>
-            <option value="For-approval">For Approval</option>
+            <option value="PENDING">Pending</option>
             <option value="cancelled">Cancelled</option>
             <option value="reject">Reject</option>
           </select>
@@ -568,22 +580,43 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
               {filteredPrfList.length > 0 ? (
                 filteredPrfList.map((prf, index) => {
                   const isCancelled = prf.status === "Cancelled"
+                  const isRejected = prf.status === "REJECTED"
                   const isUnreceived = prf.status === "Unreceived"
                   return (
                     <tr
                       key={index}
-                      className={`${isCancelled ? "canceled-row" : ""} ${isUnreceived ? "unreceived-row" : ""} clickable-row`}
+                      className={`
+                        ${isCancelled ? "canceled-row" : ""} 
+                        ${isRejected ? "rejected-row" : ""}
+                        ${isUnreceived ? "unreceived-row" : ""}
+                         clickable-row`}
                       onClick={() => handleRowClick(prf)}
                       style={{ cursor: "pointer" }}
                     >
-                      <td style={{ color: isCancelled ? "red" : isUnreceived ? "#dc2626" : "inherit" }}>
+                      <td style={{ color: isCancelled || isRejected ? "red" : isUnreceived ? "#dc2626" : "inherit" }}>
                         No. {prf.prfNo}
                       </td>
-                      <td>{prf.preparedBy}</td>
-                      <td>{formatDate(prf.prfDate)}</td>
-                      <td>{prf.StockName || "No stock name available"}</td>
-                      <td>{prf.quantity || "N/A"}</td>
-                      <td>{prf.unit || "N/A"}</td>
+
+                      <td style={{ color: isRejected ? "red" : "inherit" }}>
+                        {prf.preparedBy}
+                      </td>                      
+
+                      <td style={{ color: isRejected ? "red" : "inherit" }}>
+                        {formatDate(prf.prfDate)}
+                      </td>             
+
+                      <td style={{ color: isRejected ? "red" : "inherit" }}>
+                        {prf.StockName || "No stock name available"}
+                      </td>       
+
+                      <td style={{ color: isRejected ? "red" : "inherit" }}>
+                        {prf.quantity || "N/A"}
+                      </td>          
+                                  
+                      <td style={{ color: isRejected ? "red" : "inherit" }}>
+                        {prf.unit || "N/A"}
+                      </td>                      
+                      
                       <td>{prf.assignedTo || "" }</td>
                       <td>
                         <span className={`status-badge ${getStatusBadgeClass(prf.status)}`}>{prf.status}</span>
@@ -691,6 +724,28 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 value={selectedRemarks || ""}
                 onChange={(e) => setSelectedRemarks(e.target.value)}
                 placeholder="Enter remarks..."
+                className="remarks-input"
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #d1d5db",
+                  fontSize: "14px",
+                  marginTop: "8px",
+                  minHeight: "80px",
+                  resize: "vertical",
+                }}
+              />
+            </div>
+
+            <div className="remarks-section" style={{ marginTop: "16px" }}>
+              <label className="remarks-label">
+                 📝 Partial Deliver
+              </label>
+              <textarea
+                value={selectedPartialDeliver || ""}
+                onChange={(e) => setSelectedPartialDeliver(e.target.value)}
+                placeholder="Enter partial deliver..."
                 className="remarks-input"
                 style={{
                   width: "100%",

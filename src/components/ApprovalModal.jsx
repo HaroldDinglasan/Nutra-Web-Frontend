@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import "../styles/ApprovalModal.css"
 import axios from "axios"
+import { Form } from "react-router-dom"
 
 const ApprovalModal = ({ onClose }) => {
   // Initial form state
@@ -9,9 +10,15 @@ const ApprovalModal = ({ onClose }) => {
     checkedByUser: "",
     checkedByEmail: "",
     checkedByUserOid: null,
+
+    secondCheckedByUser: "",
+    secondCheckedByEmail: "",
+    secondCheckedByUserOid: null,
+
     approvedByUser: "",
     approvedByEmail: "",
     approvedByUserOid: null,
+
     receivedByUser: "Benji L. Salvador",
     receivedByEmail: "",
     receivedByUserOid: null,
@@ -42,6 +49,7 @@ const ApprovalModal = ({ onClose }) => {
   // refs for dropdown containers
   const dropdownRefs = {
     checkedByUser: useRef(null),
+    secondCheckedByUser: useRef(null),
     approvedByUser: useRef(null),
     receivedByUser: useRef(null),
   }
@@ -49,6 +57,7 @@ const ApprovalModal = ({ onClose }) => {
   // refs for search inputs to maintain focus
   const searchInputRefs = {
     checkedByUser: useRef(null),
+    secondCheckedByUser: useRef(null),
     approvedByUser: useRef(null),
     receivedByUser: useRef(null),
   }
@@ -184,8 +193,15 @@ const ApprovalModal = ({ onClose }) => {
           break
 
         case "WLO":
-          defaultCheckedBy = ""
-          defaultApprovedBy = "Kristina G. Remitar" // table SecuritySystemUser
+          defaultCheckedBy = "Evelyn Z. Mendoza"
+          defaultApprovedBy = "Andrea Kathleen D. Castillo" // table SecuritySystemUser
+
+          setFormData(prev => ({
+            ...prev,
+            checkedByUser: "Evelyn Z. Mendoza",
+            secondCheckedByUser: "Kristina G. Remitar",
+            approvedByUser: "Andrea Kathleen D. Castillo",
+          }))
           break
 
         case "ENGINEERING":
@@ -228,7 +244,7 @@ const ApprovalModal = ({ onClose }) => {
     const handleClickOutside = (event) => {
       if (openDropdown && !isTypingRef.current) {
         const ref = dropdownRefs[openDropdown]
-        if (ref.current && !ref.current.contains(event.target)) {
+        if (ref?.current && !ref.current.contains(event.target)) {
           setOpenDropdown(null)
         }
       }
@@ -337,8 +353,13 @@ const ApprovalModal = ({ onClose }) => {
         ApplicType: "PRF",
         CheckedById: formData.checkedByUserOid,
         CheckedByEmail: formData.checkedByEmail || null,
+
+        SecondCheckedById: formData.secondCheckedByUserOid,
+        WloSecondCheckedByEmail: formData.secondCheckedByEmail || null,
+
         ApprovedById: formData.approvedByUserOid,
         ApprovedByEmail: formData.approvedByEmail || null,
+
         ReceivedById: formData.receivedByUserOid,
         ReceivedByEmail: formData.receivedByEmail || null,
         skipNotifications: true, // flag to indicate this is from ApprovalModal (no notifications should be sent)
@@ -364,6 +385,7 @@ const ApprovalModal = ({ onClose }) => {
         checkedBy: formData.checkedByUser,
         approvedBy: formData.approvedByUser,
         receivedBy: formData.receivedByUser,
+        secondCheckedBy: formData.secondCheckedByUser,
       })
 
       // Step 4: Update PRFTABLE sa mga selected names
@@ -372,6 +394,7 @@ const ApprovalModal = ({ onClose }) => {
         await axios.put("http://localhost:5000/api/prf/update-approvers", {
           prfId: currentPrfId,
           checkedBy: formData.checkedByUser,
+          secondCheckedBy: formData.secondCheckedByUser,
           approvedBy: formData.approvedByUser,
           receivedBy: formData.receivedByUser,
         })
@@ -385,11 +408,13 @@ const ApprovalModal = ({ onClose }) => {
 
       // Magsave sa local storage ang Full Name ng approvers para sa email notifications
       localStorage.setItem("checkedByName", formData.checkedByUser)
+      localStorage.setItem("secondCheckedByName", formData.secondCheckedByUser)
       localStorage.setItem("approvedByName", formData.approvedByUser)
       localStorage.setItem("receivedByName", formData.receivedByUser)
 
       // Magsave sa local storage ang email bago magsave ng PRF 
       localStorage.setItem("checkedByEmail", formData.checkedByEmail || "")
+      localStorage.setItem("secondCheckedByEmail", formData.secondCheckedByEmail || "")    
       localStorage.setItem("approvedByEmail", formData.approvedByEmail || "")
       localStorage.setItem("receivedByEmail", formData.receivedByEmail || "")
 
@@ -432,6 +457,7 @@ const ApprovalModal = ({ onClose }) => {
           className={`custom-dropdown-container ${openDropdown === field ? "dropdown-open" : ""}`}
           style={{
             position: "relative",
+            zIndex: openDropdown === field ? 1000 : 1
           }}
         >
           <div
@@ -469,7 +495,7 @@ const ApprovalModal = ({ onClose }) => {
                 borderRadius: "4px",
                 marginTop: "2px",
                 backgroundColor: "white",
-                zIndex: 20,
+                zIndex: 2000,
                 boxShadow: "0 8px 24px rgba(76, 175, 80, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)",
               }}
             >
@@ -567,9 +593,10 @@ const ApprovalModal = ({ onClose }) => {
             <div className="form-grid">
               <CustomDropdown field="checkedByUser" className="checkby-form-input" />
 
-                <label htmlFor="checkedByEmail" className="checkby-form-label">
+              <label htmlFor="checkedByEmail" className="checkby-form-label">
                 {/*Email*/}
               </label>
+
               <input
                 type="email"
                 id="checkedByEmail"
@@ -581,6 +608,28 @@ const ApprovalModal = ({ onClose }) => {
               />
             </div>
           </div>
+
+          {departmentType === "WLO" && (
+            <div className="approval-sects">
+              <div className="section-title">Second CheckedBy:</div>
+              <div className="form-grid">
+                <CustomDropdown field="secondCheckedByUser" className="checkby-form-input" />
+
+                <label htmlFor="checkedByEmail" className="checkby-form-label">
+                  {/*Email*/}
+                </label>
+
+                <input
+                  type="email"
+                  name="secondCheckedByEmail"
+                  value={formData.secondCheckedByEmail}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  className="checkby-email-input"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="approval-sects">
             <div className="section-title">ApprovedBy:</div>
