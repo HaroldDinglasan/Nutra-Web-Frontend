@@ -13,13 +13,19 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
   useEffect(() => {
     const fetchUomCodes = async () => {
       try {
+        // If no stockId is provided, don't fetch anything
+        if (!stockId) {
+          setLoading(false)
+          setError("Please select a stock code first")
+          return
+        }
+
         setLoading(true)
+        setError(null)
 
-        // If no stockId is provided, fetch all UOMs
-        const id = stockId || "all"
-        console.log(`UomModal: Fetching UOMCodes for StockId/Code: ${id}`)
+        console.log(`UomModal: Fetching UOMCodes for StockId/Code: ${stockId}`)
 
-        const response = await axios.get(`http://localhost:5000/api/uomcodes/${id}`)
+        const response = await axios.get(`http://localhost:5000/api/uomcodes/${stockId}`)
         console.log("UomModal: UOMCodes response:", response.data)
 
         setUomList(response.data)

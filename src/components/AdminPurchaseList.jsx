@@ -549,7 +549,6 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             <option value="Unassigned">Unassigned</option>
             <option value="approved">Approved</option>
             <option value="RECEIVED">Received</option>
-            <option value="PENDING">Pending</option>
             <option value="cancelled">Cancelled</option>
             <option value="reject">Reject</option>
           </select>
@@ -572,7 +571,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 <th>Description</th>
                 <th>Quantity</th>
                 <th>Unit</th>
-                <th>Assigned To</th>
+                <th>Assigned</th>
                 <th>Status</th>
               </tr>
             </thead>

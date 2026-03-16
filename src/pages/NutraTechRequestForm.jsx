@@ -1375,10 +1375,10 @@ const NutraTechForm = () => {
             </div>
           </div>
 
-           <div className="project-code-container">
+           {/* <div className="project-code-container">
               <label className="project-label">Project Code:</label>
               <input type="text" className="project-code-input" readOnly />
-           </div>
+           </div> */}
 
           <div className="following-label">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
@@ -1490,12 +1490,12 @@ const NutraTechForm = () => {
                     </td>
                     <td
                       onClick={() => {
-                        if (!isPrfCancelled && isPrfSameDay) {
+                        if (!isPrfCancelled && isPrfSameDay && row.stockCode) {
                           setIsUomModalOpen(true)
                           setSelectedUomRowIndex(index)
                         }
                       }}
-                      style={{ cursor: isPrfCancelled || !isPrfSameDay ? "default" : "pointer" }}
+                      style={{ cursor: (isPrfCancelled || !isPrfSameDay || !row.stockCode) ? "default" : "pointer" }}
                     >
                       <input
                         type="text"
