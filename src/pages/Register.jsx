@@ -68,10 +68,6 @@ const Register = () => {
         id = 6
       break
 
-      case "LEGAL":
-        id = 7
-      break
-
       case "FINANCE":
         id = 8
       break
@@ -120,6 +116,15 @@ const Register = () => {
         id = 19
       break
 
+      case "ARND":
+        id = 20
+      break
+
+      case "TREASURY":
+        id = 21
+      break
+
+
       default:
         id = null
 
@@ -157,7 +162,7 @@ const Register = () => {
 
   // Send POST request to the Backend
   const handleRegister = async () => {
-    const isApprovers = department === "Approvers"
+    const isApprovers = department === "APPROVERS"
 
     if (!department || !fullname || !username || !password || (!isApprovers && !outlookEmail)) {
       alert("Please fill in all fields!")
@@ -235,6 +240,7 @@ const Register = () => {
               <option value="WLO">WLO</option> 
               <option value="SALES">SALES</option>
               <option value="QC">QC</option> 
+              <option value="ARND">ARND</option> 
               <option value="MMD">MMD</option> 
               <option value="ENGINEERING">ENGINEERING</option>
               <option value="APPROVERS">APPROVERS</option> 
@@ -282,7 +288,7 @@ const Register = () => {
           </div>
         </div>
         
-        {department !== "Approvers" && (
+        {department !== "APPROVERS" && (
           <div className="reg-field-box">
             <label htmlFor="outlookEmail">Outlook Email</label>
             <div className="reg-input-container">
