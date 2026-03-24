@@ -1,5 +1,5 @@
 "use client"
-
+  
 import { useState, useEffect } from "react"
 import axios from "axios"
 import Modal from "./SelectedPrfAdminModal"
@@ -23,6 +23,15 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   const [selectedRemarks, setSelectedRemarks] = useState("");
   const [selectedPartialDeliver, setSelectedPartialDeliver] = useState("");
   const [dateDelivered, setDateDelivered] = useState("");
+
+  const userRole = localStorage.getItem("userRole")
+
+  const userFullName = localStorage.getItem("userFullName")
+  const specialAdmins = ["Neca P. Conde"]
+
+  const isAdmin = 
+    userRole === "admin" ||
+    specialAdmins.includes(userFullName)
 
 
   useEffect(() => {
@@ -416,7 +425,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         return "pending"
     }
   }
-
+  
 
   if (showDashboard) {
     return (
@@ -571,6 +580,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 <th>Description</th>
                 <th>Quantity</th>
                 <th>Unit</th>
+                <th>Department Charge</th>
                 <th>Assigned</th>
                 <th>Status</th>
               </tr>
@@ -596,36 +606,53 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                         No. {prf.prfNo}
                       </td>
 
+                      {/* PreparedBy */}
                       <td style={{ color: isRejected ? "red" : "inherit" }}>
                         {prf.preparedBy}
-                      </td>                      
+                      </td>      
 
+                      {/* PRF Date*/}
                       <td style={{ color: isRejected ? "red" : "inherit" }}>
                         {formatDate(prf.prfDate)}
                       </td>             
 
+                      {/* Stock Name*/}
                       <td style={{ color: isRejected ? "red" : "inherit" }}>
                         {prf.StockName || "No stock name available"}
                       </td>       
 
+                       {/* Quantity */}
                       <td style={{ color: isRejected ? "red" : "inherit" }}>
                         {prf.quantity || "N/A"}
                       </td>          
-                                  
+                      
+                       {/* Unit */}
                       <td style={{ color: isRejected ? "red" : "inherit" }}>
                         {prf.unit || "N/A"}
-                      </td>                      
-                      
-                      <td>{prf.assignedTo || "" }</td>
-                      <td>
-                        <span className={`status-badge ${getStatusBadgeClass(prf.status)}`}>{prf.status}</span>
                       </td>
+
+                      {/* Department Charge */}
+                      <td style={{ color: isRejected ? "red" : "inherit" }}>
+                        {prf.departmentCharge || "N/A"}
+                      </td>
+
+                      {/* Assigned */}
+                      <td>
+                        {prf.assignedTo || ""}
+                      </td>
+
+                      <td>
+                        <span className={`status-badge ${getStatusBadgeClass(prf.status)}`}>
+                          {prf.status}
+                        </span>
+                      </td>
+
                     </tr>
                   )
                 })
               ) : (
                 <tr>
-                  <td colSpan="8" className="no-results">
+                  <td colSpan="9" className="no-results">
                     No matching PRF records found.
                   </td>
                 </tr>

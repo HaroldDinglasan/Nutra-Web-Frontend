@@ -370,6 +370,12 @@
   text-align: center;
 }
 
+.log-table th:nth-child(9),
+.log-table td:nth-child(9) {
+  width: 120px;
+  text-align: center;
+}
+
 
 @media (max-width: 768px) {
   .dashboard-stats-container {

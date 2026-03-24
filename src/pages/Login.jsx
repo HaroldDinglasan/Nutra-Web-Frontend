@@ -1,5 +1,5 @@
 "use client"
-
+  
 import { useState } from "react"
 import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -127,14 +127,23 @@ const Login = () => {
         localStorage.setItem("userCompany", selectedCompany) // Store selected Company
         localStorage.setItem("userId", data.user.userID) // Store the userID
 
-        // Check if user is purchasing admin
+        // ✅ Special admin users
+        const specialAdmins = ["Neca P. Conde"]
+
+        const isSpecialAdmin = specialAdmins.includes(data.user.fullName)
+
+        // Existing logic
         const isPurchasingAdmin =
           username.toLowerCase().includes("admin") ||
           (data.user.role && data.user.role === "admin") ||
           (data.user.departmentType && data.user.departmentType.toLowerCase().includes("purchasing"))
 
+        // ✅ Final admin check
+        const isAdmin = isPurchasingAdmin || isSpecialAdmin
+
         // Store user role
-        localStorage.setItem("userRole", isPurchasingAdmin ? "admin" : "user")
+        localStorage.setItem("userRole", isAdmin ? "admin" : "user")
+        localStorage.setItem("isAdmin", isAdmin)
 
         if (pendingPrfData && pendingPrfData.prfId) {
           localStorage.setItem("preparedByUser", pendingPrfData.preparedBy) // Fourth step
@@ -169,7 +178,7 @@ const Login = () => {
         }
 
         // All USERS go to DASHBOARD first
-        if (isPurchasingAdmin) {
+        if (isAdmin) {
           // Purchasing admin goes to admin dashboard
           navigate("/prf/list", {
             state: { company: selectedCompany, isAdmin: true, showDashboard: true },
