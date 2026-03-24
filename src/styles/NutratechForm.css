@@ -221,41 +221,73 @@ h3 {
     height: 15px;
 }
 
-.project-code-container{
+
+.project-code-container {
     display: flex;
-    align-items: left;
-    height: 15px;
-    margin-bottom: 30px;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0 25px 25px;
 }
 
-.project-label{
+.project-code-label {
     font-size: 17px;
     font-weight: bold;
-    white-space: nowrap; 
-    margin-bottom: 15px;
-    margin-left: 25px;
+    white-space: nowrap;
 }
 
-.project-code-input{
-    width: 18.5rem;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    outline: none;
-    font-size: 14px;   
-    appearance: none;
+.project-code-wrapper {
+    position: relative;
+    width: 300px;
+}
+
+/* Main dropdown */
+.project-code-select {
+    width: 100%;
+    padding: 10px 40px 10px 12px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    font-size: 12px;
     background-color: white;
-    height: 14px;
-    text-align: center;
-    line-height: 1.2; 
-    font-size: 14px; 
-    height: 20px; 
-    vertical-align: middle; 
-    appearance: none; 
+    margin-left: 80px;
+
+    /* REMOVE default arrow */
+    appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    height: 35px;
-    margin-left: 96px;
+
+    /* ADD custom arrow */
+    background-image: url('../assets/down-arrow.png'); /* adjust path if needed */
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+
+    outline: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+/* Hover effect */
+.project-code-select:hover {
+    border-color: #3b82f6;
+    background-color: #f8fafc;
+}
+
+/* Focus effect */
+.project-code-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Disabled state */
+.project-code-select:disabled {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Optional: selected look */
+.project-code-select option {
+    font-size: 12px;
 }
 
 .nutra-date-label {
@@ -736,8 +768,12 @@ h3 {
         gap: 10px;
     }
 
-    .project-label {
-        margin-left: 1px;
+    .project-code-label {
+        margin-left: -25px;
+    }
+
+    .project-code-container {
+        margin-right: 80px;
     }
 
     .project-code-input {

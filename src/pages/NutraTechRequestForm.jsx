@@ -15,7 +15,7 @@ import { CancelButton, AddRowButton, UncancelButton } from "../components/button
 import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
 import ApprovalButtonAction from "../components/ApprovalButtonAction"
-
+  
 const NutraTechForm = () => {
   // State variables
   const navigate = useNavigate()
@@ -45,9 +45,25 @@ const NutraTechForm = () => {
   const [assignedAction, setAssignedAction] = useState(null)
   const [departmentFromPrf, setDepartmentFromPrf] = useState(false)
 
+  const [projectCodes, setProjectCodes] = useState([])
+  const [selectedProjectCode, setSelectedProjectCode] = useState("")
+
   const getSearchParams = () => {
     return new URLSearchParams(location.search)
   }
+
+  useEffect(() => {
+    const fetchProjectCodes = async () => {
+        try {
+            const res = await axios.get("http://localhost:5000/api/project-code-list")
+            setProjectCodes(res.data)
+        } catch (error) {
+            console.error("Error fetching project codes:", error)
+        }
+    }
+
+    fetchProjectCodes()
+  }, [])
 
   const [department, setDepartment] = useState(() => {
     // Priority 1: Check URL search params (from email link)
@@ -281,6 +297,8 @@ const NutraTechForm = () => {
         setPrfDate(data.header.prfDate)
         setPreparedBy(data.header.preparedBy)
         setIsCancel(data.header.isCancel)
+
+        setSelectedProjectCode(data.header.projectCode)
 
         // kapag galing sa Outlook link, gamitin ang emailLinkPreparedBy 
         if (emailLinkPreparedBy) {
@@ -649,7 +667,8 @@ const NutraTechForm = () => {
         setPurchaseCodeNumber(data.header.prfNo)
         setCurrentDate(data.header.prfDate.split("T")[0])
         setPrfId(data.header.prfId)
-
+        setSelectedProjectCode(data.header.projectCode || "")
+        
         // <CHANGE> Set department from departmentCharge when searching PRF
         if (data.header.departmentCharge) {
           setDepartment(data.header.departmentCharge)
@@ -925,6 +944,7 @@ const NutraTechForm = () => {
       approvedByUser: approvalNames.approvedByUser,
       receivedByUser: approvalNames.receivedByUser,
       departmentCharge: department || null, // Add department charge from the input field
+      projectCode: selectedProjectCode || null,
     }
 
     try {
@@ -963,6 +983,12 @@ const NutraTechForm = () => {
   }
 
   const handleSave = async () => {
+    // Check if project code is selected
+    if (!selectedProjectCode || selectedProjectCode.trim() === "") {
+      alert("Please select a Project Code before saving")
+      return
+    }
+
     // First check if approval settings are configured
     if (!approvalNames.checkedByUser || !approvalNames.approvedByUser || !approvalNames.receivedByUser) {
       alert("Please fill out approval box first. Click on the approval setting to set up the required approvers.")
@@ -1160,6 +1186,12 @@ const NutraTechForm = () => {
 
   useEffect(() => {
     const handleSaveClick = async () => {
+      // Check if project code is selected
+      if (!selectedProjectCode || selectedProjectCode.trim() === "") {
+        alert("Please select a Project Code before saving")
+        return
+      }
+
       // First check if approval settings are configured
       if (!approvalNames.checkedByUser || !approvalNames.approvedByUser || !approvalNames.receivedByUser) {
         alert("Please fill out approval box first. Click on the approval setting to set up the required approvers.")
@@ -1375,10 +1407,29 @@ const NutraTechForm = () => {
             </div>
           </div>
 
-           {/* <div className="project-code-container">
-              <label className="project-label">Project Code:</label>
-              <input type="text" className="project-code-input" readOnly />
-           </div> */}
+          <div className="project-code-container">
+            <label className="project-code-label">Project Code:</label>
+
+            <div className="project-code-wrapper">
+              <select
+                className="project-code-select"
+                value={selectedProjectCode}
+                onChange={(e) => setSelectedProjectCode(e.target.value)}
+                disabled={isPrfCancelled || !isPrfSameDay}
+              >
+                <option value="">Select Project Code</option>
+
+                {projectCodes
+                  .filter(pc => pc.IsActive)
+                  .map((pc) => (
+                    <option key={pc.Id} value={pc.ProjectCode}>
+                      {pc.ProjectCode} - {pc.Description}
+                    </option>
+                  ))}
+              </select>
+
+            </div>
+          </div>
 
           <div className="following-label">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>

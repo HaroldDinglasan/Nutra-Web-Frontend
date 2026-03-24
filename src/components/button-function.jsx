@@ -1,7 +1,7 @@
 import axios from "axios" // Used for sending HTTP requests to backend
-
+  
 // Save PRF header
-export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, departmentCharge) => {
+export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, departmentCharge, projectCode) => {
 
   // Check if required fields are missing
   if (!purchaseCodeNumber || !currentDate || !fullname) {
@@ -21,6 +21,7 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, d
     preparedBy: fullname,
     userId: userId ? parseInt(userId) : null, 
     departmentCharge: departmentCharge || null,
+    projectCode: projectCode || null,
   }
 
   // Send data to backend
