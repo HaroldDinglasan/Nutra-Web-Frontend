@@ -12,20 +12,25 @@ const StockcodeModal = ({ onClose, onSelectStock }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Fetch stock data from backend
+  const totalStocks = stockItems.length
+
   useEffect(() => {
     const fetchStocks = async () => {
       try {
         setLoading(true)
-        const response = await axios.get("http://localhost:5000/api/stocks")
 
-        if (response.data.length > 0 && !response.data[0].Id) {
-          console.warn("Warning: Stock data does not include Id field!")
-        }
+        const company = localStorage.getItem("userCompany") // ✅ GET FROM LOGIN
+
+        console.log("📌 Company from localStorage:", company)
+
+        const response = await axios.get("http://localhost:5000/api/stocks", {
+          params: { company }
+        })
 
         setStockItems(response.data)
-        setFilteredStocks(response.data) // Filtered items with all items
+        setFilteredStocks(response.data)
         setLoading(false)
+
       } catch (error) {
         console.error("❌ Error fetching stock data:", error)
         setError("Failed to load stock data. Please try again.")
@@ -124,6 +129,11 @@ const StockcodeModal = ({ onClose, onSelectStock }) => {
                 )}
               </div>
             </div>
+            
+            <div className="stock-count">
+                Showing of {totalStocks} items
+            </div>
+
           </div>
 
           <div className="modal-table-container">

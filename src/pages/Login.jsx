@@ -1,5 +1,5 @@
 "use client"
-  
+
 import { useState } from "react"
 import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -226,9 +226,9 @@ const Login = () => {
               onChange={(e) => setSelectedCompany(e.target.value)}
             >
               <option value="">Select Company</option>
-              <option value="NutraTech Biopharma, Inc">Nutratech Biopharma, Inc</option>
-              <option value="Avli Biocare, Inc">Avli BioCare, Inc</option>
-              <option value="Apthealth, Inc">Apthealth, Inc</option>
+              <option value="NTBI">NUTRA TECH BIOPHARMA INC</option>
+              <option value="AVLI">AVLI BIOCARE INC</option>
+              <option value="APHI">APTHEALTH INC</option>
             </select>
             <img src={departmentIcon || "/placeholder.svg"} alt="Dept Icon" className="company-dropdown-icon" />
           </div>

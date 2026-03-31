@@ -6,9 +6,9 @@ import { useLocation, useNavigate } from "react-router-dom"
 import NutraTechlogo from "../assets/NTBI.png"
 import avliLogo from "../assets/AVLI.png"
 import apthealthLogo from "../assets/apthealth inc full logo.png"
-import nutraheaderlogo from "../assets/nutratechlogo.jpg"
-import apthealtheaderLogo from "../assets/apthealth logo.png"
-import avliheaderLogo from "../assets/avli biocare.logo.png"
+import nutraheaderlogo from "../assets/NTBI.png"
+import apthealtheaderLogo from "../assets/apthealth inc full logo.png"
+import avliheaderLogo from "../assets/AVLI.png"
 import StockcodeModal from "./StockcodeModal"
 import UomModal from "../components/UomModal"
 import { CancelButton, AddRowButton, UncancelButton } from "../components/button"
@@ -52,11 +52,21 @@ const NutraTechForm = () => {
     return new URLSearchParams(location.search)
   }
 
+  const totalProjectCode = projectCodes.length
+
   useEffect(() => {
     const fetchProjectCodes = async () => {
         try {
-            const res = await axios.get("http://localhost:5000/api/project-code-list")
-            setProjectCodes(res.data)
+
+            const company = localStorage.getItem("userCompany") // ✅ GET FROM LOGIN
+
+            console.log("📌 Company from localStorage:", company)
+
+            const response = await axios.get("http://localhost:5000/api/project-code-list", {
+              params: { company }
+            })
+
+            setProjectCodes(response.data)
         } catch (error) {
             console.error("Error fetching project codes:", error)
         }
@@ -977,9 +987,9 @@ const NutraTechForm = () => {
   }
 
   const companyLogos = {
-    "NutraTech Biopharma, Inc": NutraTechlogo,
-    "Avli Biocare, Inc": avliLogo,
-    "Apthealth, Inc": apthealthLogo,
+    "NTBI": nutraheaderlogo,
+    "AVLI": avliheaderLogo,
+    "APHI": apthealtheaderLogo,
   }
 
   const handleSave = async () => {
@@ -1204,6 +1214,20 @@ const NutraTechForm = () => {
         return
       }
 
+      const hasEmptyPurpose = rows.some((row) => row.stockCode && !row.purpose.trim())
+      if (hasEmptyPurpose) {
+        alert("Purpose of Requisition is required for all items")
+
+        const purposeInputs = document.querySelectorAll('input[name="purpose"]')
+        rows.forEach((row, index) => {
+          if (row.stockCode && !row.purpose.trim()) {
+            purposeInputs[index].style.border = "1px solid red"
+            purposeInputs[index].placeholder = "Required field"
+          }
+        })
+        return
+      }
+
       let headerPrfId = prfId
 
       if (!headerPrfId) {
@@ -1262,7 +1286,7 @@ const NutraTechForm = () => {
       window.removeEventListener("prfSaveClicked", handleSaveClick)
       window.removeEventListener("prfUpdateClicked", handleUpdateClick)
     }
-  }, [rows, prfId, purchaseCodeNumber, currentDate, fullname, approvalNames])
+  }, [rows, prfId, purchaseCodeNumber, currentDate, fullname, approvalNames, selectedProjectCode])
 
   // Check if buttons should be shown based on same day check
   const showActionButtons = isPrfSameDay && isUpdating && !assignedAction
@@ -1391,7 +1415,31 @@ const NutraTechForm = () => {
               <label className="nutra-header-dept-label" htmlFor="department">
                 Department (charge to):
               </label>
-              <input type="text"id="department"className="department-type" value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="Enter department" />           
+
+                <div className="project-code-wrapper">
+                  <select
+                    className="project-code-select"
+                    value={selectedProjectCode}
+                    onChange={(e) => setSelectedProjectCode(e.target.value)}
+                    disabled={isPrfCancelled || !isPrfSameDay}
+                  >
+                    <option value="">Select Project Code</option>
+
+                    {projectCodes
+                      .filter(pc => pc.IsActive)
+                      .map((pc) => (
+                        <option key={pc.Id} value={pc.ProjectCode}>
+                          {pc.ProjectCode}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <div className="stock-count">
+                  Showing of {totalProjectCode} items
+                </div>
+
+              {/* <input type="text"id="department"className="department-type" value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="Enter department" />            */}
+
             </div>
 
             <div className="nutra-date-container">
@@ -1407,7 +1455,7 @@ const NutraTechForm = () => {
             </div>
           </div>
 
-          <div className="project-code-container">
+          {/* <div className="project-code-container">
             <label className="project-code-label">Project Code:</label>
 
             <div className="project-code-wrapper">
@@ -1429,7 +1477,7 @@ const NutraTechForm = () => {
               </select>
 
             </div>
-          </div>
+          </div> */}
 
           <div className="following-label">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>

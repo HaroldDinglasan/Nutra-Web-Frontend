@@ -248,7 +248,8 @@ h3 {
     border: 2px solid #e2e8f0;
     font-size: 12px;
     background-color: white;
-    margin-left: 80px;
+    margin-left: 10px;
+    margin-top: 10px;
 
     /* REMOVE default arrow */
     appearance: none;
@@ -293,7 +294,7 @@ h3 {
 .nutra-date-label {
     font-size: 16px;
     font-weight: bold;
-    margin-top: 2px;
+    margin-top: 11px;
 }
 
 .input-date-nutra {
@@ -305,7 +306,7 @@ h3 {
     border: 1px solid #ccc;
     margin-right: 45px;
     outline: none;
-    margin-top: 9.5px;
+    margin-top: 12.5px;
     line-height: 1.2; 
     font-size: 14px; 
     height: 20px; 
@@ -432,7 +433,7 @@ h3 {
     font-size: 17px;
     font-weight: bold;
     white-space: nowrap; 
-    margin-bottom: 15px;
+    margin-bottom: 4px;
     margin-left: 5px;
 }
 
@@ -830,6 +831,7 @@ h3 {
 
     .input-date-nutra{
         padding: 8px;
+        margin-top: 17px
     }
 } 
 

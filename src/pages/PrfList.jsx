@@ -20,6 +20,30 @@ const PrfList = () => {
   const userDepartment = localStorage.getItem("userDepartment") || "Department"
   const isAdmin = userRole === "admin"
 
+  const [companyName, setCompanyName] = useState("")
+
+  useEffect(() => {
+    const companyCode = localStorage.getItem("userCompany")
+
+    let fullName = ""
+
+    switch (companyCode) {
+      case "NTBI":
+        fullName = "NUTRA TECH BIOPHARMA INC"
+        break
+      case "AVLI":
+        fullName = "AVLI BIOCARE INC"
+        break
+      case "APHI":
+        fullName = "APTHEALTH INC"
+        break
+      default:
+        fullName = "NUTRA TECH BIOPHARMA INC"
+    }
+
+    setCompanyName(fullName)
+  })
+
   useEffect(() => {
     if (!showDashboard) {
       fetchPrfList()
@@ -282,7 +306,7 @@ const PrfList = () => {
             <AdminPurchaseList showDashboard={true} />
           ) : (
             <div className="welcome-container">
-              <h2>Welcome to NutraTech Biopharma Inc, {fullname}</h2>
+              <h2>Welcome to {companyName}, {fullname}</h2>
             </div>
           )}
         </>
