@@ -68,7 +68,7 @@ const Register = () => {
         id = 6
       break
 
-      case "FINANCE":
+      case "ACCOUNTING":
         id = 8
       break
 
@@ -124,6 +124,17 @@ const Register = () => {
         id = 21
       break
 
+      case "EXECUTIVE":
+        id = 22
+      break
+
+      case "QA":
+        id = 23
+      break
+
+      case "ACCOUNTING":
+        id = 24
+      break
 
       default:
         id = null
@@ -225,12 +236,13 @@ const Register = () => {
               onChange={(e) => setDepartment(e.target.value)}
             >
               <option value="">Select Department</option>
+              <option value="EXECUTIVE">EXECUTIVE</option>
               <option value="PRODUCTION">PRODUCTION</option>
               <option value="CGS">CGS</option> 
               <option value="CMD">CMD</option>
               <option value="AUDIT">AUDIT</option>
               <option value="LEGAL">LEGAL</option>
-              <option value="FINANCE">FINANCE</option>
+              <option value="ACCOUNTING">ACCOUNTING</option>
               <option value="HR">HR</option>
               <option value="MARKETING">MARKETING</option>
               <option value="REGULATORY">REGULATORY</option>
@@ -239,6 +251,7 @@ const Register = () => {
               <option value="PURCHASING">PURCHASING</option> 
               <option value="WLO">WLO</option> 
               <option value="SALES">SALES</option>
+              <option value="QA">QA</option>
               <option value="QC">QC</option> 
               <option value="ARND">ARND</option> 
               <option value="MMD">MMD</option> 

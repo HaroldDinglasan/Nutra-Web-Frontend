@@ -13,6 +13,11 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
   useEffect(() => {
     const fetchUomCodes = async () => {
       try {
+
+        const company = localStorage.getItem("userCompany") // ✅ GET FROM LOGIN
+
+        console.log("📌 Company from localStorage:", company)
+
         // If no stockId is provided, don't fetch anything
         if (!stockId) {
           setLoading(false)
@@ -25,8 +30,9 @@ const UomModal = ({ onClose, onSelectUom, stockId }) => {
 
         console.log(`UomModal: Fetching UOMCodes for StockId/Code: ${stockId}`)
 
-        const response = await axios.get(`http://localhost:5000/api/uomcodes/${stockId}`)
-        console.log("UomModal: UOMCodes response:", response.data)
+        const response = await axios.get(`http://localhost:5000/api/uomcodes/${stockId}`, {
+          params: { company }
+        })
 
         setUomList(response.data)
 
