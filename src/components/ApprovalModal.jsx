@@ -157,7 +157,7 @@ const ApprovalModal = ({ onClose }) => {
           defaultApprovedBy = "Jennifer June G. Cambongga" 
           break
 
-        case "FINANCE":
+        case "ACCOUNTING":
           defaultCheckedBy = "Jane C. Bautista" // table SecuritySystemUser
           defaultApprovedBy = "Jennifer June G. Cambongga" // table SecuritySystemUser
           break
@@ -213,12 +213,17 @@ const ApprovalModal = ({ onClose }) => {
           defaultCheckedBy = "Referenda Lopez" // table SecuritySystemUser
           defaultApprovedBy = "Arsenio Y. Castillo" // table Head User
           break
+
+        case "QA":
+          defaultCheckedBy = "Faith S. Ramos" // table SecuritySystemUser
+          defaultApprovedBy = "Evelyn A. Gatdula" // table Head User
+          break
         
         case "QC":
-          defaultCheckedBy = "Evelyn A. Gatdula" // table SecuritySystemUser
-          defaultApprovedBy = "Arsenio Y. Castillo" // table Head User
+          defaultCheckedBy = "Jazmine Shayne A. Gabat" // table SecuritySystemUser
+          defaultApprovedBy = "Evelyn A. Gatdula" // table Head User
           break
-
+        
         case "ARND":
           defaultCheckedBy = "Federico E. Villanueva" // table SecuritySystemUser
           defaultApprovedBy = "Arsenio Y. Castillo" // table SecuritySystemUser
@@ -232,6 +237,21 @@ const ApprovalModal = ({ onClose }) => {
         case "TREASURY":
           defaultCheckedBy = "Carmen C. Aquino" // table SecuritySystemUser
           defaultApprovedBy = "Jennifer June G. Cambongga" // table SecuritySystemUser
+          break
+        
+        case "OTP":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Arsenio Y. Castillo"
+          break
+
+        case "OTC":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Andrea Kathleen D. Castillo"
+          break
+
+        case "QMD":
+          defaultCheckedBy = ""
+          defaultApprovedBy = "Arsenio Y. Castillo"
           break
 
           // Add more departments as needed

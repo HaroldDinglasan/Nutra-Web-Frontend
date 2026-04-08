@@ -12,10 +12,10 @@ const StockApproveAvailability = () => {
 
   // Getting values from the URL query parameters
   // Example: ?prfId=123&stockCode=STK001
-  const prfId = params.get("prfId");
-  const stockCode = params.get("stockCode");
-  const stockName = params.get("stockName");
-  const prfNo = params.get("prfNo");
+  const [prfId, setPrfId] = useState(params.get("prfId"));
+  const [stockCode, setStockCode] = useState(params.get("stockCode"));
+  const [stockName, setStockName] = useState(params.get("stockName"));
+  const [prfNo, setPrfNo] = useState(params.get("prfNo"));
   const checkerName = params.get("checkerName");
   const [notedBy, setNotedBy] = useState("");
   const [verifiedBy, setVerifiedBy] = useState("");
@@ -28,8 +28,8 @@ const StockApproveAvailability = () => {
 
   // Function that runs when APPROVE button is clicked
   const handleApprove = async () => {
-    if (!notedBy || !verifiedBy) {
-      alert("Please fill in Noted By and Verified By.");
+    if (!verifiedBy) {
+      alert("Please fill in Verified By.");
       return;
     }
 
@@ -47,7 +47,6 @@ const StockApproveAvailability = () => {
             prfId,
             stockCode,
             stockName,
-            notedBy,
             verifiedBy,
           }),
         }
@@ -57,12 +56,20 @@ const StockApproveAvailability = () => {
 
       // ✅ THIS IS THE IMPORTANT PART
       if (!response.ok) {
-        alert(data.message);  // 🔥 ALERT HERE
+        alert(data.message); 
         return;
       }
 
       alert("Stock marked as AVAILABLE successfully.");
       setMessage("success");
+
+      // ✅ Clear all fields
+      setNotedBy("");
+      setVerifiedBy("");
+      setPrfId("");
+      setStockCode("");
+      setStockName("");
+      setPrfNo("");
 
     } catch (error) {
       alert("Server error occurred.");
@@ -91,7 +98,7 @@ const StockApproveAvailability = () => {
           <input value={stockName || ""} disabled />
         </div>
 
-        <div className="approve-field">
+        {/* <div className="approve-field">
             <label>Noted By</label>
             <input
               type="text"
@@ -99,7 +106,7 @@ const StockApproveAvailability = () => {
               value={notedBy}
               onChange={(e) => setNotedBy(e.target.value)}
             />
-        </div>
+        </div> */}
 
         <div className="approve-field">
             <label>Verified By</label>

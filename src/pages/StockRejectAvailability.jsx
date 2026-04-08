@@ -12,10 +12,10 @@ const StockRejectAvailability = () => {
 
   // Getting values from the URL query parameters
   // Example: ?prfId=123&stockCode=STK001
-  const prfId = params.get("prfId");
-  const stockCode = params.get("stockCode");
-  const stockName = params.get("stockName");
-  const prfNo = params.get("prfNo");
+  const [prfId, setPrfId] = useState(params.get("prfId"));
+  const [stockCode, setStockCode] = useState(params.get("stockCode"));
+  const [stockName, setStockName] = useState(params.get("stockName"));
+  const [prfNo, setPrfNo] = useState(params.get("prfNo"));
   const checkerName = params.get("checkerName");
   const [notedBy, setNotedBy] = useState("");
   const [verifiedBy, setVerifiedBy] = useState("");
@@ -67,6 +67,15 @@ const StockRejectAvailability = () => {
       alert("Stock marked as NOT AVAILABLE successfully.");
       setMessage("success");
 
+      // ✅ Clear inputs after success
+      setNotedBy("");
+      setVerifiedBy("");
+      setRejectionReason("");
+      setPrfId("");
+      setStockCode("");
+      setStockName("");
+      setPrfNo("");
+
     } catch (error) {
       alert("Server error occurred.");
       setMessage("error");
@@ -105,7 +114,7 @@ const StockRejectAvailability = () => {
               />
         </div>
 
-        <div className="reject-field">
+        {/* <div className="reject-field">
             <label>Noted By</label>
             <input
               type="text"
@@ -113,7 +122,7 @@ const StockRejectAvailability = () => {
               value={notedBy}
               onChange={(e) => setNotedBy(e.target.value)}
             />
-        </div>
+        </div> */}
 
         <div className="reject-field">
             <label>Verified By</label>
