@@ -8,6 +8,7 @@ const ApprovalButtonAction = ({
   assignedAction, // kung saan i aasign si user galing email
   onAction, 
   prfId, // Added prfId prop for API call
+  onClearForm, // Callback to clear the form after approval/rejection
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -103,6 +104,12 @@ const ApprovalButtonAction = ({
         if (onAction) {
           await onAction(actionType, null)
         }
+        // Clear the form after successful approval
+        if (onClearForm) {
+          setTimeout(() => {
+            onClearForm()
+          }, 500) // Small delay to ensure API call completes
+        }
         // alert(`✅ PRF has been ${actionType} successfully!`)
       } else {
         alert(` Error: ${data.message}`)
@@ -158,6 +165,12 @@ const ApprovalButtonAction = ({
       if (response.ok) {
         if (onAction) {
           await onAction("reject", rejectionReason)
+        }
+        // Clear the form after successful rejection
+        if (onClearForm) {
+          setTimeout(() => {
+            onClearForm()
+          }, 500) // Small delay to ensure API call completes
         }
         alert(`✅ PRF has been rejected successfully!`)
       } else {

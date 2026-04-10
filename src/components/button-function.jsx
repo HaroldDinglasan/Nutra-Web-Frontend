@@ -125,7 +125,7 @@ const sendStockAvailabilityNotification = async ( prfId, stockCode, stockName, p
 
 // Send email notifications to checkBy, approvedBy, and receivedBy
 // If hasImStock is true, this will be skipped during PRF save and called later after CGS approval
-const sendPrfNotifications = async (prfId, prfNo, preparedBy, hasImStock = false) => {
+const sendPrfNotifications = async (prfId, prfNo, preparedBy, projectCode, hasImStock = false) => {
   try {
     // Get email credentials from localStorage (should be set by backend from .env)
     const checkedByEmail = localStorage.getItem("checkedByEmail");
@@ -147,6 +147,7 @@ const sendPrfNotifications = async (prfId, prfNo, preparedBy, hasImStock = false
       prfId,
       prfNo,
       preparedBy,
+      projectCode, // ✅ ADD THIS
       company,
       userId: userId ? Number(userId) : undefined,
       checkedByEmail: localStorage.getItem("checkedByEmail"),

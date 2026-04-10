@@ -1304,6 +1304,59 @@ const NutraTechForm = () => {
     }
   }, [location.state])
 
+  // CLEAR THE FORM AFTER APPROVERS APPROVAL / REJECTION 
+  const clearFormAfterApproval = () => {
+    console.log("[v0] Clearing form after approval/rejection")
+    
+    // Reset purchase code number
+    setPurchaseCodeNumber("")
+    
+    // Reset all row data
+    setRows(
+      Array.from({ length: 12 }, () => ({
+        stockCode: "",
+        quantity: "",
+        unit: "",
+        description: "",
+        dateNeeded: getCurrentDate(),
+        purpose: "",
+        stockId: "",
+      }))
+    )
+    
+    // Reset other form fields
+    setGlobalPurpose("")
+    setSelectedProjectCode("")
+    setPreparedBy("")
+    setIsUpdating(false)
+    setAssignedAction(null)
+    setPrfId(null)
+    setPrfDetails([])
+    setIsPrfCancelled(false)
+    setCancelButtonLabel("Cancel")
+    
+    // Clear approval names from the approval box
+    setApprovalNames({
+      checkedByUser: "",
+      approvedByUser: "",
+      receivedByUser: "",
+    })
+    
+    // Clear email link prepared by
+    setEmailLinkPreparedBy("")
+    
+    // Clear localStorage entries related to PRF
+    localStorage.removeItem("pendingPRF")
+    localStorage.removeItem("prfDepartmentCharge")
+    localStorage.removeItem("emailLinkPreparedBy")
+    localStorage.removeItem("assignedAction")
+    localStorage.removeItem("checkedByUser")
+    localStorage.removeItem("approvedByUser")
+    localStorage.removeItem("receivedByUser")
+    
+    console.log("[v0] Form and approval names cleared successfully")
+  }
+
   // 
   const handleApprovalAction = async (actionType, reason) => {
     if (reason) {
@@ -1313,6 +1366,9 @@ const NutraTechForm = () => {
       console.log(`User ${actionType}ed PRF:`, prfId)
       alert(`PRF has been ${actionType}ed by ${fullname}`)
     }
+    
+    // Clear the form after approval/rejection
+    clearFormAfterApproval()
   }
 
   useEffect(() => {
@@ -1712,6 +1768,7 @@ const NutraTechForm = () => {
                   onAction={handleApprovalAction}
                   className="approval-button"
                   prfId={prfId}
+                  onClearForm={clearFormAfterApproval}
                 />
               )}
             </div>
@@ -1727,6 +1784,7 @@ const NutraTechForm = () => {
                   onAction={handleApprovalAction}
                   className="approval-button"
                   prfId={prfId}
+                  onClearForm={clearFormAfterApproval}
                 />
               )}
             </div>
@@ -1742,6 +1800,7 @@ const NutraTechForm = () => {
                   onAction={handleApprovalAction}
                   className="approval-button"
                   prfId={prfId}
+                  onClearForm={clearFormAfterApproval}
                 />
               )}
             </div>
