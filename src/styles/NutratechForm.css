@@ -78,14 +78,6 @@ table {
     font-size: 12px;
 }
 
-
-th:nth-child(1), td:nth-child(1) { width: 12%; } 
-th:nth-child(2), td:nth-child(2) { width: 9%; }   
-th:nth-child(3), td:nth-child(3) { width: 12%; }   
-th:nth-child(4), td:nth-child(4) { width: 40%; }  
-th:nth-child(5), td:nth-child(5) { width: 15%; }  
-th:nth-child(6), td:nth-child(6) { width: 22%; }  
-
 th, td {
     padding: 4px;
     text-align: center;
@@ -516,7 +508,7 @@ h3 {
 
 .table-container table th:nth-child(6),
 .table-container table td:nth-child(6) {
-  width: 18% !important;
+  width: 25% !important;
 } 
 
 

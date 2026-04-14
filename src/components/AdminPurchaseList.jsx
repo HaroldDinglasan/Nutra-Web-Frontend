@@ -29,6 +29,9 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   const userFullName = localStorage.getItem("userFullName")
   const specialAdmins = ["Neca P. Conde"]
 
+  const [showRejectInput, setShowRejectInput] = useState(false);
+  const [rejectionInput, setRejectionInput] = useState("");
+
   const isAdmin = 
     userRole === "admin" ||
     specialAdmins.includes(userFullName)
@@ -229,6 +232,66 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       alert("Failed to mark item as received. Please try again.")
     }
   }
+
+  const handleConfirmReject = async () => {
+    if (!selectedPrf) return;
+
+    if (!rejectionInput.trim()) {
+      alert("⚠️ Please enter a reason for rejection!");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `http://localhost:5000/api/prf/reject/${selectedPrf.prfId}`,
+        {
+          userFullName: userFullName || "Benji L. Salvador",
+          rejectionReason: rejectionInput
+        }
+      );
+
+      await fetchAllPrfList();
+
+      // Send email
+      try {
+        await axios.post(
+          `http://localhost:5000/api/rejected/${selectedPrf.Id}`,
+          {
+            userFullName: userFullName || "Admin User",
+            senderEmail: process.env.REACT_APP_SMTP_USER || "",
+            smtpPassword: process.env.REACT_APP_SMTP_PASSWORD || "",
+            rejectionReason: rejectionInput
+          }
+        );
+      } catch (emailError) {
+        console.warn("[REJECT] Email error:", emailError.message);
+      }
+
+      // Update UI
+      const updatedPrfList = prfList.map((prf) =>
+        prf.Id === selectedPrf.Id
+          ? { ...prf, status: "REJECTED", isReject: 1 }
+          : prf
+      );
+
+      setPrfList(updatedPrfList);
+      updateFilteredList(updatedPrfList);
+
+      setIsModalOpen(false);
+      setSelectedPrf(null);
+      setShowRejectInput(false);
+      setRejectionInput("");
+
+      window.dispatchEvent(new Event("prfStatusUpdated"));
+
+      alert("❌ PRF rejected with reason.");
+
+    } catch (error) {
+      console.error("❌ Reject error:", error);
+      alert("Failed to reject PRF.");
+    }
+  };
+
 
   const handleSaveRemarks = async () => {
     if (!selectedId) {
@@ -633,7 +696,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
                       {/* Department Charge */}
                       <td style={{ color: isRejected ? "red" : "inherit" }}>
-                        {prf.departmentCharge || "N/A"}
+                        {prf.projectCode || "N/A"}
                       </td>
 
                       {/* Assigned */}
@@ -827,6 +890,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
 
             <div className="button-container" style={{ marginTop: "24px" }}>
+
               <button onClick={handleSaveRemarks} className="update-admin-button">
                 SAVE
               </button>
@@ -846,7 +910,73 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                   </button>
                 </>
               )}
+
+              <button 
+                onClick={() => setShowRejectInput(true)}
+                className="reject-admin-button"
+                >
+                ❌ REJECT
+              </button>
+
+
             </div>
+              {showRejectInput && (
+                <div style={{
+                  marginTop: "16px",
+                  padding: "16px",
+                  border: "1px solid #f87171",
+                  borderRadius: "8px",
+                  backgroundColor: "#fff1f2"
+                }}>
+                  <h4 style={{ color: "#dc2626" }}>Reason for Rejection</h4>
+
+                  <textarea
+                    value={rejectionInput}
+                    onChange={(e) => setRejectionInput(e.target.value)}
+                    placeholder="Enter reason for rejection..."
+                    style={{
+                      width: "100%",
+                      marginTop: "8px",
+                      padding: "8px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      minHeight: "80px"
+                    }}
+                  />
+
+                  <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+                    <button
+                      onClick={handleConfirmReject}
+                      style={{
+                        backgroundColor: "#dc2626",
+                        color: "white",
+                        padding: "8px 12px",
+                        borderRadius: "6px",
+                        border: "none"
+                      }}
+                    >
+                      Confirm Reject
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowRejectInput(false);
+                        setRejectionInput("");
+                      }}
+                      style={{
+                        backgroundColor: "#9ca3af",
+                        color: "white",
+                        padding: "8px 12px",
+                        borderRadius: "6px",
+                        border: "none"
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
           </div>
         )}
       </Modal>
