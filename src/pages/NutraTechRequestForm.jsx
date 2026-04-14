@@ -1808,26 +1808,6 @@ const NutraTechForm = () => {
           </div>
         </div>
       </div>
-      <style jsx>{`
-      
-        /* Adjust other column widths to accommodate larger date column */
-        :global(th:nth-child(1), td:nth-child(1)) { width: 12% !important; }  /* STOCK CODE */
-        :global(th:nth-child(2), td:nth-child(2)) { width: 8% !important; }   /* QUANTITY */
-        :global(th:nth-child(3), td:nth-child(3)) { width: 10% !important; }  /* UNIT */
-        :global(th:nth-child(4), td:nth-child(4)) { width: 36% !important; }  /* DESCRIPTION */
-        :global(th:nth-child(5), td:nth-child(5)) { width: 16% !important; }  /* DATE NEEDED */
-        :global(th:nth-child(6), td:nth-child(6)) { width: 18% !important; }  /* PURPOSE */
-
-        button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        
-        input:read-only {
-          background-color: ${isPrfCancelled ? "rgba(255, 0, 0, 0.05)" : "inherit"};
-        }
-        
-      `}</style>
     </>
   )
 }
