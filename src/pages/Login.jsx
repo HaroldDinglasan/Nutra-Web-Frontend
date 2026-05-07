@@ -115,6 +115,7 @@ const Login = () => {
           departmentType: data.user.departmentType,
           departmentId: data.user.departmentId,
           company: selectedCompany,
+          role: data.user.role,
         }
 
         // Store unified user data for all components
@@ -126,6 +127,7 @@ const Login = () => {
         localStorage.setItem("userDepartmentId", data.user.departmentId) // Store department Id
         localStorage.setItem("userCompany", selectedCompany) // Store selected Company
         localStorage.setItem("userId", data.user.userID) // Store the userID
+        localStorage.setItem("userRole", data.user.role)
 
         // ✅ Special admin users
         const specialAdmins = ["Neca P. Conde"]
@@ -142,7 +144,6 @@ const Login = () => {
         const isAdmin = isPurchasingAdmin || isSpecialAdmin
 
         // Store user role
-        localStorage.setItem("userRole", isAdmin ? "admin" : "user")
         localStorage.setItem("isAdmin", isAdmin)
 
         if (pendingPrfData && pendingPrfData.prfId) {

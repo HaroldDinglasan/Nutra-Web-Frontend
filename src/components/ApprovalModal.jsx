@@ -163,7 +163,7 @@ const ApprovalModal = ({ onClose }) => {
           break
         
         case "HR":
-          defaultCheckedBy = "" // table SecuritySystemUser
+          defaultCheckedBy = "Fhringles Maala" // table SecuritySystemUser
           defaultApprovedBy = "Jennifer June G. Cambongga" // table SecuritySystemUser
           break
 

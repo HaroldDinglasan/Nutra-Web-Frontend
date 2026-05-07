@@ -5,6 +5,8 @@ import { useLocation } from "react-router-dom"
 import axios from "axios"
 import "../styles/DashboardAdmin.css"
 import AdminPurchaseList from "../components/AdminPurchaseList"
+import CooApprovalList from "../components/CooApprovalList"
+import CheckedByApprovalList from "../components/CheckedByApprovalList"
 
 const PrfList = () => {
   const location = useLocation()
@@ -13,12 +15,13 @@ const PrfList = () => {
   const [searchTerm, setSearchTerm] = useState("") // Store search term
   const [isPolling, setIsPolling] = useState(false) // Store polling state
   const showDashboard = location.hash === "#dashboard"
- 
   // Get user fullname and role from localStorage
   const fullname = localStorage.getItem("userFullname") || "User"
   const userRole = localStorage.getItem("userRole") || "user"
   const userDepartment = localStorage.getItem("userDepartment") || "Department"
   const isAdmin = userRole === "admin"
+  const isCOO = fullname === "Andrea Castillo"
+  const isCheckedBy = userRole === "checkedby"
 
   const [companyName, setCompanyName] = useState("")
 
@@ -42,7 +45,7 @@ const PrfList = () => {
     }
 
     setCompanyName(fullName)
-  })
+  }, [])
 
   useEffect(() => {
     if (!showDashboard) {
@@ -304,6 +307,15 @@ const PrfList = () => {
         <>
           {isAdmin ? (
             <AdminPurchaseList showDashboard={true} />
+          ) : isCOO ? (
+            <CooApprovalList />
+          ) : isCheckedBy ? (
+            <>
+              <CheckedByApprovalList />
+              <div className="welcome-container">
+                <h2>Welcome to {companyName}, {fullname}</h2>
+              </div>
+            </>
           ) : (
             <div className="welcome-container">
               <h2>Welcome to {companyName}, {fullname}</h2>
@@ -314,6 +326,8 @@ const PrfList = () => {
         <>
           {isAdmin ? (
             <AdminPurchaseList showDashboard={false} />
+          ) : isCOO ? (
+            <CooApprovalList />
           ) : (
             <div className="log-table-container">
               <div className="search-container">
