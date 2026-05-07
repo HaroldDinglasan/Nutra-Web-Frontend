@@ -29,7 +29,11 @@ const AppLayout = ({ children }) => {
   // Kinukuha yung user role sa local storage
   const userRole = localStorage.getItem("userRole") || "user"
   const isAdmin = userRole === "admin"
+  const fullname = localStorage.getItem("userFullname") || "User"
 
+  // Check if COO (Andrea Castillo)
+  const isCOO = fullname === "Andrea Castillo"
+  
   useEffect(() => {
     if (location.pathname === "/prf/list") {
       if (location.hash === "#dashboard") {
@@ -332,8 +336,6 @@ const AppLayout = ({ children }) => {
     }
   }
 
-  const fullname = localStorage.getItem("userFullname") || "User"
-
   return (
     <div className="nutra-container">
       <div className="admin-dashboard">
@@ -493,35 +495,36 @@ const AppLayout = ({ children }) => {
               </div>
               <span className="dashboard-label">{isAdmin ? "Admin Dashboard" : "Dashboard"}</span>
             </div>
-
-            <div
-              className={`sidebar-item ${activeSection === "list" ? "active" : ""}`}
-              onClick={navigateToPurchaseList}
-            >
-              <div className="sidebar-indicator"></div>
-              <div className="sidebar-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="8" y1="6" x2="21" y2="6"></line>
-                  <line x1="8" y1="12" x2="21" y2="12"></line>
-                  <line x1="8" y1="18" x2="21" y2="18"></line>
-                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                </svg>
+            
+            {!isCOO && (
+              <div
+                className={`sidebar-item ${activeSection === "list" ? "active" : ""}`}
+                onClick={navigateToPurchaseList}
+              >
+                <div className="sidebar-indicator"></div>
+                <div className="sidebar-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                </div>
+                <span className="dashboard-label">{isAdmin ? "Purchase Requests" : "Purchase List"}</span>
               </div>
-              <span className="dashboard-label">{isAdmin ? "Purchase Requests" : "Purchase List"}</span>
-            </div>
-
+            )}
             {/* Only show PRF Request for regular users, not admins */}
             {!isAdmin && (
               <div

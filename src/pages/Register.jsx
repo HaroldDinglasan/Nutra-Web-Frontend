@@ -267,7 +267,7 @@ const Register = () => {
               <option value="ARND">ARND</option> 
               <option value="MMD">MMD</option> 
               <option value="ENGINEERING">ENGINEERING</option>
-              <option value="APPROVERS">APPROVERS</option> 
+              {/* <option value="APPROVERS">APPROVERS</option>  */}
             </select>
             <img src={departmentIcon || "/placeholder.svg"} alt="Dept Icon" className="dropdown-icon" />
           </div>

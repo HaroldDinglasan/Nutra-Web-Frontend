@@ -1,0 +1,108 @@
+.coo-container {
+  padding: 20px;
+  background: #f4f9f4;
+  min-height: 100vh;
+}
+
+.coo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.coo-header h2 {
+  color: #2e7d32;
+  margin: 0;
+}
+
+.coo-count {
+  background: #2e7d32;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.loading-text,
+.empty-text {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.coo-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.coo-table thead {
+  background: #2e7d32;
+  color: rgb(63, 62, 62);
+}
+
+.coo-table th {
+  padding: 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.coo-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.coo-table tbody tr:hover {
+  background: #f1f8f1;
+  transition: 0.2s;
+}
+
+
+/* Status Badge */
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.pending {
+  background: #c8e6c9;
+  color: #256029;
+}
+
+/* Buttons */
+.approve-btn {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  margin-right: 5px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.approve-btn:hover {
+  background: #1b5e20;
+}
+
+.reject-btn:hover {
+  background: #c62828;
+}
