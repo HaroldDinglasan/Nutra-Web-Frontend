@@ -79,6 +79,7 @@ const CooApprovalList = () => {
                         action="approve"
                         assignedAction="approve" 
                         prfId={item.prfId}
+                        checkedByStatus={item.checkedBy_Status}
                         onAction={handleAfterAction}
                     />
                     </td>

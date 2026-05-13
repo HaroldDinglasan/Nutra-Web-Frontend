@@ -8,6 +8,7 @@ const ApprovalButtonAction = ({
   assignedAction, // kung saan i aasign si user galing email
   onAction, 
   prfId, // Added prfId prop for API call
+  checkedByStatus,
   onClearForm, // Callback to clear the form after approval/rejection
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -43,6 +44,16 @@ const ApprovalButtonAction = ({
   }
 
   const handleClick = () => {
+
+    // Validation for COO / Approver 2
+    if (
+      action === "approve" &&
+      checkedByStatus?.toUpperCase() !== "APPROVED"
+    ) {
+      alert("This PRF is not yet approved by Checked By.")
+      return
+    }
+
     setIsModalOpen(true)
   }
 
