@@ -9,6 +9,7 @@ const ApprovalButtonAction = ({
   onAction, 
   prfId, // Added prfId prop for API call
   checkedByStatus,
+  departmentType,
   onClearForm, // Callback to clear the form after approval/rejection
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -46,8 +47,12 @@ const ApprovalButtonAction = ({
   const handleClick = () => {
 
     // Validation for COO / Approver 2
+    // OTC department by passes Checked By validation
+    const isOTC = departmentType?.toUpperCase() === "OTC"
+
     if (
       action === "approve" &&
+      !isOTC &&
       checkedByStatus?.toUpperCase() !== "APPROVED"
     ) {
       alert("This PRF is not yet approved by Checked By.")

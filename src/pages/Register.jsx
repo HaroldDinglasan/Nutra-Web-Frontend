@@ -354,12 +354,13 @@ const Register = () => {
         </button>
 
         <div className="register-login-link">
-          <p>
-            Already have an Account?{" "}
-            <Link to="/login" className="login-click">
-              Login here
-            </Link>
-          </p>
+            <p
+              className="login-click"
+              onClick={() => navigate("/login")}
+              style={{ cursor: "pointer" }}
+            >
+              Already have an Account? Login here
+            </p>
         </div>
         
       </form>

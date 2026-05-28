@@ -80,6 +80,7 @@ const CooApprovalList = () => {
                         assignedAction="approve" 
                         prfId={item.prfId}
                         checkedByStatus={item.checkedBy_Status}
+                        departmentType={item.departmentType}
                         onAction={handleAfterAction}
                     />
                     </td>

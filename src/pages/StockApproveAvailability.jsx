@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "../styles/StockApproveAvailability.css";
-
+  
 const StockApproveAvailability = () => {
   
   // Gets the current URL (including the ?parameters)
@@ -17,6 +17,8 @@ const StockApproveAvailability = () => {
 
   const [stockCode, setStockCode] = useState(params.get("stockCode"));
   const [stockName, setStockName] = useState(params.get("stockName"));
+
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const [stockItems, setStockItems] = useState([]);
 
@@ -72,6 +74,7 @@ const StockApproveAvailability = () => {
               prfId,
               stockCode: item.stockCode,
               stockName: item.stockName,
+              reason: rejectionReason,
               verifiedBy,
             }),
           });
@@ -86,6 +89,7 @@ const StockApproveAvailability = () => {
         setPrfId("");
         setStockCode("");
         setStockName("");
+        setRejectionReason("");
         setPrfNo("");
 
         setMessage("success");
@@ -103,6 +107,7 @@ const StockApproveAvailability = () => {
               prfId,
               stockCode,
               stockName,
+              reason: rejectionReason,
               verifiedBy,
             }),
           }
@@ -124,6 +129,7 @@ const StockApproveAvailability = () => {
         setPrfId("");
         setStockCode("");
         setStockName("");
+        setRejectionReason("");
         setPrfNo("");
 
         setMessage("success");
@@ -136,10 +142,104 @@ const StockApproveAvailability = () => {
     }
   };
 
+  // Function that runs when REJECT button is clicked
+  const handleReject = async () => {
+    if (!verifiedBy) {
+      alert("Please fill in Verified By.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Multiple items
+      if (stockItems.length > 0) {
+        for (const item of stockItems) {
+          await fetch("http://localhost:5000/api/cgs-stock/reject", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              prfId,
+              stockCode: item.stockCode,
+              stockName: item.stockName,
+              reason: rejectionReason,
+              verifiedBy,
+              rejectType: "wrong-stock-code",
+            }),
+          });
+        }
+
+        alert("All stocks marked as NOT AVAILABLE.");
+
+        // Clear fields
+        setStockItems([]);
+        setNotedBy("");
+        setVerifiedBy("");
+        setPrfId("");
+        setStockCode("");
+        setStockName("");
+        setRejectionReason("");
+        setPrfNo("");
+
+        setMessage("reject-success");
+
+      } else {
+        // Single item
+        const response = await fetch(
+          "http://localhost:5000/api/cgs-stock/reject",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              prfId,
+              stockCode,
+              stockName,
+              reason: rejectionReason,
+              verifiedBy,
+              rejectType: "wrong-stock-code",
+
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.message);
+          return;
+        }
+
+        alert("Stock marked as NOT AVAILABLE successfully.");
+
+        // Clear fields
+        setStockItems([]);
+        setNotedBy("");
+        setVerifiedBy("");
+        setPrfId("");
+        setStockCode("");
+        setStockName("");
+        setRejectionReason("");
+        setPrfNo("");
+
+        setMessage("reject-success");
+      }
+
+    } catch (error) {
+      alert("Server error occurred.");
+      setMessage("error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="approve-page">
       <div className="approve-card">
-        <h2 className="reject-title">Stock Availability Review – Approved</h2>
+        <h2 className="reject-title">Stock Availability Review</h2>
 
         <div className="approve-field">
           <label>PRF No</label>
@@ -181,15 +281,15 @@ const StockApproveAvailability = () => {
           )}
         </div>
 
-        {/* <div className="approve-field">
-            <label>Noted By</label>
+        <div className="reject-field">
+            <label>Rejection Reason: </label>
             <input
               type="text"
-              placeholder="Enter name"
-              value={notedBy}
-              onChange={(e) => setNotedBy(e.target.value)}
-            />
-        </div> */}
+              placeholder=""
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              />
+        </div>
 
         <div className="approve-footer">
 
@@ -203,17 +303,33 @@ const StockApproveAvailability = () => {
               />
           </div>
 
-          <button
-            className="approve-button"
-            onClick={handleApprove}
-            disabled={loading}
-          >
-            {loading ? "Processing..." : "APPROVE"}
-          </button>
+          <div className="button-group">
+            <button
+              className="approve-button"
+              onClick={handleApprove}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "APPROVE"}
+            </button>
+
+            <button
+              className="reject-button"
+              onClick={handleReject}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "REJECT"}
+            </button>
+          </div>
 
           {message === "success" && (
             <p className="approve-message success">
               ✅ Stock marked as AVAILABLE successfully.
+            </p>
+          )}
+
+          {message === "reject-success" && (
+            <p className="approve-message error">
+              ⚠️ Stock marked as NOT AVAILABLE successfully.
             </p>
           )}
 
