@@ -15,13 +15,29 @@
 }
 
 .login-box-container{
-    width: 500px; 
-    height: 600px;
-    background-color: white;
-    opacity: 0.8; 
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    outline: 1px solid #c1c0c0;
+    width: 500px;
+
+    min-height: 600px;
+
+    background: rgba(255, 255, 255, 0.72); /* transparency */
+    
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+
+    border-radius: 18px;
+
+    border-top: 5px solid #0b5d1e;
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    transition: all 0.3s ease;
+}
+
+.login-box-container:hover{
+    transform: translateY(-3px);
 }
 
 .login-header{
@@ -100,21 +116,25 @@ h1 {
     justify-content: center;
     align-items: center;
     width: 45%;
-    height: 40px;
-    background-color: green;
+    height: 45px;
+    background: linear-gradient(to right, #0b5d1e, #1d8f36);
     color: white;
     padding: 10px;
     font-size: 16px;
     font-weight: bold;
-    border-radius: 5px;
+    border-radius: 8px;
     text-align: center;
     cursor: pointer;
     margin: 35px auto;
     border: none;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(11, 93, 30, 0.25);
 }
 
 .login-button:hover{
-    background-color: darkgreen;
+    background: linear-gradient(to right, #084616, #146d28);
+    transform: scale(1.03);
 }
 
 .login-register-link{
@@ -125,6 +145,7 @@ h1 {
     color: #007F00;
     cursor: pointer;
     margin-top: -25px;
+    margin-bottom: 20px;
 }
 
 .log-input-container {
@@ -241,6 +262,32 @@ h1 {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   z-index: 9999;
   animation: slideInRight 0.4s ease, fadeOut 0.4s ease 2.6s;
+}
+
+.system-title-container{
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.system-title{
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0b5d1e;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+}
+
+.system-title::after{
+    content: "";
+    width: 80%;
+    height: 4px;
+    background: linear-gradient(to right, #0b5d1e, #39b54a);
+    display: block;
+    margin: 8px auto 0;
+    border-radius: 10px;
 }
 
 

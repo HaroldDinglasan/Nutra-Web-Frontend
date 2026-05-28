@@ -79,6 +79,8 @@ const StockRejectAvailability = () => {
               notedBy,
               verifiedBy,
               reason: rejectionReason,
+              rejectType: "stock-available-ris",
+
             }),
           });
         }
@@ -112,6 +114,7 @@ const StockRejectAvailability = () => {
               notedBy,
               verifiedBy,
               reason: rejectionReason,
+              rejectType: "stock-available-ris",
             }),
           }
         );
@@ -149,7 +152,7 @@ const StockRejectAvailability = () => {
   return (
     <div className="reject-page">
       <div className="reject-card">
-        <h2 className="reject-title">Stock Availability Review – Rejected</h2>
+        <h2 className="reject-title">Stock Availability Review</h2>
 
         <div className="reject-field">
           <label>PRF No</label>

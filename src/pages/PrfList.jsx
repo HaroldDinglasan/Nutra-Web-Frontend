@@ -311,10 +311,13 @@ const PrfList = () => {
             <CooApprovalList />
           ) : isCheckedBy ? (
             <>
-              <CheckedByApprovalList />
+            
               <div className="welcome-container">
                 <h2>Welcome to {companyName}, {fullname}</h2>
               </div>
+
+              <CheckedByApprovalList />
+
             </>
           ) : (
             <div className="welcome-container">

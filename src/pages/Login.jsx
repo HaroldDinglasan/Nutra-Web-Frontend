@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
-import regLogo from "../assets/fullLogo.jpg"
+import regLogo from "../assets/FULL-LOGO.png"
 import departmentIcon from "../assets/down.png"
 import userIcon from "../assets/user-icon.png"
 import eyeOpenIcon from "../assets/eye-open.png"
@@ -213,7 +213,9 @@ const Login = () => {
           </div>
         </div>
 
-        <h1>Login</h1>
+        <div className="system-title-container">
+          <h1 className="system-title">Purchase Requisition System</h1>
+        </div>
 
         <div className="login-field-box">
           <label htmlFor="deptype" className="dept-label">
@@ -268,13 +270,15 @@ const Login = () => {
         </button>
 
         <div className="login-register-link">
-          <p>
-            Don't have an Account?{" "}
-            <a className="reg-click" href="register/form">
-              Click here
-            </a>
+          <p
+            className="reg-click"
+            onClick={() => navigate("/register/form")}
+            style={{ cursor: "pointer" }}
+          >
+            Don't have an Account? Click here
           </p>
         </div>
+
       </div>
     </form>
   )
