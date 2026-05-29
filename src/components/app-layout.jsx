@@ -31,8 +31,7 @@ const AppLayout = ({ children }) => {
   const isAdmin = userRole === "admin"
   const fullname = localStorage.getItem("userFullname") || "User"
 
-  // Check if COO (Andrea Castillo)
-  const isCOO = fullname === "Andrea Castillo"
+  const isExecutive = userRole.toLocaleLowerCase() === "executive" 
   
   useEffect(() => {
     if (location.pathname === "/prf/list") {
@@ -496,7 +495,7 @@ const AppLayout = ({ children }) => {
               <span className="dashboard-label">{isAdmin ? "Admin Dashboard" : "Dashboard"}</span>
             </div>
             
-            {!isCOO && (
+            {!isExecutive && (
               <div
                 className={`sidebar-item ${activeSection === "list" ? "active" : ""}`}
                 onClick={navigateToPurchaseList}

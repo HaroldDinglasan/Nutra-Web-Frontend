@@ -5,33 +5,55 @@ import axios from "axios"
 import "../styles/CooApprovalList.css"
 import ApprovalButtonAction from "./ApprovalButtonAction"
 
-const CooApprovalList = () => {
+const ExecutiveApprovalList = () => {
   const [prfs, setPrfs] = useState([])
   const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await axios.get("http://localhost:5000/api/pending-coo")
-                setPrfs(res.data)
-            } catch (error) {
-                console.error("Error fetching COO PRFs:", error)
-            } finally {
-                setLoading(false)
-            }
-        }
+  const fullName = localStorage.getItem("userFullname") || ""
 
-        fetchData()
-    }, [])
+  const fetchPendingPrfs = async () => {
 
-    const handleAfterAction = async () => {
-        try {
-            const res = await axios.get("http://localhost:5000/api/pending-coo")
-            setPrfs(res.data)
-        } catch (error) {
-            console.error("Error refreshing PRFs:", error)
+    console.log("FULLNAME:", fullName)
+
+    try{
+
+      const res = await axios.get(
+        "http://localhost:5000/api/pending-coo",
+        {
+          params:{
+            approvedBy: fullName
+          }
         }
+      )
+
+      setPrfs(res.data)
+
+    }catch(error){
+
+      console.error(error)
+
+    }finally{
+
+      setLoading(false)
+
     }
+
+  }
+
+  useEffect(()=>{
+
+    fetchPendingPrfs()
+
+    console.log("Logged in fullname:", fullName)
+
+
+  },[])
+
+
+  const handleAfterAction = () => {
+
+    fetchPendingPrfs()
+  }
   
 
   return (
@@ -95,4 +117,4 @@ const CooApprovalList = () => {
   )
 }
 
-export default CooApprovalList
+export default ExecutiveApprovalList
