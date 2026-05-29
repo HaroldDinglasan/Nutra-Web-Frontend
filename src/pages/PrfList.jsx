@@ -19,8 +19,9 @@ const PrfList = () => {
   const fullname = localStorage.getItem("userFullname") || "User"
   const userRole = localStorage.getItem("userRole") || "user"
   const userDepartment = localStorage.getItem("userDepartment") || "Department"
+
   const isAdmin = userRole === "admin"
-  const isCOO = fullname === "Andrea Castillo"
+  const isExecutive = userRole.toLowerCase() === "executive"
   const isCheckedBy = userRole === "checkedby"
 
   const [companyName, setCompanyName] = useState("")
@@ -307,7 +308,7 @@ const PrfList = () => {
         <>
           {isAdmin ? (
             <AdminPurchaseList showDashboard={true} />
-          ) : isCOO ? (
+          ) : isExecutive ? (
             <CooApprovalList />
           ) : isCheckedBy ? (
             <>
@@ -329,7 +330,7 @@ const PrfList = () => {
         <>
           {isAdmin ? (
             <AdminPurchaseList showDashboard={false} />
-          ) : isCOO ? (
+          ) : isExecutive ? (
             <CooApprovalList />
           ) : (
             <div className="log-table-container">

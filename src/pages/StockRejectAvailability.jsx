@@ -195,7 +195,7 @@ const StockRejectAvailability = () => {
         </div>
 
         <div className="reject-field">
-            <label>Rejection Reason: </label>
+            <label>Remarks: </label>
             <input
               type="text"
               placeholder=""
@@ -217,7 +217,7 @@ const StockRejectAvailability = () => {
         <div className="approve-footer">
 
           <div className="reject-field">
-              <label>Verified By</label>
+              <label>Verified By:</label>
               <input
                 type="text"
                 placeholder="Enter name"
