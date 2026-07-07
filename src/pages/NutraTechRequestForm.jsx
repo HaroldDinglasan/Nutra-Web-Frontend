@@ -650,18 +650,36 @@ const NutraTechForm = () => {
     }
   }
 
+  // JUNE 7, 2026
+  // MODIFIED (APPLY THE MAP COMPANY CODES)
   useEffect(() => {
     if (location.state && location.state.company) {
-      setCompany(location.state.company)
+      const passedCompany = location.state.company
+      console.log("[v0] DEBUG: location.state.company (raw) =", passedCompany)
+      
+      // Map company codes to full names for the mapping to work
+      const companyCodeToNameMap = {
+        "NTBI": "NutraTech Biopharma, Inc",
+        "AVLI": "Avli Biocare, Inc",
+        "APHI": "Apthealth, Inc",
+      }
+      
+      // If the passed company is a code, map it to full name; otherwise keep as-is
+      const companyToSet = companyCodeToNameMap[passedCompany] || passedCompany
+      console.log("[v0] DEBUG: setting company to =", companyToSet)
+      setCompany(companyToSet)
     } else {
       alert("No company selected. Please login again.")
       navigate("/login")
     }
   }, [location.state, navigate])
 
-  // Generate a unique purchase code
+  // JUNE 7, 2026
+  // MODIFIED 
+   // Generate a unique purchase code
   useEffect(() => {
     if (company) {
+      console.log("[v0] DEBUG: generatePurchaseCode called with company =", company)
       generatePurchaseCode(company)
     }
   }, [company])
@@ -915,13 +933,15 @@ const NutraTechForm = () => {
     setCurrentDate(event.target.value)
   }
 
+  // JUNE 7, 2026 MODIFIED
+  // BINAGO ANG LETTER NG APTHEALTH COMPANY TO LETTER H
   // Generate a unique purchase code based on company name
   const generatePurchaseCode = (companyName) => {
     // Map company names to their specific code letters
     const companyCodeMap = {
       "NutraTech Biopharma, Inc": "N",
       "Avli Biocare, Inc": "B",
-      "Apthealth, Inc": "P",
+      "Apthealth, Inc": "H",
     }
 
     // Get the correct letter for the company
@@ -1452,7 +1472,7 @@ const NutraTechForm = () => {
           <div className="header">
             <div>
               <div className="logo">
-                <img src={companyLogos[company] || "/placeholder.svg"} alt="Company Logo" />
+                <img src={headerLogos[company] || "/placeholder.svg"} alt="Company Logo" />
               </div>
               <h3 className="header-three">Brgy. Balubad II, Silang Cavite, Philippines</h3>
               <h3 className="header-four">Tels.: • (02) 579-0954 • (02) 986-0729 • (02) 925-9515</h3>
@@ -1668,21 +1688,11 @@ const NutraTechForm = () => {
                         onChange={(e) => handleInputChange(index, e)}
                         readOnly={isPrfCancelled || !isPrfSameDay}
                         rows={2}
-                        style={{
-                          width: "100%",
-                          resize: "vertical",
-                          color: isPrfCancelled ? "red" : "inherit",
-                          overflow: "hidden",
-                          fontFamily: "inherit",
-                          fontSize: "14px",
-                          boxSizing: "border-box"
-                        }}
+                        className="description-textarea"
                         onKeyDown={(e) => {
-                          // Enter alone does nothing
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
                           }
-                          // Shift + Enter automatically inserts a new line
                         }}
                       />
                     </td>
