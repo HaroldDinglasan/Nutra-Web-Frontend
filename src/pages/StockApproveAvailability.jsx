@@ -80,7 +80,7 @@ const StockApproveAvailability = () => {
           });
         }
 
-        alert("All stocks marked as AVAILABLE.");
+        alert("Stocks marked not available proceed to PRF");
 
         // ✅ CLEAR ALL FIELDS (after success)
         setStockItems([]);
@@ -120,7 +120,7 @@ const StockApproveAvailability = () => {
           return;
         }
 
-        alert("Stock marked as AVAILABLE successfully.");
+        alert("Stocks marked not available proceed to PRF");
 
         // ✅ CLEAR ALL FIELDS (after success)
         setStockItems([]);
@@ -171,7 +171,7 @@ const StockApproveAvailability = () => {
           });
         }
 
-        alert("All stocks marked as NOT AVAILABLE.");
+        alert("Request Rejected");
 
         // Clear fields
         setStockItems([]);
@@ -213,7 +213,7 @@ const StockApproveAvailability = () => {
           return;
         }
 
-        alert("Stock marked as NOT AVAILABLE successfully.");
+        alert("Request Rejected");
 
         // Clear fields
         setStockItems([]);

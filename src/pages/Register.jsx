@@ -253,6 +253,7 @@ const Register = () => {
               <option value="AUDIT">AUDIT</option>
               <option value="LEGAL">LEGAL</option>
               <option value="ACCOUNTING">ACCOUNTING</option>
+              <option value="TREASURY">TREASURY</option>
               <option value="HR">HR</option>
               <option value="MARKETING">MARKETING</option>
               <option value="REGULATORY">REGULATORY</option>

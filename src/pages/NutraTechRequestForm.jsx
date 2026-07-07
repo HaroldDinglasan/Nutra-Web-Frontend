@@ -1490,9 +1490,9 @@ const NutraTechForm = () => {
                       ))}
                   </select>
                 </div>
-                <div className="stock-count">
+                {/* <div className="stock-count">
                   Showing of {totalProjectCode} items
-                </div>
+                </div> */}
 
               {/* <input type="text"id="department"className="department-type" value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="Enter department" />            */}
 
@@ -1662,13 +1662,28 @@ const NutraTechForm = () => {
                       />
                     </td>
                     <td>
-                      <input
-                        type="text"
+                      <textarea
                         name="description"
                         value={row.description}
                         onChange={(e) => handleInputChange(index, e)}
                         readOnly={isPrfCancelled || !isPrfSameDay}
-                        style={{ color: isPrfCancelled ? "red" : "inherit" }}
+                        rows={2}
+                        style={{
+                          width: "100%",
+                          resize: "vertical",
+                          color: isPrfCancelled ? "red" : "inherit",
+                          overflow: "hidden",
+                          fontFamily: "inherit",
+                          fontSize: "14px",
+                          boxSizing: "border-box"
+                        }}
+                        onKeyDown={(e) => {
+                          // Enter alone does nothing
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                          }
+                          // Shift + Enter automatically inserts a new line
+                        }}
                       />
                     </td>
                     <td className="date-needed-cell">

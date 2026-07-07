@@ -85,7 +85,7 @@ const StockRejectAvailability = () => {
           });
         }
 
-        alert("Stock marked as NOT AVAILABLE successfully.");
+        alert("Stocks marked available proceed to RIS.");
 
         // ✅ Clear inputs after success
         setNotedBy("");
@@ -127,7 +127,8 @@ const StockRejectAvailability = () => {
           return;
         }
 
-        alert("Stock marked as REJECTED successfully.");
+          alert("Stocks marked available proceed to RIS.");
+
 
         // ✅ Clear inputs after success
         setNotedBy("");
