@@ -103,10 +103,10 @@ td input {
     background: transparent;
     width: 100%;
     text-align: center;
-    padding: 2px 0; 
+    padding: 6px 4px;
     line-height: 1.2; 
-    font-size: 14px; 
-    height: 20px; 
+    font-size: 14px;
+    height: 32px;
     vertical-align: middle; 
     appearance: none; 
     -webkit-appearance: none;
@@ -481,8 +481,8 @@ h3 {
 
 .table-container table th:nth-child(5),
 .table-container table td:nth-child(5) {
-  width: 15% !important;
-  min-width: 140px !important;
+    width: 18% !important;
+    min-width: 170px !important;
 }
 
 
@@ -833,10 +833,10 @@ h3 {
         background: transparent;
         width: 100%;
         text-align: center;
-        padding: 0px; 
-        line-height: 1;
-        font-size: 10px; 
-        height: auto; 
+        padding: 5px 3px !important;
+        line-height: 20px !important;
+        font-size: 12px !important;
+        height: 28px !important;
         vertical-align: middle;
     }
 }
@@ -851,9 +851,9 @@ h3 {
 @media print {
   .table-container table th:nth-child(5),
   .table-container table td:nth-child(5) {
-    width: 16% !important;
-    min-width: 120px !important;
-  }
+        width: 18% !important;
+        min-width: 170px !important;
+    }
 
   .date-needed-cell .date-input-container {
     border: 1px solid #ccc !important;
@@ -892,8 +892,8 @@ h3 {
 
 @media print {
     .date-needed-cell {
-        width: 16% !important;
-        min-width: 120px !important;
+        width: 18% !important;
+        min-width: 170px !important;
     }
           
     .date-input-container {
