@@ -15,6 +15,7 @@ import { CancelButton, AddRowButton, UncancelButton } from "../components/button
 import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
 import ApprovalButtonAction from "../components/ApprovalButtonAction"
+import ApprovalStamp from "../components/ApprovalStamp"
   
 const NutraTechForm = () => {
   // State variables
@@ -47,6 +48,10 @@ const NutraTechForm = () => {
 
   const [projectCodes, setProjectCodes] = useState([])
   const [selectedProjectCode, setSelectedProjectCode] = useState("")
+  
+  // State for approval status validation
+  const [checkedByStatus, setCheckedByStatus] = useState("")
+  const [departmentType, setDepartmentType] = useState("")
 
   const getSearchParams = () => {
     return new URLSearchParams(location.search)
@@ -309,6 +314,15 @@ const NutraTechForm = () => {
         setIsCancel(data.header.isCancel)
 
         setSelectedProjectCode(data.header.projectCode)
+        
+        // ✅ Extract approval status from database
+        setCheckedByStatus(data.header.checkedBy_Status || "")
+        setDepartmentType(data.header.departmentType || "")
+        
+        console.log("[v0] Approval Status:", {
+          checkedByStatus: data.header.checkedBy_Status,
+          departmentType: data.header.departmentType,
+        })
 
         // kapag galing sa Outlook link, gamitin ang emailLinkPreparedBy 
         if (emailLinkPreparedBy) {
@@ -413,17 +427,28 @@ const NutraTechForm = () => {
           const response = await fetch(`http://localhost:5000/api/prf/${id}`);
           const data = await response.json();
 
-          if (response.ok && data.approvalNames && !hasEmailLinkApprovals) {
-            // Set approval names from API
-            setApprovalNames({
-              checkedByUser: data.approvalNames.checkedByUser || "",
-              approvedByUser: data.approvalNames.approvedByUser || "",
-              receivedByUser: data.approvalNames.receivedByUser || "",
-            });
-            // Store to localStorage
-            localStorage.setItem("checkedByUser", data.approvalNames.checkedByUser || "");
-            localStorage.setItem("approvedByUser", data.approvalNames.approvedByUser || "");
-            localStorage.setItem("receivedByUser", data.approvalNames.receivedByUser || "");
+          if (response.ok) {
+            // ✅ Extract approval status from database for email link flow
+            setCheckedByStatus(data.header.checkedBy_Status || "")
+            setDepartmentType(data.header.departmentType || "")
+            
+            console.log("[v0] Email Link - Approval Status fetched:", {
+              checkedByStatus: data.header.checkedBy_Status,
+              departmentType: data.header.departmentType,
+            })
+            
+            if (data.approvalNames && !hasEmailLinkApprovals) {
+              // Set approval names from API
+              setApprovalNames({
+                checkedByUser: data.approvalNames.checkedByUser || "",
+                approvedByUser: data.approvalNames.approvedByUser || "",
+                receivedByUser: data.approvalNames.receivedByUser || "",
+              });
+              // Store to localStorage
+              localStorage.setItem("checkedByUser", data.approvalNames.checkedByUser || "");
+              localStorage.setItem("approvedByUser", data.approvalNames.approvedByUser || "");
+              localStorage.setItem("receivedByUser", data.approvalNames.receivedByUser || "");
+            }
           }
         } catch (error) {
           console.error("Error fetching approval names:", error);
@@ -1793,6 +1818,8 @@ const NutraTechForm = () => {
                   onAction={handleApprovalAction}
                   className="approval-button"
                   prfId={prfId}
+                  checkedByStatus={checkedByStatus}
+                  departmentType={departmentType}
                   onClearForm={clearFormAfterApproval}
                 />
               )}
@@ -1809,6 +1836,8 @@ const NutraTechForm = () => {
                   onAction={handleApprovalAction}
                   className="approval-button"
                   prfId={prfId}
+                  checkedByStatus={checkedByStatus}
+                  departmentType={departmentType}
                   onClearForm={clearFormAfterApproval}
                 />
               )}
@@ -1825,6 +1854,8 @@ const NutraTechForm = () => {
                   onAction={handleApprovalAction}
                   className="approval-button"
                   prfId={prfId}
+                  checkedByStatus={checkedByStatus}
+                  departmentType={departmentType}
                   onClearForm={clearFormAfterApproval}
                 />
               )}

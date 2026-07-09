@@ -49,11 +49,21 @@ const ApprovalButtonAction = ({
     // Validation for COO / Approver 2
     // OTC department by passes Checked By validation
     const isOTC = departmentType?.toUpperCase() === "OTC"
+    const isCheckedByApproved = checkedByStatus?.toUpperCase?.() === "APPROVED"
+
+    // ✅ Debug logging
+    console.log("[v0] ApprovalButtonAction validation:", {
+      action,
+      isOTC,
+      checkedByStatus,
+      isCheckedByApproved,
+      departmentType,
+    })
 
     if (
       action === "approve" &&
       !isOTC &&
-      checkedByStatus?.toUpperCase() !== "APPROVED"
+      !isCheckedByApproved
     ) {
       alert("This PRF is not yet approved by Checked By.")
       return
