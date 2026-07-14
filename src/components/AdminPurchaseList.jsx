@@ -639,11 +639,12 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
               <tr>
                 <th>Prf No.</th>
                 <th>Prepared By</th>
-                <th>Date</th>
+                <th>Date Needed</th>
                 <th>Description</th>
                 <th>Quantity</th>
                 <th>Unit</th>
                 <th>Department Charge</th>
+                <th>Purpose</th>
                 <th>Assigned</th>
                 <th>Status</th>
               </tr>
@@ -676,7 +677,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
                       {/* PRF Date*/}
                       <td style={{ color: isRejected ? "red" : "inherit" }}>
-                        {formatDate(prf.prfDate)}
+                        {formatDate(prf.DateNeeded || prf.dateNeeded)}
                       </td>             
 
                       {/* Stock Name*/}
@@ -699,6 +700,11 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                         {prf.projectCode || "N/A"}
                       </td>
 
+                      {/* Purpose */}
+                      <td style={{ color: isRejected ? "red" : "inherit" }}>
+                        {prf.Purpose || "N/A"}
+                      </td>
+
                       {/* Assigned */}
                       <td>
                         {prf.assignedTo || ""}
@@ -715,7 +721,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 })
               ) : (
                 <tr>
-                  <td colSpan="9" className="no-results">
+                  <td colSpan="10" className="no-results">
                     No matching PRF records found.
                   </td>
                 </tr>
@@ -789,7 +795,10 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             </div>
 
             <div className="description-section">
-              <h4>Item Description</h4>
+              <h4>Stock Code</h4>
+              <p>{selectedPrf.StockCode || "N/A"}</p>
+
+              <h4 style={{ marginTop: "12px" }}>Item Description</h4>
               <p>{selectedPrf.StockName || "No description available"}</p>
             </div>
 

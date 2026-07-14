@@ -15,7 +15,6 @@ import { CancelButton, AddRowButton, UncancelButton } from "../components/button
 import { savePrfDetails, updatePrfDetails, cancelPrf, uncancelPrf } from "../components/button-function"
 import axios from "axios"
 import ApprovalButtonAction from "../components/ApprovalButtonAction"
-import ApprovalStamp from "../components/ApprovalStamp"
   
 const NutraTechForm = () => {
   // State variables
