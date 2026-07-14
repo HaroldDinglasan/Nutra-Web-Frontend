@@ -416,6 +416,7 @@ const ApprovalModal = ({ onClose }) => {
         approvedBy: formData.approvedByUser,
         receivedBy: formData.receivedByUser,
         secondCheckedBy: formData.secondCheckedByUser,
+        secondCheckedByEmail: formData.secondCheckedByEmail, // ✅ ADD THIS - CRITICAL FIX
       })
 
       // Step 4: Update PRFTABLE sa mga selected names

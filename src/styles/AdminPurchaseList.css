@@ -334,7 +334,7 @@
 
 .log-table th:nth-child(2),
 .log-table td:nth-child(2) {
-  width: 160px; /* Prepared By */
+  width: 140px; /* Prepared By */
 }
 
 .log-table th:nth-child(3),
@@ -349,7 +349,7 @@
 
 .log-table th:nth-child(5),
 .log-table td:nth-child(5) {
-  width: 100px;
+  width: 80px;
   text-align: center;
 }
 
@@ -372,6 +372,12 @@
 
 .log-table th:nth-child(9),
 .log-table td:nth-child(9) {
+  width: 120px;
+  text-align: center;
+}
+
+.log-table th:nth-child(10),
+.log-table td:nth-child(10) {
   width: 120px;
   text-align: center;
 }
