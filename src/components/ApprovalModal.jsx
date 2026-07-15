@@ -360,6 +360,31 @@ const ApprovalModal = ({ onClose }) => {
     setSubmitting(true)
     setError(null)
 
+    // Validate Outlook email fields
+    if (!formData.checkedByEmail.trim()) {
+      alert("Please fill out the Checked By Outlook email field.")
+      setSubmitting(false)
+      return
+    }
+
+    if (departmentType === "WLO" && !formData.secondCheckedByEmail.trim()) {
+      alert("Please fill out the Second Checked By Outlook email field.")
+      setSubmitting(false)
+      return
+    }
+
+    if (!formData.approvedByEmail.trim()) {
+      alert("Please fill out the Approved By Outlook email field.")
+      setSubmitting(false)
+      return
+    }
+
+    if (!formData.receivedByEmail.trim()) {
+      alert("Please fill out the Received By Outlook email field.")
+      setSubmitting(false)
+      return
+    }
+
     if (!currentUserId) {
       const userId = localStorage.getItem("userId")
       if (!userId) {
