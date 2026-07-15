@@ -1614,7 +1614,7 @@ const NutraTechForm = () => {
             </div>
           </div>
 
-          <div className="table-container">
+          <div className="table-container-container">
             <table>
               <thead>
                 <tr>
@@ -1741,18 +1741,27 @@ const NutraTechForm = () => {
                     </td>
                     <td>
                       {row.stockCode ? (
-                        <input
-                          type="text"
+                        <textarea
                           name="purpose"
                           value={row.purpose}
-                          onChange={(e) => handleInputChange(index, e)}
+                          onChange={(e) => {
+                            handleInputChange(index, e);
+                            // Auto-resize textarea to fit content
+                            e.target.style.height = "auto";
+                            e.target.style.height = Math.min(e.target.scrollHeight, 150) + "px";
+                          }}
                           readOnly={isPrfCancelled || !isPrfSameDay}
                           style={{
                             color: isPrfCancelled ? "red" : "inherit",
                             backgroundColor: isPrfCancelled || !isPrfSameDay ? "#f8f9fa" : "white",
                             cursor: isPrfCancelled || !isPrfSameDay ? "not-allowed" : "text",
+                            minHeight: "60px",
+                            height: "auto",
+                            resize: "vertical",
                           }}
+                          className="purpose-textarea"
                           placeholder="Enter purpose"
+                          rows={2}
                         />
                       ) : (
                         <div></div>
@@ -1808,56 +1817,104 @@ const NutraTechForm = () => {
 
             <div className="approval-box-container">
               <h3>Checked By:</h3>
-              <div className="signature-box">{approvalNames.checkedByUser}</div>
-              <p className="signature-label">Signature over printed Name / Date</p>
-              {assignedAction === "check" && (
-                <ApprovalButtonAction
-                  action="check"
-                  assignedAction={assignedAction}
-                  onAction={handleApprovalAction}
-                  className="approval-button"
-                  prfId={prfId}
-                  checkedByStatus={checkedByStatus}
-                  departmentType={departmentType}
-                  onClearForm={clearFormAfterApproval}
+              <div className="approval-signature-container">
+                <img
+                  src="/approval-icon.png"
+                  className="approval-icon"
+                  alt="Checked by icon"
                 />
-              )}
+                <div className="approval-content">
+                  <div className="approval-status">
+                    CHECKED-VERIFIED
+                  </div>
+                  <div className="approval-name">
+                    {approvalNames.checkedByUser}
+                  </div>
+                  <div className="approval-date">
+                    {new Date().toLocaleDateString()}
+                  </div>
+                  {assignedAction === "check" && (
+                    <ApprovalButtonAction
+                      action="check"
+                      assignedAction={assignedAction}
+                      onAction={handleApprovalAction}
+                      className="approval-button"
+                      prfId={prfId}
+                      checkedByStatus={checkedByStatus}
+                      departmentType={departmentType}
+                      onClearForm={clearFormAfterApproval}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="approval-box-container">
               <h3>Approved By:</h3>
-              <div className="signature-box">{approvalNames.approvedByUser}</div>
-              <p className="signature-label">Signature over printed Name / Date</p>
-              {assignedAction === "approve" && (
-                <ApprovalButtonAction
-                  action="approve"
-                  assignedAction={assignedAction}
-                  onAction={handleApprovalAction}
-                  className="approval-button"
-                  prfId={prfId}
-                  checkedByStatus={checkedByStatus}
-                  departmentType={departmentType}
-                  onClearForm={clearFormAfterApproval}
+              <div className="approval-signature-container">
+                <img
+                  src="/approval-icon.png"
+                  className="approval-icon"
+                  alt="Approved by icon"
                 />
-              )}
+                <div className="approval-content">
+                  <div className="approval-status">
+                    APPROVED-VERIFIED
+                  </div>
+                  <div className="approval-name">
+                    {approvalNames.approvedByUser}
+                  </div>
+                  <div className="approval-date">
+                    {new Date().toLocaleDateString()}
+                  </div>
+                  {assignedAction === "approve" && (
+                    <ApprovalButtonAction
+                      action="approve"
+                      assignedAction={assignedAction}
+                      onAction={handleApprovalAction}
+                      className="approval-button"
+                      prfId={prfId}
+                      checkedByStatus={checkedByStatus}
+                      departmentType={departmentType}
+                      onClearForm={clearFormAfterApproval}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="approval-box-container">
               <h3>Received By:</h3>
-              <div className="signature-box">{approvalNames.receivedByUser}</div>
-              <p className="signature-label">Date / Time / Signature</p>
-              {assignedAction === "receive" && (
-                <ApprovalButtonAction
-                  action="receive"
-                  assignedAction={assignedAction}
-                  onAction={handleApprovalAction}
-                  className="approval-button"
-                  prfId={prfId}
-                  checkedByStatus={checkedByStatus}
-                  departmentType={departmentType}
-                  onClearForm={clearFormAfterApproval}
+              <div className="approval-signature-container">
+                <img
+                  src="/approval-icon.png"
+                  className="approval-icon"
+                  alt="Received by icon"
                 />
-              )}
+                <div className="approval-content">
+                  <div className="approval-status">
+                    RECEIVED-VERIFIED
+                  </div>
+                  <div className="approval-name">
+                    {approvalNames.receivedByUser}
+                  </div>
+                  <div className="approval-date">
+                    {new Date().toLocaleDateString()}
+                  </div>
+                  {assignedAction === "receive" && (
+                    <ApprovalButtonAction
+                      action="receive"
+                      assignedAction={assignedAction}
+                      onAction={handleApprovalAction}
+                      className="approval-button"
+                      prfId={prfId}
+                      checkedByStatus={checkedByStatus}
+                      departmentType={departmentType}
+                      onClearForm={clearFormAfterApproval}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
             
           </div>

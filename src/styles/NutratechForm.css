@@ -1,3 +1,4 @@
+
 html, body {
     overflow-x: hidden; 
     width: 100%;
@@ -55,14 +56,14 @@ html, body {
     margin-bottom: 8px;
 }
 
-.table-container {
+.table-container-container {
     display: flex;
     width: 100%;
     justify-content: center;
     margin-top: 15px;
 }
 
-.table-container table {
+.table-container-container table {
     width: 95%;
     border-collapse: collapse;
     outline: 1px solid #c1c0c0;
@@ -90,6 +91,11 @@ th {
     font-size: 11px;
     cursor: pointer;
     padding: 8px 5px;
+}
+
+tbody tr {
+    vertical-align: middle;
+    height: auto;
 }
 
 tbody tr:hover {
@@ -125,7 +131,6 @@ td input {
 }
 
 .header-three{
-    margin-top: -17px;
     font-size: 0.9rem;
 }
 
@@ -253,9 +258,9 @@ h3 {
     background-position: right 12px center;
     background-size: 14px;
 
-    outline: none;
     cursor: pointer;
     transition: all 0.25s ease;
+
 }
 
 /* Hover effect */
@@ -332,9 +337,9 @@ h3 {
     padding: 10px;
     text-align: center;
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(129, 128, 128, 0.1);
     margin-bottom: 50px;
-    outline: 1px solid #c1c0c0;
+    outline: 1px solid #616060;
 }
 
 .approval-box-container h3{
@@ -478,35 +483,41 @@ h3 {
     border: 1px solid black;
   }
 
-.table-container table th:nth-child(5),
-.table-container table td:nth-child(5) {
+.table-container-container table th:nth-child(5),
+.table-container-container table td:nth-child(5) {
     width: 18% !important;
     min-width: 170px !important;
 }
 
+.table-container-container table th:nth-child(6),
+.table-container-container table td:nth-child(6) {
+    width: 20% !important;
+    min-width: 200px !important;
+}
 
-.table-container table th:nth-child(1),
-.table-container table td:nth-child(1) {
+
+.table-container-container table th:nth-child(1),
+.table-container-container table td:nth-child(1) {
   width: 12% !important;
 } 
 
-.table-container table th:nth-child(2),
-.table-container table td:nth-child(2) {
+.table-container-container table th:nth-child(2),
+.table-container-container table td:nth-child(2) {
   width: 8% !important;
 } 
 
-.table-container table th:nth-child(3),
-.table-container table td:nth-child(3) {
+.table-container-container table th:nth-child(3),
+.table-container-container table td:nth-child(3) {
   width: 10% !important;
 } 
 
-.table-container table th:nth-child(4),
-.table-container table td:nth-child(4) {
+.table-container-container table th:nth-child(4),
+.table-container-container table td:nth-child(4) {
   width: 36% !important;
 } 
 
-.table-container table th:nth-child(6),
-.table-container table td:nth-child(6) {
+.table-container-container table th:nth-child(6),
+.table-container-container table td:nth-child(6) {
   width: 25% !important;
 } 
 
@@ -668,6 +679,86 @@ h3 {
     word-wrap: break-word;
 }
 
+.purpose-textarea {
+    width: 100%;
+    padding: 6px 4px;
+    font-family: inherit;
+    box-sizing: border-box;
+    border: none;
+    background: transparent;
+    text-align: center;
+    line-height: 1.2;
+    vertical-align: middle;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    max-height: 150px;
+    overflow-y: auto;
+    transition: background-color 0.2s ease;
+}
+
+.purpose-textarea:focus {
+    outline: none;
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+.purpose-textarea:hover:not(:read-only) {
+    background-color: rgba(59, 130, 246, 0.02);
+}
+
+.purpose-textarea:read-only {
+    cursor: not-allowed;
+    background-color: rgba(248, 250, 252, 0.5);
+}
+
+.approval-signature-container{
+ 
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    
+    width: fit-content;
+    min-width: 210px;
+    max-width: 320px;
+    min-height: 56px;
+    height: auto;
+    padding: 8px 12px;
+    box-sizing: border-box;
+}
+
+.approval-icon{
+    width:34px;
+    height:34px;
+    margin-bottom: 25px;
+    margin-right:2px;
+    flex-shrink:0;
+}
+
+.approval-status{
+    font-size:12px;
+    font-weight:900;
+    color:#008f22;
+}
+
+/*JULY 14, 2026 */
+.approval-name{
+ 
+    font-size:14px;
+ 
+    font-weight:700;
+}
+
+/*JULY 14, 2026 */
+.approval-date{
+ 
+    font-size:13px;
+
+    color:#444;
+}
+
 
 @media print {
    
@@ -743,22 +834,33 @@ h3 {
         page-break-inside: avoid; 
     }
 
-    .table-container {
+    /* PAG ADJUST NG TABLE DETAILS */
+    .table-container-container {
+        width: 900px;
+    }
+
+    .table-container-container table {
         width: 100%;
-        max-width: 100%;
-    }
-
-    .table-container table {
-        width: 100% !important;
         border-collapse: collapse;
-        table-layout: fixed;
-    }
-    .table-container table th {
-        font-size: 10px;
+        table-layout: auto;
+        word-break: break-word;
     }
 
-    .approval-box {
-        width: 450px;
+    .table-container-container table th {
+        font-size: 10px;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .table-container-container table td {
+        word-break: break-word;
+        white-space: normal;
+        overflow-wrap: break-word;
+    }
+
+    /*PAG ADJUST NG APPROVAL BOX CONTAINER*/
+    .approval-box-container {
+        width: 200px;
     }
 
     td input {
@@ -792,6 +894,11 @@ h3 {
    
     .department-type { 
         width: 290px;
+    }
+
+    .project-code-select{
+        color: #000000;
+        font-weight: 700;
     }
 
     .nutra-header-dept-label {
@@ -961,4 +1068,61 @@ h3 {
         display: none !important;
     }
     
+    /* Purpose column print styles */
+    .table-container table th:nth-child(6),
+    .table-container table td:nth-child(6) {
+        width: 22% !important;
+        min-width: 220px !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto;
+    }
+
+    /* Purpose textarea print styling */
+    .purpose-textarea {
+        border: none !important;
+        background: transparent !important;
+        width: 100% !important;
+        text-align: center !important;
+        font-size: 11px !important;
+        height: auto !important;
+        vertical-align: middle !important;
+        resize: none !important;
+        padding: 4px 2px !important;
+        line-height: 1.3 !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow: visible !important;
+        display: block !important;
+    }
+
+    /* Ensure textarea shows all content when printing */
+    textarea {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+
+    /*JULY 14, 2026 */
+    .approval-name{
+        font-size: 12px;
+        font-weight: 700;
+        align-items: center;
+    }
+
+    /*JULY 14, 2026 */
+    .approval-date{
+        font-size: 10px;
+        margin-top: 5px;
+        color:#444;
+    }
+
+    .approval-icon{
+        width:20px;
+        height:20px;
+        margin-left: -10px;
+        margin-bottom: 20px;
+        flex-shrink:0;
+    }
 }
