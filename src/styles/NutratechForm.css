@@ -116,6 +116,8 @@ td input {
     appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
+    height: auto;
+    min-height: 32px;
 }
 
 .field-box{
@@ -677,6 +679,11 @@ h3 {
     -moz-appearance: none;
     white-space: pre-wrap;
     word-wrap: break-word;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 60px;
+    max-height: 150px;
+    padding: 6px 4px;
 }
 
 .purpose-textarea {
@@ -745,10 +752,14 @@ h3 {
 
 /*JULY 14, 2026 */
 .approval-name{
- 
-    font-size:14px;
- 
+    display: flex;
+    font-size: 16px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
     font-weight:700;
+    margin-right: 80px;
 }
 
 /*JULY 14, 2026 */
@@ -864,6 +875,8 @@ h3 {
     }
 
     td input {
+        min-height: 32px;
+        height: auto;
         border: none;
         background: transparent;
     }
@@ -952,6 +965,8 @@ h3 {
 
 @media print {
     td input {
+        min-height: 32px;
+        height: auto;
         border: none;
         background: transparent;
         width: 100%;
@@ -964,12 +979,16 @@ h3 {
     }
 
     .description-textarea {
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 60px;
+        max-height: 150px;
+        padding: 6px 4px;
         border: none;
         background: transparent;
         width: 100%;
         text-align: center;
         font-size: 12px !important;
-        height: auto !important;
         vertical-align: middle;
         resize: none;
     }
@@ -1105,11 +1124,36 @@ h3 {
     }
 
     /*JULY 14, 2026 */
-    .approval-name{
+    /* .approval-name{
         font-size: 12px;
         font-weight: 700;
         align-items: center;
+    } */
+
+    /*JULY 14, 2026 */
+    .approval-name{
+        display: flex;
+        font-size: 16px;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        font-weight:700;
+        margin-left: -10px;
+        margin-top: -5px;
     }
+
+    .approval-box-container .signature-label{
+        font-size: 10px;
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        margin-left: -10px;
+        margin-top: 10px;
+    }
+
+
 
     /*JULY 14, 2026 */
     .approval-date{

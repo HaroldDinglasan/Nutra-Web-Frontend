@@ -987,6 +987,21 @@ const NutraTechForm = () => {
     }
 
     const departmentId = localStorage.getItem("userDepartmentId")
+    const userCompanyCode = localStorage.getItem("userCompany") // ✅ GET COMPANY CODE FROM LOGIN
+    
+    console.log("[v0] handleSavePrfHeader - Company Code from localStorage:", userCompanyCode)
+
+    // Helper function to map company code to ID
+    const getCompanyIdFromCode = (companyCode) => {
+      const companyMap = {
+        "NTBI": 1,
+        "AVLI": 2,
+        "APHI": 3
+      };
+      return companyMap[companyCode] || null;
+    };
+
+    const companyId = getCompanyIdFromCode(userCompanyCode) // ✅ MAP TO ID
 
     // saving prf header data details
     const prfHeaderData = {
@@ -999,6 +1014,7 @@ const NutraTechForm = () => {
       receivedByUser: approvalNames.receivedByUser,
       departmentCharge: department || null, // Add department charge from the input field
       projectCode: selectedProjectCode || null,
+      companyId: companyId // ✅ ADD COMPANY ID
     }
 
     try {
@@ -1010,16 +1026,16 @@ const NutraTechForm = () => {
 
       const data = await response.json()
       if (response.ok) {
-        console.log("PRF header saved:", data.prfId) // Get PRF ID from backend
+        console.log("[v0] PRF header saved successfully with companyId:", companyId, "PRF ID:", data.prfId)
         setPrfId(data.prfId) // Store the backend-generated PRF ID
         setPrfDate(new Date(currentDate)) // Store the PRF date
         return data.prfId // Return PRF ID from backend
       } else {
-        console.error("Error saving PRF header:", data.message)
+        console.error("[v0] Error saving PRF header:", data.message)
         return null
       }
     } catch (error) {
-      console.error("Failed to save PRF header:", error)
+      console.error("[v0] Failed to save PRF header:", error)
       return null
     }
   }
@@ -1818,21 +1834,22 @@ const NutraTechForm = () => {
             <div className="approval-box-container">
               <h3>Checked By:</h3>
               <div className="approval-signature-container">
-                <img
+                {/* <img
                   src="/approval-icon.png"
                   className="approval-icon"
                   alt="Checked by icon"
-                />
+                /> */}
                 <div className="approval-content">
-                  <div className="approval-status">
+                  {/* <div className="approval-status">
                     CHECKED-VERIFIED
-                  </div>
+                  </div> */}
                   <div className="approval-name">
                     {approvalNames.checkedByUser}
                   </div>
-                  <div className="approval-date">
+                  <p className="signature-label">Signature over printed Name / Date</p>
+                  {/* <div className="approval-date">
                     {new Date().toLocaleDateString()}
-                  </div>
+                  </div> */}
                   {assignedAction === "check" && (
                     <ApprovalButtonAction
                       action="check"
@@ -1852,21 +1869,23 @@ const NutraTechForm = () => {
             <div className="approval-box-container">
               <h3>Approved By:</h3>
               <div className="approval-signature-container">
-                <img
+                {/* <img
                   src="/approval-icon.png"
                   className="approval-icon"
                   alt="Approved by icon"
-                />
+                /> */}
                 <div className="approval-content">
-                  <div className="approval-status">
+                  {/* <div className="approval-status">
                     APPROVED-VERIFIED
-                  </div>
+                  </div> */}
                   <div className="approval-name">
                     {approvalNames.approvedByUser}
                   </div>
-                  <div className="approval-date">
+                  <p className="signature-label">Signature over printed Name / Date</p>
+
+                  {/* <div className="approval-date">
                     {new Date().toLocaleDateString()}
-                  </div>
+                  </div> */}
                   {assignedAction === "approve" && (
                     <ApprovalButtonAction
                       action="approve"
@@ -1886,21 +1905,23 @@ const NutraTechForm = () => {
             <div className="approval-box-container">
               <h3>Received By:</h3>
               <div className="approval-signature-container">
-                <img
+                {/* <img
                   src="/approval-icon.png"
                   className="approval-icon"
                   alt="Received by icon"
-                />
+                /> */}
                 <div className="approval-content">
-                  <div className="approval-status">
+                  {/* <div className="approval-status">
                     RECEIVED-VERIFIED
-                  </div>
+                  </div> */}
                   <div className="approval-name">
                     {approvalNames.receivedByUser}
                   </div>
-                  <div className="approval-date">
+                  <p className="signature-label">Signature over printed Name / Date</p>
+
+                  {/* <div className="approval-date">
                     {new Date().toLocaleDateString()}
-                  </div>
+                  </div> */}
                   {assignedAction === "receive" && (
                     <ApprovalButtonAction
                       action="receive"
