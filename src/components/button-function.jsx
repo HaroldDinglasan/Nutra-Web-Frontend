@@ -1,7 +1,17 @@
 import axios from "axios" // Used for sending HTTP requests to backend
-  
+
+// Helper function to map company code to ID
+const getCompanyIdFromCode = (companyCode) => {
+  const companyMap = {
+    "NTBI": 1,
+    "AVLI": 2,
+    "APHI": 3
+  };
+  return companyMap[companyCode] || null;
+};
+
 // Save PRF header
-export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, departmentCharge, projectCode) => {
+export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, departmentCharge, projectCode, companyCode) => {
 
   // Check if required fields are missing
   if (!purchaseCodeNumber || !currentDate || !fullname) {
@@ -11,7 +21,12 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, d
 
   // Get department and user info from localStorage
   const departmentId = localStorage.getItem("userDepartmentId")
-  const userId = localStorage.getItem("userId") 
+  const userId = localStorage.getItem("userId")
+  // Get company code from parameter OR from localStorage as fallback
+  const userCompanyCode = companyCode || localStorage.getItem("userCompany")
+  const companyId = getCompanyIdFromCode(userCompanyCode) // ✅ Map to ID
+
+  console.log("[v0] savePrfHeader - Company Code:", userCompanyCode, "Company ID:", companyId)
 
   // Create object that will be sent to backend
   const prfHeaderData = {
@@ -22,6 +37,7 @@ export const savePrfHeader = async (purchaseCodeNumber, currentDate, fullname, d
     userId: userId ? parseInt(userId) : null, 
     departmentCharge: departmentCharge || null,
     projectCode: projectCode || null,
+    companyId: companyId  // ✅ Pass company ID to backend
   }
 
   // Send data to backend
