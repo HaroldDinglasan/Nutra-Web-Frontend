@@ -50,6 +50,8 @@ const NutraTechForm = () => {
   
   // State for approval status validation
   const [checkedByStatus, setCheckedByStatus] = useState("")
+  const [approvedByStatus, setApprovedByStatus] = useState("")
+  const [receivedByStatus, setReceivedByStatus] = useState("")
   const [departmentType, setDepartmentType] = useState("")
 
   const getSearchParams = () => {
@@ -316,12 +318,10 @@ const NutraTechForm = () => {
         
         // ✅ Extract approval status from database
         setCheckedByStatus(data.header.checkedBy_Status || "")
+        setApprovedByStatus(data.header.approvedBy_Status || "")
+        setReceivedByStatus(data.header.receivedBy_Status || "")
         setDepartmentType(data.header.departmentType || "")
         
-        console.log("[v0] Approval Status:", {
-          checkedByStatus: data.header.checkedBy_Status,
-          departmentType: data.header.departmentType,
-        })
 
         // kapag galing sa Outlook link, gamitin ang emailLinkPreparedBy 
         if (emailLinkPreparedBy) {
@@ -429,12 +429,10 @@ const NutraTechForm = () => {
           if (response.ok) {
             // ✅ Extract approval status from database for email link flow
             setCheckedByStatus(data.header.checkedBy_Status || "")
+            setApprovedByStatus(data.header.approvedBy_Status || "")
+            setReceivedByStatus(data.header.receivedBy_Status || "")
             setDepartmentType(data.header.departmentType || "")
             
-            console.log("[v0] Email Link - Approval Status fetched:", {
-              checkedByStatus: data.header.checkedBy_Status,
-              departmentType: data.header.departmentType,
-            })
             
             if (data.approvalNames && !hasEmailLinkApprovals) {
               // Set approval names from API
@@ -781,6 +779,14 @@ const NutraTechForm = () => {
         setRows(newRows)
         setIsUpdating(true)
         setShouldFetchApprovals(true) // Enable fetching approvals for existing PRF
+
+        // ✅ Extract ALL approval status fields from search results
+        if (data.header) {
+          setCheckedByStatus(data.header.checkedBy_Status || "")
+          setApprovedByStatus(data.header.approvedBy_Status || "")
+          setReceivedByStatus(data.header.receivedBy_Status || "")
+          setDepartmentType(data.header.departmentType || "")
+        }
 
         // Set approval names from search results if available
         if (data.approvalNames && !hasEmailLinkApprovals) {
@@ -1827,29 +1833,46 @@ const NutraTechForm = () => {
           >
             <div className="approval-box-container">
               <h3>Prepared By:</h3>
-              <div className="signature-box">{ emailLinkPreparedBy || fullname}</div>
-              <p className="signature-label">Signature over printed Name / Date</p>
+
+                <div className="signature-box">{ emailLinkPreparedBy || fullname}</div>
+
+                <div className="approval-date-prepared">
+                  {new Date().toLocaleDateString()}
+                </div>
+
+              {/* <p className="signature-label">Signature over printed Name / Date</p> */}
+
             </div>
 
             <div className="approval-box-container">
               <h3>Checked By:</h3>
               <div className="approval-signature-container">
-                {/* <img
-                  src="/approval-icon.png"
-                  className="approval-icon"
-                  alt="Checked by icon"
-                /> */}
+                {checkedByStatus === "APPROVED" && (
+                  <img
+                    src="/approval-icon.png"
+                    className="approval-icon"
+                    alt="Checked by icon"
+                  />
+                )}
                 <div className="approval-content">
-                  {/* <div className="approval-status">
-                    CHECKED-VERIFIED
-                  </div> */}
+
+                  {checkedByStatus === "APPROVED" && (
+                      <div className="approval-status">
+                        CHECKED-VERIFIED
+                      </div>
+                  )}
+
                   <div className="approval-name">
                     {approvalNames.checkedByUser}
                   </div>
-                  <p className="signature-label">Signature over printed Name / Date</p>
-                  {/* <div className="approval-date">
+                  
+                  <div className="approval-date">
                     {new Date().toLocaleDateString()}
-                  </div> */}
+                  </div>
+
+                  {/* <p className="signature-label">Signature over printed Name / Date</p> */}
+
+
                   {assignedAction === "check" && (
                     <ApprovalButtonAction
                       action="check"
@@ -1869,23 +1892,33 @@ const NutraTechForm = () => {
             <div className="approval-box-container">
               <h3>Approved By:</h3>
               <div className="approval-signature-container">
-                {/* <img
-                  src="/approval-icon.png"
-                  className="approval-icon"
-                  alt="Approved by icon"
-                /> */}
+                {checkedByStatus === "APPROVED" && approvedByStatus === "APPROVED" && (
+                  <img
+                    src="/approval-icon.png"
+                    className="approval-icon"
+                    alt="Approved by icon"
+                  />
+                )}
                 <div className="approval-content">
-                  {/* <div className="approval-status">
-                    APPROVED-VERIFIED
-                  </div> */}
+                 
+                  {checkedByStatus === "APPROVED" && 
+                    approvedByStatus === "APPROVED" && (
+                    <div className="approval-status">
+                      APPROVED-VERIFIED
+                    </div>
+                  )}
+
                   <div className="approval-name">
                     {approvalNames.approvedByUser}
                   </div>
-                  <p className="signature-label">Signature over printed Name / Date</p>
 
-                  {/* <div className="approval-date">
+                  <div className="approval-date">
                     {new Date().toLocaleDateString()}
-                  </div> */}
+                  </div>
+                  
+                  {/* <p className="signature-label">Signature over printed Name / Date</p> */}
+
+
                   {assignedAction === "approve" && (
                     <ApprovalButtonAction
                       action="approve"
@@ -1905,23 +1938,34 @@ const NutraTechForm = () => {
             <div className="approval-box-container">
               <h3>Received By:</h3>
               <div className="approval-signature-container">
-                {/* <img
-                  src="/approval-icon.png"
-                  className="approval-icon"
-                  alt="Received by icon"
-                /> */}
+                {checkedByStatus === "APPROVED" && approvedByStatus === "APPROVED" && receivedByStatus !== null && receivedByStatus !== "" && (
+                  <img
+                    src="/approval-icon.png"
+                    className="approval-icon"
+                    alt="Received by icon"
+                  />
+                )}
                 <div className="approval-content">
-                  {/* <div className="approval-status">
-                    RECEIVED-VERIFIED
-                  </div> */}
+
+                  {checkedByStatus === "APPROVED" && 
+                    approvedByStatus === "APPROVED" && 
+                    receivedByStatus !== null && 
+                    receivedByStatus !== "" && (
+                    <div className="approval-status">
+                      RECEIVED-VERIFIED
+                    </div>
+                  )}
+
                   <div className="approval-name">
                     {approvalNames.receivedByUser}
                   </div>
-                  <p className="signature-label">Signature over printed Name / Date</p>
 
-                  {/* <div className="approval-date">
-                    {new Date().toLocaleDateString()}
-                  </div> */}
+                  <div className="approval-date"> 
+                      {new Date().toLocaleDateString()}
+                  </div>
+                  
+                  {/* <p className="signature-label">Signature over printed Name / Date</p> */}
+                  
                   {assignedAction === "receive" && (
                     <ApprovalButtonAction
                       action="receive"
