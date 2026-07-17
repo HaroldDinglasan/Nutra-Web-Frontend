@@ -340,9 +340,10 @@ const AppLayout = ({ children }) => {
       <div className="admin-dashboard">
         <header className="dashboard-header nav-bar-container">
           <div className="header-content">
-            <div className="logo-container">
+
+            {/* <div className="logo-container">
               <img src={NutraTechLogo || "/placeholder.svg"} alt="NutraTech Biopharma, Inc." className="company-logo" />
-            </div>
+            </div> */}
 
             <div
               className="search-container"
