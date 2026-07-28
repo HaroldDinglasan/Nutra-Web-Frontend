@@ -21,7 +21,7 @@ const ApprovalButtonAction = ({
   const getButtonLabel = () => {
     switch (action) {
       case "check":
-        return "Check"
+        return "Checked"  // Updated label to be clearer for CheckedBy approver
       case "approve":
         return "Approve"
       case "receive":

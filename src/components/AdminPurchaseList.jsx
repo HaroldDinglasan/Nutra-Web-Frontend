@@ -379,40 +379,8 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
   useEffect(() => {
     const fetchFilteredList = async () => {
       try {
-       if (statusFilter === "RECEIVED") {
-
-        const response = await axios.get("http://localhost:5000/api/getDeliveredList")
-
-        const deliveredData = Array.isArray(response.data)
-          ? response.data
-          : response.data.data || []
-
-        const deliveredList = deliveredData.map((prf) => ({
-          ...prf,
-          status: "RECEIVED",
-        }))
-
-        const searchedList = deliveredList.filter((prf) => {
-          let term = searchTerm.toLowerCase()
-          if (term.startsWith("no. ")) term = term.substring(4)
-
-          const prfNoStr = prf.prfNo ? prf.prfNo.toString().toLowerCase() : ""
-          return (
-            !searchTerm.trim() ||
-            prfNoStr.includes(term) ||
-            (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
-            (prf.assignedTo && prf.assignedTo.toLowerCase().includes(term)) || // ADDED
-            (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
-            (prf.StockName && prf.StockName.toLowerCase().includes(term))
-          )
-        })
-
-          setFilteredPrfList(searchedList)
-          return
-        }
-
-
-        // Default: Apply local filtering for other statuses
+        
+        // Apply local filtering for ALL statuses (removed special case for RECEIVED)
         let term = searchTerm.toLowerCase()
         if (term.startsWith("no. ")) {
           term = term.substring(4)
@@ -427,15 +395,17 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             (statusFilter === "reject" && prf.status === "REJECTED") ||
             (statusFilter === "PENDING" && prf.status === "PENDING") ||
             (statusFilter === "approved" && prf.status === "Approved") ||
+            (statusFilter === "RECEIVED" && prf.status === "RECEIVED") ||
             (statusFilter === "On-Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
             (statusFilter === "Unassigned" && (!prf.assignedTo || prf.assignedTo.trim() === ""))
 
           if (!statusMatch) return false
 
           return (
+            !searchTerm.trim() ||
             prfNoStr.includes(term) ||
             (prf.preparedBy && prf.preparedBy.toLowerCase().includes(term)) ||
-            (prf.assignedTo && prf.assignedTo.toLowerCase().includes(term)) || // ADDED
+            (prf.assignedTo && prf.assignedTo.toLowerCase().includes(term)) ||
             (prf.prfDate && formatDate(prf.prfDate).toLowerCase().includes(term)) ||
             (prf.StockName && prf.StockName.toLowerCase().includes(term))
           )
@@ -443,7 +413,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
         setFilteredPrfList(filtered)
       } catch (error) {
-        console.error("❌ Error fetching delivered list:", error)
+        console.error("❌ Error filtering list:", error)
       }
     }
 
@@ -558,18 +528,20 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       </div>
 
       <div className="admin-controls">
-        <div className="search-container">
-          <div className="search-box-list">
+
+        <div className="admin-search-container">
+
+          <div className="admin-search-box-list">
             <input
               type="text"
               placeholder="Search"
-              className="search-input-form"
+              className="admin-search-input-form"
               value={searchTerm}
               onChange={handleSearchChange}
             />
-            <button className="search-button" onClick={() => handleSearchChange({ target: { value: searchTerm } })}>
+            <button className="admin-search-button" onClick={() => handleSearchChange({ target: { value: searchTerm } })}>
               <svg
-                className="searchPrfNo"
+                className="admin-searchPrfNo"
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
                 height="20"
