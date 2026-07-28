@@ -61,7 +61,8 @@ const CheckedByApprovalList = () => {
                 <th>Quantity</th>
                 <th>UOM</th>
                 <th>Status</th>
-                {/* <th>Action</th> */}
+                <th>Purpose</th>
+                <th>Action</th>
               </tr>
             </thead>
 
@@ -77,15 +78,16 @@ const CheckedByApprovalList = () => {
                   <td>
                     <span className="status pending">Pending</span>
                   </td>
+                  <td>{item.Purpose}</td>
                   
-                  {/* <td>
+                  <td>
                     <ApprovalButtonAction
-                        action="approve"
-                        assignedAction="approve" 
+                        action="check"
+                        assignedAction="check" 
                         prfId={item.prfId}
                         onAction={handleAfterAction}
                     />
-                    </td> */}
+                  </td>
 
                 </tr>
               ))}
