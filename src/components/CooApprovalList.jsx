@@ -78,6 +78,7 @@ const ExecutiveApprovalList = () => {
                 <th>Stock Name</th>
                 <th>Quantity</th>
                 <th>UOM</th>
+                <th>Purpose</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -92,6 +93,7 @@ const ExecutiveApprovalList = () => {
                   <td>{item.StockName}</td>
                   <td>{item.QTY}</td>
                   <td>{item.UOM}</td>
+                  <td>{item.Purpose}</td>
                   <td>
                     <span className="status pending">Pending</span>
                   </td>

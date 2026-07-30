@@ -53,6 +53,14 @@ const NutraTechForm = () => {
   const [approvedByStatus, setApprovedByStatus] = useState("")
   const [receivedByStatus, setReceivedByStatus] = useState("")
   const [departmentType, setDepartmentType] = useState("")
+  
+  // State for approval dates - Initialize from sessionStorage if available
+  const [checkedByDateTime, setCheckedByDateTime] = useState("")
+  const [approvedByDateTime, setApprovedByDateTime] = useState("")
+  const [receivedByDateTime, setReceivedByDateTime] = useState("")
+
+  const [isFromSearch, setIsFromSearch] = useState(false) // Track if data came from search
+  const [isFromEmailLink, setIsFromEmailLink] = useState(false) // Track if data came from email link
 
   const getSearchParams = () => {
     return new URLSearchParams(location.search)
@@ -62,20 +70,53 @@ const NutraTechForm = () => {
 
   useEffect(() => {
     const fetchProjectCodes = async () => {
-        try {
+      try {
 
-            const company = localStorage.getItem("userCompany") // ✅ GET FROM LOGIN
+        const company = localStorage.getItem("userCompany")
 
-            console.log("📌 Company from localStorage:", company)
+        console.log("[v0] Fetching project codes for company:", company)
 
-            const response = await axios.get("http://localhost:5000/api/project-code-list", {
-              params: { company }
-            })
+        const response = await axios.get("http://localhost:5000/api/project-code-list", {
+          params: { company }
+        })
 
-            setProjectCodes(response.data)
-        } catch (error) {
-            console.error("Error fetching project codes:", error)
+        const codes = response.data
+        setProjectCodes(codes)
+        
+        // After loading project codes, sync selectedProjectCode from URL/storage
+        const params = new URLSearchParams(window.location.search)
+        const urlProjectCode = params.get("departmentCharge")
+        
+        if (urlProjectCode) {
+          const decodedCode = decodeURIComponent(urlProjectCode).trim()
+          console.log("[v0] Looking for project code:", decodedCode)
+          
+          // Match with trim on both sides to ensure proper comparison
+          const matchingCode = codes.find(pc => pc.ProjectCode.trim() === decodedCode)
+          
+          if (matchingCode) {
+            console.log("[v0] ✅ Project code from URL found in options, setting:", matchingCode.ProjectCode.trim())
+            setSelectedProjectCode(matchingCode.ProjectCode.trim())
+            localStorage.setItem("selectedProjectCode", matchingCode.ProjectCode.trim())
+          } else {
+            console.log("[v0] ⚠️ Project code from URL not found in options:", decodedCode)
+            console.log("[v0] Available codes:", codes.map(pc => `"${pc.ProjectCode}" (trimmed: "${pc.ProjectCode.trim()}")`))
+          }
+        } else {
+          // Check localStorage as fallback
+          const stored = localStorage.getItem("selectedProjectCode")
+          if (stored) {
+            const trimmedStored = stored.trim()
+            const matchingCode = codes.find(pc => pc.ProjectCode.trim() === trimmedStored)
+            if (matchingCode) {
+              console.log("[v0] Using stored project code:", matchingCode.ProjectCode.trim())
+              setSelectedProjectCode(matchingCode.ProjectCode.trim())
+            }
+          }
         }
+      } catch (error) {
+        console.error("Error fetching project codes:", error)
+      }
     }
 
     fetchProjectCodes()
@@ -129,14 +170,12 @@ const NutraTechForm = () => {
     const pendingPRFStr = localStorage.getItem("pendingPRF")
 
     if (urlPrfId) {
-      console.log(" Loading PRF from URL:", urlPrfId)
       setPrfId(urlPrfId)
       setIsUpdating(true)
     } else if (pendingPRFStr) {
       try {
         const pendingPRF = JSON.parse(pendingPRFStr)
         if (pendingPRF.prfId) {
-          console.log(" Loading PRF from localStorage:", pendingPRF.prfId)
           setPrfId(pendingPRF.prfId)
           setIsUpdating(true)
         }
@@ -155,6 +194,7 @@ const NutraTechForm = () => {
       const decodedDept = decodeURIComponent(urlDepartment)
       console.log(" Setting department from URL:", decodedDept)
       setDepartment(decodedDept)
+      setSelectedProjectCode(decodedDept)   // <-- ADD THIS
       setDepartmentFromPrf(true)
       localStorage.setItem("prfDepartmentCharge", decodedDept)
       return
@@ -164,6 +204,7 @@ const NutraTechForm = () => {
     if (location.state?.departmentCharge) {
       console.log(" Setting department from location.state:", location.state.departmentCharge)
       setDepartment(location.state.departmentCharge)
+      setSelectedProjectCode(location.state.departmentCharge)   // <-- ADD THIS
       setDepartmentFromPrf(true)
       localStorage.setItem("prfDepartmentCharge", location.state.departmentCharge)
       return
@@ -209,7 +250,6 @@ const NutraTechForm = () => {
         approvedByUser: location.state.approvedBy || "",
         receivedByUser: location.state.receivedBy || "",
       };
-      console.log(" Using approval data from location.state:", approvalData);
       return approvalData;
     }
 
@@ -301,6 +341,115 @@ const NutraTechForm = () => {
     return dateString
   }
 
+  // Process search results and extract PRF data (projectCode, approval names, dates)
+  const processSearchResults = () => {
+    const prfSearchResults = sessionStorage.getItem("prfSearchResults")
+    if (prfSearchResults) {
+      try {
+        const data = JSON.parse(prfSearchResults)
+        if (data.header) {
+          // Set PRF ID from search
+          if (data.header.prfId) {
+            setPrfId(data.header.prfId)
+          }
+         
+          // Set approval dates from search
+          setCheckedByDateTime(data.header.checkedByDateTime || "")
+          setApprovedByDateTime(data.header.approvedByDateTime || "")
+          setReceivedByDateTime(data.header.receivedByDateTime || "")
+          
+          // Set PRF date from search
+          if (data.header.prfDate) {
+            setPrfDate(data.header.prfDate)
+          }
+          
+          // Set project code from search and mark as from search
+          if (data.header.projectCode) {
+            setSelectedProjectCode(data.header.projectCode)
+            setIsFromSearch(true)
+          }
+
+          // Set approval names (who checked, approved, received)
+          if (data.approvalNames) {
+            setApprovalNames({
+              checkedByUser: data.approvalNames.checkedByUser || "",
+              approvedByUser: data.approvalNames.approvedByUser || "",
+              receivedByUser: data.approvalNames.receivedByUser || "",
+            })
+            
+            // Save to localStorage so data persists
+            localStorage.setItem("checkedByUser", data.approvalNames.checkedByUser || "")
+            localStorage.setItem("approvedByUser", data.approvalNames.approvedByUser || "")
+            localStorage.setItem("receivedByUser", data.approvalNames.receivedByUser || "")
+          }
+          
+          // Clear search results after using them
+          sessionStorage.removeItem("prfSearchResults")
+        }
+      } catch (error) {
+        console.error("Error parsing search results:", error)
+      }
+    }
+  }
+
+  // Load search results when component first loads
+  useEffect(() => {
+    processSearchResults()
+  }, [])
+
+  // Listen for search event and process results (runs every time user searches)
+  useEffect(() => {
+    const handleSearchCompleted = () => {
+      processSearchResults()
+    }
+
+    window.addEventListener("prfSearchCompleted", handleSearchCompleted)
+    return () => {
+      window.removeEventListener("prfSearchCompleted", handleSearchCompleted)
+    }
+  }, [])
+
+  // Mark as from email link when appropriate
+  useEffect(() => {
+    const params = getSearchParams()
+    const urlProjectCode = params.get("departmentCharge")
+    
+    if (urlProjectCode || location.state?.departmentCharge) {
+      setIsFromEmailLink(true)
+    }
+  }, [location.search, location.state?.departmentCharge])
+
+  useEffect(() => {
+    if (projectCodes.length === 0) return
+
+    const params = new URLSearchParams(window.location.search)
+    const urlProjectCode = params.get("departmentCharge")
+    const stateProjectCode = location.state?.departmentCharge   // <-- ADD
+
+    const rawCode = urlProjectCode || stateProjectCode           // <-- ADD
+    if (rawCode) {
+      const decodedCode = decodeURIComponent(rawCode).trim()
+      const matchingCode = projectCodes.find(pc => pc.ProjectCode.trim() === decodedCode)
+
+      if (matchingCode) {
+        console.log("[v0] Re-syncing selectedProjectCode:", matchingCode.ProjectCode.trim())
+        setSelectedProjectCode(matchingCode.ProjectCode.trim())
+      } else {
+        console.warn("[v0] ⚠️ Project code not found in loaded options for this company:", decodedCode,
+          "Available:", projectCodes.map(pc => pc.ProjectCode.trim()))
+      }
+    }
+  }, [projectCodes, location.search, location.state])
+
+
+
+  // Fetch full PRF data when PRF ID is set
+  useEffect(() => {
+    if (prfId) {
+      fetchPrfData(prfId)
+    }
+  }, [prfId])
+
   const fetchPrfData = async (prfId) => {
     try {
       setLoading(true)
@@ -308,22 +457,29 @@ const NutraTechForm = () => {
       const data = await response.json()
 
       if (response.ok) {
-        // Dito nag sstore yung data at nag didisplay ng prf header
+        // Set PRF header info
         setPurchaseCodeNumber(data.header.prfNo)
         setPrfDate(data.header.prfDate)
         setPreparedBy(data.header.preparedBy)
         setIsCancel(data.header.isCancel)
 
-        setSelectedProjectCode(data.header.projectCode)
+        // Always use projectCode from database, but email link takes priority if already set
+        if (!selectedProjectCode || (!isFromSearch && !isFromEmailLink)) {
+          setSelectedProjectCode(data.header.projectCode || selectedProjectCode)
+        }
         
-        // ✅ Extract approval status from database
+        // Set approval status
         setCheckedByStatus(data.header.checkedBy_Status || "")
         setApprovedByStatus(data.header.approvedBy_Status || "")
         setReceivedByStatus(data.header.receivedBy_Status || "")
         setDepartmentType(data.header.departmentType || "")
         
+        // Set approval dates from database
+        setCheckedByDateTime(data.header.checkedByDateTime || "")
+        setApprovedByDateTime(data.header.approvedByDateTime || "")
+        setReceivedByDateTime(data.header.receivedByDateTime || "")
 
-        // kapag galing sa Outlook link, gamitin ang emailLinkPreparedBy 
+        // kapag galing sa Outlook link, gamitin ang emailLinkPreparedBy
         if (emailLinkPreparedBy) {
           setPreparedBy(emailLinkPreparedBy);
         } else {
@@ -416,6 +572,7 @@ const NutraTechForm = () => {
     }
   }, [location.state?.prfId])
 
+
   // nag rurun kapag nag load ng ang page
   // dito nagcause ng loop sa console
   useEffect(() => {
@@ -433,6 +590,10 @@ const NutraTechForm = () => {
             setReceivedByStatus(data.header.receivedBy_Status || "")
             setDepartmentType(data.header.departmentType || "")
             
+            // ✅ Extract approval dates from database for email link flow
+            setCheckedByDateTime(data.header.checkedByDateTime || "")
+            setApprovedByDateTime(data.header.approvedByDateTime || "")
+            setReceivedByDateTime(data.header.receivedByDateTime || "")
             
             if (data.approvalNames && !hasEmailLinkApprovals) {
               // Set approval names from API
@@ -1541,21 +1702,27 @@ const NutraTechForm = () => {
                 <div className="project-code-wrapper">
                   <select
                     className="project-code-select"
-                    value={selectedProjectCode}
-                    onChange={(e) => setSelectedProjectCode(e.target.value)}
+                    value={selectedProjectCode || ""}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setSelectedProjectCode(value)
+                      localStorage.setItem("selectedProjectCode", value)
+                    }}
                     disabled={isPrfCancelled || !isPrfSameDay}
+                    key={`project-code-${projectCodes.length}`}
                   >
                     <option value="">Select Project Code</option>
 
                     {projectCodes
                       .filter(pc => pc.IsActive)
                       .map((pc) => (
-                        <option key={pc.Id} value={pc.ProjectCode}>
+                        <option key={pc.Id} value={pc.ProjectCode.trim()}>
                           {pc.ProjectCode}
                         </option>
                       ))}
                   </select>
                 </div>
+                
                 {/* <div className="stock-count">
                   Showing of {totalProjectCode} items
                 </div> */}
@@ -1821,15 +1988,6 @@ const NutraTechForm = () => {
 
           <div
             className="approval-section-container" // kaya nakukulong yung ApproverOrRejectModal dahil sa loob lang nito naikot
-            onClick={() => {
-              if (!approvalNames.checkedByUser || !approvalNames.approvedByUser || !approvalNames.receivedByUser) {
-                // Open approval modal - you'll need to add this state and modal
-                // For now, show an alert directing them to set up approvals
-                alert(
-                  "Click here to set up approval settings. You need to configure CheckedBy, ApprovedBy, and ReceivedBy users before saving the PRF.",
-                );
-              }
-            }}
           >
             <div className="approval-box-container">
               <h3>Prepared By:</h3>
@@ -1837,10 +1995,8 @@ const NutraTechForm = () => {
                 <div className="signature-box">{ emailLinkPreparedBy || fullname}</div>
 
                 <div className="approval-date-prepared">
-                  {new Date().toLocaleDateString()}
+                  {prfDate ? formatDateForDisplay(prfDate) : new Date().toLocaleDateString()}
                 </div>
-
-              {/* <p className="signature-label">Signature over printed Name / Date</p> */}
 
             </div>
 
@@ -1866,13 +2022,10 @@ const NutraTechForm = () => {
                     {approvalNames.checkedByUser}
                   </div>
                   
-                  <div className="approval-date">
-                    {new Date().toLocaleDateString()}
+                  <div className="approval-date"> 
+                      {checkedByDateTime ? formatDateForDisplay(checkedByDateTime) : new Date().toLocaleDateString()}
                   </div>
-
-                  {/* <p className="signature-label">Signature over printed Name / Date</p> */}
-
-
+                                    
                   {assignedAction === "check" && (
                     <ApprovalButtonAction
                       action="check"
@@ -1913,12 +2066,9 @@ const NutraTechForm = () => {
                   </div>
 
                   <div className="approval-date">
-                    {new Date().toLocaleDateString()}
+                    {approvedByDateTime ? formatDateForDisplay(approvedByDateTime) : new Date().toLocaleDateString()}
                   </div>
                   
-                  {/* <p className="signature-label">Signature over printed Name / Date</p> */}
-
-
                   {assignedAction === "approve" && (
                     <ApprovalButtonAction
                       action="approve"
@@ -1961,11 +2111,9 @@ const NutraTechForm = () => {
                   </div>
 
                   <div className="approval-date"> 
-                      {new Date().toLocaleDateString()}
+                      {receivedByDateTime ? formatDateForDisplay(receivedByDateTime) : new Date().toLocaleDateString()}
                   </div>
-                  
-                  {/* <p className="signature-label">Signature over printed Name / Date</p> */}
-                  
+                                    
                   {assignedAction === "receive" && (
                     <ApprovalButtonAction
                       action="receive"
