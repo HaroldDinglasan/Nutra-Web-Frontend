@@ -460,6 +460,7 @@ const NutraTechForm = () => {
         // Set PRF header info
         setPurchaseCodeNumber(data.header.prfNo)
         setPrfDate(data.header.prfDate)
+        setCurrentDate(formatDateForInput(data.header.prfDate)) // <-- ADD THIS LINE
         setPreparedBy(data.header.preparedBy)
         setIsCancel(data.header.isCancel)
 

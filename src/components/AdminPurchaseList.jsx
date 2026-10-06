@@ -1,12 +1,14 @@
 "use client"
-  
+
 import { useState, useEffect } from "react"
 import axios from "axios"
+import { useNavigate } from "react-router-dom"
 import Modal from "./SelectedPrfAdminModal"
 import "../styles/AdminPurchaseList.css"
 import "../styles/SelectedPrfAdminModal.css"
 
 const AdminPurchaseList = ({ showDashboard = false }) => {
+  const navigate = useNavigate()
   const [prfList, setPrfList] = useState([])
   const [filteredPrfList, setFilteredPrfList] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -146,6 +148,11 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
       // ✅ Always open modal even if API fails
       setIsModalOpen(true);
     }
+  };
+
+  // Handle view full PRF details
+  const handleViewDetails = (prf) => {
+    navigate(`/prf-details/${prf.prfId}`)
   };
 
   // Handle status update
@@ -355,7 +362,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
         (statusFilter === "approved" && prf.status === "Approved") ||
         (statusFilter === "RECEIVED" && prf.status === "RECEIVED") ||
         (statusFilter === "On-Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
-        (statusFilter === "Unassigned" && (!prf.assignedTo || prf.assignedTo.trim() === ""))
+        (statusFilter === "Unassigned" &&(!prf.assignedTo || prf.assignedTo.trim() === "") && prf.status !== "Cancelled" && prf.status !== "REJECTED")
       return searchMatch && statusMatch
     })
 
@@ -364,7 +371,10 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
 
   // Calculate counts
   const unassignedCount = prfList.filter(
-  (prf) => !prf.assignedTo || prf.assignedTo.trim() === ""
+    (prf) =>
+      (!prf.assignedTo || prf.assignedTo.trim() === "") &&
+      prf.status !== "Cancelled" &&
+      prf.status !== "REJECTED"
   ).length
 
   const assignedCount = prfList.filter(
@@ -397,7 +407,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
             (statusFilter === "approved" && prf.status === "Approved") ||
             (statusFilter === "RECEIVED" && prf.status === "RECEIVED") ||
             (statusFilter === "On-Assigned" && prf.assignedTo && prf.assignedTo.trim() !== "") ||
-            (statusFilter === "Unassigned" && (!prf.assignedTo || prf.assignedTo.trim() === ""))
+            (statusFilter === "Unassigned" &&(!prf.assignedTo || prf.assignedTo.trim() === "") &&prf.status !== "Cancelled" &&prf.status !== "REJECTED")
 
           if (!statusMatch) return false
 
@@ -619,6 +629,7 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                 <th>Purpose</th>
                 <th>Assigned</th>
                 <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -686,6 +697,33 @@ const AdminPurchaseList = ({ showDashboard = false }) => {
                         <span className={`status-badge ${getStatusBadgeClass(prf.status)}`}>
                           {prf.status}
                         </span>
+                      </td>
+
+                      <td>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleViewDetails(prf)
+                          }}
+                          className="view-details-btn"
+                          title="View full PRF form"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                          View
+                        </button>
                       </td>
 
                     </tr>
