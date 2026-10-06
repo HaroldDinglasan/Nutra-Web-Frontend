@@ -143,6 +143,10 @@ const Register = () => {
       case "QMD":
         id = 27
       break
+
+      case "CNC":
+        id = 28
+      break
       
       default:
         id = null
@@ -254,6 +258,7 @@ const Register = () => {
               <option value="LEGAL">LEGAL</option>
               <option value="ACCOUNTING">ACCOUNTING</option>
               <option value="TREASURY">TREASURY</option>
+              <option value="CNC">CNC</option>
               <option value="HR">HR</option>
               <option value="MARKETING">MARKETING</option>
               <option value="REGULATORY">REGULATORY</option>

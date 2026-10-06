@@ -238,6 +238,11 @@ const ApprovalModal = ({ onClose }) => {
           defaultCheckedBy = "Carmen C. Aquino" // table SecuritySystemUser
           defaultApprovedBy = "Jennifer June G. Cambongga" // table SecuritySystemUser
           break
+
+        case "CNC":
+          defaultCheckedBy = "Regine M. Abunda" // table SecuritySystemUser
+          defaultApprovedBy = "Jennifer June G. Cambongga" // table SecuritySystemUser
+          break
         
         case "OTP":
           defaultCheckedBy = ""

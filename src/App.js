@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import PrfList from "./pages/PrfList";
 import AppLayout from "./components/app-layout";
+import PRFViewPage from "./components/page";
 
 import StockApproveAvailability from "./pages/StockApproveAvailability";
 import StockRejectAvailability from "./pages/StockRejectAvailability";
@@ -25,6 +26,8 @@ const App = () => {
         <Route path="stock/reject/form" element={<StockRejectAvailability />} />
         
         <Route path="/prf/:prfId" element={<AppLayout><NutraTechForm /></AppLayout>} />
+
+        <Route path="/prf-details/:id" element={<AppLayout><PRFViewPage /></AppLayout>} />
         
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
