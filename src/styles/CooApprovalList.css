@@ -106,3 +106,97 @@
 .reject-btn:hover {
   background: #c62828;
 }
+
+/* ===== Mobile: table rows become cards ===== */
+@media (max-width: 768px) {
+  .coo-container {
+    padding: 10px;
+    min-height: auto;
+  }
+
+  .coo-header h2 {
+    font-size: 18px;
+  }
+
+  .coo-count {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .table-wrapper {
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  /* Remove table layout */
+  .coo-table,
+  .coo-table tbody,
+  .coo-table tr,
+  .coo-table td {
+    display: block;
+    width: 100%;
+  }
+
+  /* Header row isn't needed; labels come from data-label */
+  .coo-table thead {
+    display: none;
+  }
+
+  /* Each row = a card */
+  .coo-table tbody tr {
+    background: #fff;
+    border-radius: 10px;
+    border-left: 4px solid #2e7d32;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    margin-bottom: 12px;
+    padding: 8px 12px;
+  }
+
+  .coo-table tbody tr:hover {
+    background: #fff;
+  }
+
+  /* Each cell = "Label ........ Value" */
+  .coo-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: right;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  .coo-table td::before {
+    content: attr(data-label);
+    flex: 0 0 38%;
+    text-align: left;
+    font-weight: 600;
+    color: #2e7d32;
+  }
+
+  .coo-table td.prf-no {
+    font-weight: 700;
+  }
+
+  /* Action cell: full-width button, no label */
+  .coo-table td.action-cell {
+    display: block;
+    border-bottom: none;
+    padding: 10px 0 4px;
+  }
+
+  .coo-table td.action-cell::before {
+    display: none;
+  }
+
+  .coo-table td.action-cell .approval-action-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+}

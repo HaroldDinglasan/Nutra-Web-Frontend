@@ -85,32 +85,32 @@ const ExecutiveApprovalList = () => {
             </thead>
 
             <tbody>
+
               {prfs.map((item, index) => (
                 <tr key={index}>
-                  <td className="prf-no">{item.prfNo}</td>
-                  <td>{item.preparedBy}</td>
-                  <td>{item.projectCode}</td>
-                  <td>{item.StockName}</td>
-                  <td>{item.QTY}</td>
-                  <td>{item.UOM}</td>
-                  <td>{item.Purpose}</td>
-                  <td>
+                  <td className="prf-no" data-label="PRF No">{item.prfNo}</td>
+                  <td data-label="Prepared By">{item.preparedBy}</td>
+                  <td data-label="Department Charge">{item.projectCode}</td>
+                  <td data-label="Stock Name">{item.StockName}</td>
+                  <td data-label="Quantity">{item.QTY}</td>
+                  <td data-label="UOM">{item.UOM}</td>
+                  <td data-label="Purpose">{item.Purpose}</td>
+                  <td data-label="Status">
                     <span className="status pending">Pending</span>
                   </td>
-                  
-                  <td>
+                  <td className="action-cell">
                     <ApprovalButtonAction
-                        action="approve"
-                        assignedAction="approve" 
-                        prfId={item.prfId}
-                        checkedByStatus={item.checkedBy_Status}
-                        departmentType={item.departmentType}
-                        onAction={handleAfterAction}
+                      action="approve"
+                      assignedAction="approve"
+                      prfId={item.prfId}
+                      checkedByStatus={item.checkedBy_Status}
+                      departmentType={item.departmentType}
+                      onAction={handleAfterAction}
                     />
-                    </td>
-
+                  </td>
                 </tr>
               ))}
+
             </tbody>
           </table>
         </div>
