@@ -1,6 +1,7 @@
 .login-form-container{
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;           /* accounts for iOS Safari's toolbar */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -8,7 +9,6 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 50px 0;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -16,6 +16,9 @@
 
 .login-box-container{
     width: 500px;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-height: 600px;
 
     min-height: 600px;
 
@@ -315,46 +318,93 @@ h1 {
 
 
 
+/* ===== Tablet / phone ===== */
 @media (max-width: 768px) {
+    .login-form-container {
+        padding: 16px;
+        padding-top: max(16px, env(safe-area-inset-top));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
     .login-box-container {
-        width: 95%;
-        padding: 15px;
+        width: 100%;
+        max-width: 480px;
+        min-height: auto;
+        padding: 20px 0 8px;
     }
 
-    h1 {
-        font-size: 1.8rem;
+    .reg-logo img {
+        width: min(230px, 70%);
     }
 
+    /* Use the class: .system-title beats a plain h1 rule */
+    .system-title {
+        font-size: 1.4rem;
+        padding: 0 12px;
+    }
+
+    /* Make labels, inputs, and errors share the same width */
+    .login-field-box label,
+    .login-field-box-password label,
     .log-input-container,
-    .login-input-container {
-        width: 90%;
+    .login-input-container,
+    .error-text-show {
+        width: 88%;
+    }
+
+    /* 16px stops iOS from zooming on focus; 44px is a good tap target */
+    .log-input-container input,
+    .login-dropdown {
+        font-size: 16px;
+        height: 44px;
+        padding-top: 0;
+        padding-bottom: 0;
     }
 
     .login-button {
-        width: 90%;
+        width: 88%;
+        height: 48px;
+        margin: 24px auto 16px;
+    }
+
+    .login-register-link {
+        margin-top: 0;
+        margin-bottom: 16px;
+        text-align: center;
+        padding: 0 12px;
     }
 }
 
+/* ===== Small phones (iPhone SE, mini, etc.) ===== */
 @media (max-width: 480px) {
-    .login-box-container {
-        width: 100%;
+    .login-form-container {
         padding: 10px;
+        align-items: flex-start;   /* keeps the top of the card visible when the keyboard opens */
     }
 
-    h1 {
-        font-size: 1.6rem;
+    .login-box-container {
+        border-radius: 14px;
     }
 
-    .log-input-container,
-    .login-input-container {
-        width: 95%;
+    .system-title {
+        font-size: 1.2rem;
+        letter-spacing: 0.5px;
     }
 
-    .login-button {
-        width: 95%;
+    .login-field-box label,
+    .login-field-box-password label {
+        font-size: 14px;
     }
 
     .login-register-link {
         font-size: 0.85rem;
+    }
+}
+
+/* No "hover lift" on touch screens (it can stick after a tap) */
+@media (hover: none) {
+    .login-box-container:hover,
+    .login-button:hover {
+        transform: none;
     }
 }
